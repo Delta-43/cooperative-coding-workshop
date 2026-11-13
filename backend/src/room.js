@@ -1,5 +1,5 @@
 import { DurableObject } from "cloudflare:workers";
-import { scoreRound } from "./scoring.js";
+import { scoreRound, finalOrder } from "./scoring.js";
 import sampleQuestions from "./questions.sample.json";
 
 const MAX_PLAYERS = 30;
@@ -39,9 +39,11 @@ export class Room extends DurableObject {
         code: request.headers.get("x-room-code"),
         hostToken: crypto.randomUUID(),
         phase: "lobby",
-        players: [], // { id, name, score }
+        players: [], // { id, name, score, time }
         questionIndex: -1,
         answers: {}, // playerId -> number, for the current question
+        answerTimes: {}, // playerId -> ms from the question opening to the last answer
+        questionOpenedAt: null,
         reveal: null,
         questions: loadQuestions(this.env).map(({ text, unit, answer }) => ({ text, unit, answer })),
         nextPlayer: 1,
@@ -93,7 +95,7 @@ export class Room extends DurableObject {
           if (g.players.some((p) => p.name.toLowerCase() === name.toLowerCase())) {
             return this.error(ws, "name_taken", "That name is already in use.");
           }
-          const player = { id: "p" + g.nextPlayer++, name, score: 0 };
+          const player = { id: "p" + g.nextPlayer++, name, score: 0, time: 0 };
           g.players.push(player);
           ws.serializeAttachment({ role: "player", playerId: player.id });
         }
@@ -105,6 +107,9 @@ export class Room extends DurableObject {
         if (g.phase !== "question") return this.error(ws, "wrong_phase", "No question is open.");
         if (typeof msg.value !== "number" || !Number.isFinite(msg.value)) return this.error(ws, "bad_message", "value must be a number.");
         g.answers[who.playerId] = msg.value;
+        // A changed answer restarts the player's time, so nobody can lock in an early time and then edit.
+        g.answerTimes ??= {};
+        g.answerTimes[who.playerId] = Math.max(0, Date.now() - (g.questionOpenedAt ?? Date.now()));
         break;
       }
 
@@ -142,6 +147,7 @@ export class Room extends DurableObject {
     if (msg.type === "kick") {
       g.players = g.players.filter((p) => p.id !== msg.playerId);
       delete g.answers[msg.playerId];
+      if (g.answerTimes) delete g.answerTimes[msg.playerId];
       for (const ws of this.ctx.getWebSockets()) {
         if (ws.deserializeAttachment().playerId === msg.playerId) ws.close(4000, "removed");
       }
@@ -157,10 +163,16 @@ export class Room extends DurableObject {
       if (g.phase !== "question") return ["wrong_phase", "No question is open."];
       const question = g.questions[g.questionIndex];
       const results = scoreRound(
-        g.players.map((p) => ({ playerId: p.id, name: p.name, value: g.answers[p.id] ?? null })),
+        g.players.map((p) => ({ playerId: p.id, name: p.name, value: g.answers[p.id] ?? null, time: g.answerTimes?.[p.id] ?? null })),
         question.answer,
       );
-      for (const r of results) g.players.find((p) => p.id === r.playerId).score += r.points;
+      // Total time breaks equal final scores. No answer counts as the whole time the question was open.
+      const roundLength = Math.max(0, Date.now() - (g.questionOpenedAt ?? Date.now()));
+      for (const r of results) {
+        const player = g.players.find((p) => p.id === r.playerId);
+        player.score += r.points;
+        player.time = (player.time ?? 0) + (r.time ?? roundLength);
+      }
       g.reveal = { correct: question.answer, results };
       g.phase = "reveal";
       return null;
@@ -183,6 +195,8 @@ export class Room extends DurableObject {
     g.phase = "question";
     g.questionIndex = index;
     g.answers = {};
+    g.answerTimes = {};
+    g.questionOpenedAt = Date.now();
     g.reveal = null;
   }
 
@@ -197,10 +211,11 @@ export class Room extends DurableObject {
       type: "state",
       code: g.code,
       phase: g.phase,
-      players: g.players.map((p) => ({
+      players: (g.phase === "over" ? finalOrder(g.players) : g.players).map((p) => ({
         id: p.id,
         name: p.name,
         score: p.score,
+        time: p.time ?? 0,
         connected: connectedIds.has(p.id),
         answered: g.phase === "question" || g.phase === "reveal" ? p.id in g.answers : false,
       })),

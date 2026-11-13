@@ -1,5 +1,5 @@
 { "type": "state", "code": "KQWZ", "phase": "question",
-  "players": [ { "id": "p1", "name": "Ada", "score": 0, "connected": true, "answered": true } ],
+  "players": [ { "id": "p1", "name": "Ada", "score": 0, "time": 0, "connected": true, "answered": true } ],
   "answeredCount": 1,
   "question": { "index": 0, "total": 8, "text": "How many keys does a standard piano have?", "unit": "keys" },
   "you": { "role": "player", "playerId": "p1", "answer": 80 }, "reveal": null }

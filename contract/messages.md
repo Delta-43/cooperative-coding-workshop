@@ -45,7 +45,7 @@ The frontend reads the backend address from a setting (`BACKEND_URL`), so it can
   "code": "KQWZ",
   "phase": "reveal",
   "players": [
-    { "id": "p1", "name": "Ada", "score": 3, "connected": true, "answered": true }
+    { "id": "p1", "name": "Ada", "score": 3, "time": 4210, "connected": true, "answered": true }
   ],
   "answeredCount": 1,
   "question": { "index": 0, "total": 8, "text": "How many keys does a standard piano have?", "unit": "keys" },
@@ -53,7 +53,7 @@ The frontend reads the backend address from a setting (`BACKEND_URL`), so it can
   "reveal": {
     "correct": 88,
     "results": [
-      { "playerId": "p1", "name": "Ada", "value": 88, "error": 0, "rank": 1, "points": 3 }
+      { "playerId": "p1", "name": "Ada", "value": 88, "error": 0, "time": 4210, "rank": 1, "points": 3 }
     ]
   }
 }
@@ -63,6 +63,8 @@ The frontend reads the backend address from a setting (`BACKEND_URL`), so it can
 - `reveal` is `null` unless the phase is `reveal`. **The correct answer is never sent before `reveal`.**
 - `you.answer` is your own answer, or `null`. In `question` a player never sees other players' answers.
 - A host has `you.role` set to `host` and no `playerId`.
+- `reveal.results[].time` is the milliseconds from the question opening to that player's last answer, or `null` with no answer.
+- `players[].time` is the player's total answer time so far. A question with no answer adds the whole time it was open. In `over`, `players` is in final order.
 
 ### `error`
 
@@ -89,8 +91,9 @@ error = abs(value - correct) / abs(correct)
 ```
 
 - A smaller error is better. Players with no answer are not ranked and score 0.
-- Players with the same error share a rank. Points are 3 for rank 1, 2 for rank 2, 1 for rank 3 and 0 after that.
-- A tie for rank 1 gives both players 3 points. The next rank is then 3, so rank 2 is skipped. Rank 3 still scores 1.
+- Points are 3 for rank 1, 2 for rank 2, 1 for rank 3 and 0 after that.
+- **Equal error: the earlier answer ranks higher.** Ranks are never shared. The time is measured from the question opening to the player's last answer, so changing an answer restarts the player's time.
+- **Equal final scores: the lower total answer time ranks higher.**
 - Why relative error: the answers range from 16 to over a million. With plain distance, large answers would always lose.
 
 ## Rules for the room

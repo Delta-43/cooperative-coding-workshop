@@ -67,12 +67,13 @@
           "type": "array",
           "items": {
             "type": "object",
-            "required": ["id", "name", "score", "connected", "answered"],
+            "required": ["id", "name", "score", "time", "connected", "answered"],
             "additionalProperties": false,
             "properties": {
               "id": { "type": "string" },
               "name": { "type": "string" },
               "score": { "type": "integer", "minimum": 0 },
+              "time": { "type": "integer", "minimum": 0 },
               "connected": { "type": "boolean" },
               "answered": { "type": "boolean" }
             }
@@ -118,13 +119,14 @@
                   "type": "array",
                   "items": {
                     "type": "object",
-                    "required": ["playerId", "name", "value", "error", "rank", "points"],
+                    "required": ["playerId", "name", "value", "error", "time", "rank", "points"],
                     "additionalProperties": false,
                     "properties": {
                       "playerId": { "type": "string" },
                       "name": { "type": "string" },
                       "value": { "type": ["number", "null"] },
                       "error": { "type": ["number", "null"] },
+                      "time": { "type": ["integer", "null"], "minimum": 0 },
                       "rank": { "type": ["integer", "null"], "minimum": 1 },
                       "points": { "type": "integer", "minimum": 0 }
                     }
