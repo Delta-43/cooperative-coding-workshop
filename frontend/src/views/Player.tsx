@@ -211,7 +211,7 @@ function Final({ state, best }: { state: GameState; best: Best | null }) {
         </h2>
         <p className="m-lede">You won with {me.score} points. Well played.</p>
         <div className="duck-wrap sm">
-          <Duck pose="pair" />
+          <Duck pose="cheering" />
         </div>
       </>
     )
@@ -227,7 +227,7 @@ function Final({ state, best }: { state: GameState; best: Best | null }) {
         {best && ` Your best guess was on question ${best.index + 1}: ${best.off}.`}
       </p>
       <div className="duck-wrap sm">
-        <Duck pose="swimming" />
+        <Duck pose="shrug" />
       </div>
     </>
   )
@@ -263,6 +263,9 @@ export function Player({ code }: { code: string }) {
     return (
       <main className="phone">
         <div className="m-pad center">
+          <div className="duck-wrap sm">
+            <Duck pose="puzzled" />
+          </div>
           <h2 className="m-h warn">
             <Icon name="wifi" size={30} /> Lost the connection
           </h2>

@@ -116,7 +116,7 @@ function Lobby({ state, onStart }: { state: GameState; onStart: () => void }) {
       </div>
       <div className="lobby-right">
         <div className="perch">
-          <Duck />
+          <Duck pose="flying" />
         </div>
         <div className="qr-card">
           <QRCodeSVG value={joinUrl(state.code)} size={160} bgColor="#ffffff" fgColor="#011627" level="M" />
@@ -298,7 +298,7 @@ function Final({ state, confirm, onNewGame }: { state: GameState; confirm: boole
       </div>
       <div className="board-wrap">
         <div className="perch-board">
-          <Duck />
+          <Duck pose="landing" />
         </div>
         <ol className="board">
           {top.map((p, i) => (
