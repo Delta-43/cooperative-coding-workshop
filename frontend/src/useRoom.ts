@@ -13,18 +13,23 @@ export function useRoom({ code, hostToken, name }: Options) {
   const [state, setState] = useState<GameState | null>(null)
   const [error, setError] = useState<ServerError | null>(null)
   const [connected, setConnected] = useState(false)
+  /** True after at least one successful connection. A first connection that fails means the room does not exist. */
+  const [everConnected, setEverConnected] = useState(false)
   const socket = useRef<WebSocket | null>(null)
 
   useEffect(() => {
     if (!hostToken && !name) return
     let closed = false
     let retry: ReturnType<typeof setTimeout>
+    let opened = false
 
     const connect = () => {
       const ws = new WebSocket(wsUrl(code, hostToken))
       socket.current = ws
       ws.onopen = () => {
+        opened = true
         setConnected(true)
+        setEverConnected(true)
         if (!hostToken && name) {
           const playerId = recall(`cn:${code}:id`) ?? undefined
           ws.send(JSON.stringify({ type: 'join', name, playerId }))
@@ -40,9 +45,20 @@ export function useRoom({ code, hostToken, name }: Options) {
           setError(msg)
         }
       }
-      ws.onclose = () => {
+      ws.onclose = (event) => {
         setConnected(false)
-        if (!closed) retry = setTimeout(connect, 1500)
+        if (closed) return
+        // The Worker refuses the WebSocket for an unknown room code: stop and report it.
+        if (!opened) {
+          setError({ type: 'error', code: 'no_room', message: 'No game has that code.' })
+          return
+        }
+        // Removed by the host (close code 4000): do not reconnect.
+        if (event.code === 4000) {
+          setError({ type: 'error', code: 'removed', message: 'The host removed you from the game.' })
+          return
+        }
+        retry = setTimeout(connect, 3000)
       }
     }
     connect()
@@ -57,5 +73,5 @@ export function useRoom({ code, hostToken, name }: Options) {
     socket.current?.send(JSON.stringify(message))
   }, [])
 
-  return { state, error, connected, send }
+  return { state, error, connected, everConnected, send }
 }

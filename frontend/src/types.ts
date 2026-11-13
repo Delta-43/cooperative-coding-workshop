@@ -5,6 +5,8 @@ export interface PlayerInfo {
   id: string
   name: string
   score: number
+  /** Total answer time in ms. Breaks equal final scores: lower is better. */
+  time: number
   connected: boolean
   answered: boolean
 }
@@ -14,6 +16,8 @@ export interface RevealResult {
   name: string
   value: number | null
   error: number | null
+  /** ms from the question opening to this player's last answer, or null with no answer. Breaks equal errors. */
+  time: number | null
   rank: number | null
   points: number
 }
