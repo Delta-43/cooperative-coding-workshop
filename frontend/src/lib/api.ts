@@ -1,5 +1,5 @@
 // The backend address is a setting, so the same build can point at a mock, a test Worker or the live one.
-export const BACKEND_URL: string = (import.meta.env.VITE_BACKEND_URL ?? 'https://closest-number.delta-43.workers.dev').replace(/\/$/, '')
+export const BACKEND_URL: string = (import.meta.env.VITE_BACKEND_URL || 'https://closest-number.delta-43.workers.dev').replace(/\/$/, '')
 
 export function wsUrl(code: string, hostToken?: string): string {
   const base = BACKEND_URL.replace(/^http/, 'ws')

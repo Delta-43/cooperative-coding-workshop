@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
+import { Stage } from '@/components/Stage'
+import { Icon } from '@/components/Icon'
 import { createRoom, recall, remember } from '@/lib/api'
 import { Host } from '@/views/Host'
-import { Player } from '@/views/Player'
+import { JoinForm, Player } from '@/views/Player'
 
 // Hash routing keeps GitHub Pages simple: #/ (home), #/host, #/join/KQWZ
 function useHash() {
@@ -17,42 +16,15 @@ function useHash() {
   return hash
 }
 
-function Home() {
-  const [code, setCode] = useState('')
-  return (
-    <main className="mx-auto max-w-md space-y-4 p-6">
-      <h1 className="text-4xl font-bold">Closest Number</h1>
-      <p className="text-muted-foreground">Guess the number. The closest answer wins the round.</p>
-      <Card>
-        <CardHeader>
-          <CardTitle>Join a game</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form
-            className="space-y-3"
-            onSubmit={(e) => {
-              e.preventDefault()
-              if (code.length === 4) location.hash = `#/join/${code}`
-            }}
-          >
-            <Input
-              value={code}
-              maxLength={4}
-              placeholder="ROOM CODE"
-              className="h-14 text-center font-mono text-2xl uppercase tracking-widest"
-              onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z]/g, ''))}
-            />
-            <Button type="submit" size="lg" className="w-full" disabled={code.length !== 4}>
-              Join
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-      <a className="text-sm text-muted-foreground underline" href="#/host">
-        Host a game
-      </a>
-    </main>
-  )
+/** Bumps on every join attempt, so the player view starts a fresh connection even with the same code and name. */
+function useJoinAttempt() {
+  const [attempt, setAttempt] = useState(0)
+  useEffect(() => {
+    const bump = () => setAttempt((n) => n + 1)
+    window.addEventListener('cn:joined', bump)
+    return () => window.removeEventListener('cn:joined', bump)
+  }, [])
+  return attempt
 }
 
 function HostEntry() {
@@ -63,37 +35,63 @@ function HostEntry() {
   const [busy, setBusy] = useState(false)
   const [problem, setProblem] = useState('')
 
-  if (room) return <Host code={room.code} hostToken={room.hostToken} />
+  const create = async () => {
+    setBusy(true)
+    setProblem('')
+    try {
+      const created = await createRoom()
+      remember('cn:host', JSON.stringify(created))
+      setRoom(created)
+    } catch (e) {
+      setProblem((e as Error).message)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  if (room) {
+    return (
+      <Host
+        key={room.code}
+        code={room.code}
+        hostToken={room.hostToken}
+        onNewGame={() => {
+          remember('cn:host', null)
+          setRoom(null)
+          void create()
+        }}
+      />
+    )
+  }
 
   return (
-    <main className="mx-auto max-w-md space-y-4 p-6">
-      <Button
-        size="lg"
-        className="w-full"
-        disabled={busy}
-        onClick={async () => {
-          setBusy(true)
-          try {
-            const created = await createRoom()
-            remember('cn:host', JSON.stringify(created))
-            setRoom(created)
-          } catch (e) {
-            setProblem((e as Error).message)
-            setBusy(false)
-          }
-        }}
-      >
-        {busy ? 'Creating...' : 'Create a room'}
-      </Button>
-      {problem && <p className="text-destructive">{problem}</p>}
-    </main>
+    <Stage step="NEW ROOM" help="ONE ROOM PER GAME" space="create">
+      <div className="lobby">
+        <div className="lobby-left">
+          <h1 className="title">
+            <span>CLOSEST</span>
+            <span className="outline">NUMBER</span>
+          </h1>
+          <p className="lede">Create a room, then put this screen on the projector.</p>
+          <div className="roster" />
+          <button className="btn primary xl" disabled={busy} onClick={create} autoFocus>
+            {busy ? 'Creating...' : 'Create a room'} <Icon name="arrow" size={28} />
+          </button>
+          {problem && <p className="lede" style={{ color: 'var(--red-text)' }}>{problem} Check the connection and try again.</p>}
+        </div>
+      </div>
+    </Stage>
   )
 }
 
 export default function App() {
   const hash = useHash()
+  const attempt = useJoinAttempt()
   const join = hash.match(/^#\/join\/([A-Za-z]{4})$/)
-  if (join) return <Player code={join[1].toUpperCase()} />
+  if (join) {
+    const code = join[1].toUpperCase()
+    return <Player key={`${code}:${attempt}`} code={code} />
+  }
   if (hash === '#/host') return <HostEntry />
-  return <Home />
+  return <JoinForm />
 }
