@@ -1,4 +1,5 @@
-// Needs a running Worker: `npm run dev`, then `node test/e2e.mjs [http://localhost:8787]`
+// Needs a running Worker: `npm run dev`, then `node test/e2e.mjs [http://localhost:8787]`.
+// Also runs against the live Worker: `node test/e2e.mjs https://closest-number.delta-43.workers.dev`.
 import assert from "node:assert/strict";
 const base = process.argv[2] ?? "http://localhost:8787";
 const wsBase = base.replace(/^http/, "ws");
@@ -32,6 +33,8 @@ const ada = open(`${wsBase}/api/rooms/${room.code}/ws`);
 const bo = open(`${wsBase}/api/rooms/${room.code}/ws`);
 await Promise.all([ada.ready, bo.ready]);
 ada.send({ type: "join", name: "Ada" });
+// Wait for Ada's join to land first: two connections can race, and then Bo would take the name.
+await latestState(ada, (s) => s.you.playerId !== null);
 bo.send({ type: "join", name: "ada" });
 assert.equal((await bo.next((m) => m.type === "error")).code, "name_taken");
 bo.send({ type: "join", name: "Bo" });
@@ -50,10 +53,14 @@ bo.send({ type: "answer", value: 50 });
 await latestState(host, (s) => s.answeredCount === 2);
 host.send({ type: "reveal" });
 const r = await latestState(ada, (s) => s.phase === "reveal");
-assert.equal(r.reveal.correct, 88);
-assert.equal(r.reveal.results[0].name, "Ada");
+// Works with the public sample (answer 88) and the live question set: check the order against the real answer.
+assert.equal(typeof r.reveal.correct, "number");
+const err = (v) => Math.abs(v - r.reveal.correct) / Math.abs(r.reveal.correct);
+const closer = err(90) <= err(50) ? "Ada" : "Bo";
+assert.equal(r.reveal.results[0].name, closer);
 assert.equal(r.reveal.results[0].points, 3);
 assert.equal(r.reveal.results[1].points, 2);
+assert.ok(r.reveal.results.every((x) => Number.isInteger(x.time)), "every answer carries its time");
 
 // Reconnect with the saved playerId keeps the score.
 const adaId = r.you.playerId;
@@ -61,7 +68,7 @@ const ada2 = open(`${wsBase}/api/rooms/${room.code}/ws`);
 await ada2.ready;
 ada2.send({ type: "join", name: "Ada", playerId: adaId });
 const back = await latestState(ada2, (s) => s.you.playerId === adaId);
-assert.equal(back.players.find((p) => p.id === adaId).score, 3);
+assert.equal(back.players.find((p) => p.id === adaId).score, closer === "Ada" ? 3 : 2);
 
 for (const c of [host, ada, bo, ada2]) c.ws.close();
 console.log("e2e ok, room", room.code);
