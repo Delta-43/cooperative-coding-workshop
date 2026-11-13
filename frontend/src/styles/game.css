@@ -1,4 +1,4 @@
-/* Closest Number design layer. Source of truth: DESIGN.md (private repo) and design/mockup.html.
+/* Guess Closer! design layer. Source of truth: DESIGN.md (private repo) and design/mockup.html.
    Comic panels on a night pond: square corners, ink edges, halftone dots, hard offset shadows. */
 
 :root {
@@ -247,11 +247,12 @@ input { caret-color: var(--accent); }
 .menu { position: absolute; inset: 56px 120px; z-index: 6; background: var(--md-surface); border: var(--line) solid var(--paper); box-shadow: var(--pop); padding: 22px 26px; display: flex; flex-direction: column; }
 .menu h2 { margin: 0 0 12px; font: 400 36px/1 var(--font-display); text-transform: uppercase; }
 .menu ul { list-style: none; margin: 0; padding: 0; overflow: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; }
-.menu li { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px dashed var(--rule); font-size: 18px; }
+.menu li { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px dashed var(--rule); font: 500 18px var(--font-mono); letter-spacing: .06em; text-transform: uppercase; }
 .menu li .off { color: var(--md-muted); }
 .menu .rm { font: 700 14px var(--font-mono); text-transform: uppercase; padding: 6px 10px; border: var(--hair) solid var(--rule); background: none; color: var(--md-text); cursor: pointer; }
 .menu .rm.sure { background: var(--sticker); border-color: var(--sticker); color: var(--paper); }
-.menu p { margin: auto 0 0; padding-top: 10px; color: var(--md-soft); font-size: 16px; }
+.menu p { margin: auto 0 0; padding-top: 10px; color: var(--md-soft); font: 500 15px/1.5 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
+.menu p .link { font: 700 15px var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
 
 /* ---------- phone ---------- */
 .phone { min-height: 100%; max-width: 440px; margin: 0 auto; display: flex; flex-direction: column; }

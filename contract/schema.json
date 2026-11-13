@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "closest-number-contract",
-  "title": "Closest Number contract",
+  "title": "Guess Closer! contract",
   "oneOf": [
     { "$ref": "#/$defs/join" },
     { "$ref": "#/$defs/answer" },

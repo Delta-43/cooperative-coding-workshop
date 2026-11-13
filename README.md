@@ -8,7 +8,7 @@ It is a showcase, not a hands-on session. The Volunteer and I build on stage, ea
 
 **Play the game:** [delta-43.github.io/cooperative-coding-workshop](https://delta-43.github.io/cooperative-coding-workshop/). Open `#/host` on a big screen to host a room, and scan the QR code with your phone to join.
 
-The demo project is **Closest Number**, a live quiz for a room. Players answer number questions on their phones, and the closest guess wins the round. Equal distance goes to the earlier answer. The frontend runs on GitHub Pages, and the backend is a Cloudflare Worker with one Durable Object per room.
+The demo project is **Guess Closer!**, a live quiz for a room. Players answer number questions on their phones, and the closest guess wins the round. Equal distance goes to the earlier answer. The frontend runs on GitHub Pages, and the backend is a Cloudflare Worker with one Durable Object per room.
 
 ## What's in here
 

@@ -1,6 +1,6 @@
-# Closest Number: frontend
+# Guess Closer!: frontend
 
-The host screen and the phone screens for Closest Number. React, TypeScript and Vite, published to GitHub Pages.
+The host screen and the phone screens for Guess Closer!. React, TypeScript and Vite, published to GitHub Pages.
 
 ## Run it
 

@@ -40,7 +40,7 @@ export function Stage({ room, step, count, help, space, children }: StageProps) 
         <div className="bracket bl" />
         <div className="bracket br" />
         <div className="meta top">
-          <span>{room ? `ROOM ${room}` : 'CLOSEST NUMBER'}</span>
+          <span>{room ? `ROOM ${room}` : 'GUESS CLOSER!'}</span>
           <span className="stamp">{step}</span>
           <span>{count ?? ''}</span>
         </div>

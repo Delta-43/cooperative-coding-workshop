@@ -30,8 +30,8 @@ export function JoinForm({ initialCode = '', initialName = '', error }: { initia
         }}
       >
         <h1 className="m-title">
-          <span>CLOSEST</span>
-          <span className="outline">NUMBER</span>
+          <span>GUESS</span>
+          <span className="outline">CLOSER!</span>
         </h1>
         <p className="m-lede">Join the game on the big screen.</p>
         <label className={`field ${codeError ? 'bad' : ''}`}>

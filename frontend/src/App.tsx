@@ -69,8 +69,8 @@ function HostEntry() {
       <div className="lobby">
         <div className="lobby-left">
           <h1 className="title">
-            <span>CLOSEST</span>
-            <span className="outline">NUMBER</span>
+            <span>GUESS</span>
+            <span className="outline">CLOSER!</span>
           </h1>
           <p className="lede">Create a room, then put this screen on the projector.</p>
           <div className="roster" />

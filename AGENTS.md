@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Closest Number: a live quiz game for a room. Two people build it, each with their own agent.
+Guess Closer! is a live quiz game for a room. Two people build it, each with their own agent.
 
 ## Who owns what
 

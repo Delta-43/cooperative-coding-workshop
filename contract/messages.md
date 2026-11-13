@@ -1,4 +1,4 @@
-# Contract: Closest Number
+# Contract: Guess Closer!
 
 This file is the agreement between the frontend and the backend. Change it first, in its own pull request, and merge it before anyone builds on the change.
 

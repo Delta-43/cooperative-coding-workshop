@@ -97,8 +97,8 @@ function Lobby({ state, onStart }: { state: GameState; onStart: () => void }) {
       <div className="lobby-left">
         <span className="sticker">10 questions</span>
         <h1 className="title">
-          <span>CLOSEST</span>
-          <span className="outline">NUMBER</span>
+          <span>GUESS</span>
+          <span className="outline">CLOSER!</span>
         </h1>
         <p className="lede">Closest guess wins. Same distance? Faster wins.</p>
         <div className="roster">
@@ -369,7 +369,7 @@ export function Host({ code, hostToken, onNewGame }: { code: string; hostToken: 
 
   if (!state) {
     return (
-      <Stage step="CONNECTING" help="CLOSEST NUMBER" space="start">
+      <Stage step="CONNECTING" help="GUESS CLOSER!" space="start">
         <p className="lede">{connected ? 'Loading the room...' : 'Connecting to the game server...'}</p>
       </Stage>
     )
