@@ -211,7 +211,7 @@ function Final({ state, best }: { state: GameState; best: Best | null }) {
         </h2>
         <p className="m-lede">You won with {me.score} points. Well played.</p>
         <div className="duck-wrap sm">
-          <Duck />
+          <Duck pose="pair" />
         </div>
       </>
     )
@@ -227,7 +227,7 @@ function Final({ state, best }: { state: GameState; best: Best | null }) {
         {best && ` Your best guess was on question ${best.index + 1}: ${best.off}.`}
       </p>
       <div className="duck-wrap sm">
-        <Duck />
+        <Duck pose="swimming" />
       </div>
     </>
   )
@@ -298,7 +298,7 @@ export function Player({ code }: { code: string }) {
       <>
         <h2 className="bubble">You're in, {me?.name ?? name}!</h2>
         <div className="duck-wrap">
-          <Duck />
+          <Duck pose="swimming" />
         </div>
         <p className="m-lede">
           Waiting for the host to start. {state.players.length} {state.players.length === 1 ? 'player' : 'players'} so far. Closest guess wins. Same distance? Faster wins.
