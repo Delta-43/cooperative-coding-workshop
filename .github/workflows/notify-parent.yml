@@ -16,6 +16,7 @@ jobs:
         env:
           TOKEN: ${{ secrets.WORKSHOP_SYNC_TOKEN }}
         run: |
+          if [ -z "${TOKEN}" ]; then echo "WORKSHOP_SYNC_TOKEN is not set: skipping."; exit 0; fi
           curl -sSf -X POST \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${TOKEN}" \
