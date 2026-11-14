@@ -318,7 +318,7 @@ export function Player({ code }: { code: string }) {
           <Duck pose="swimming" />
         </div>
         <p className="m-lede">
-          Waiting for the host to start. {state.players.length} {state.players.length === 1 ? 'player' : 'players'} so far. Best guess wins! First come, first serve.
+          Waiting for the host to start. {state.players.length} {state.players.length === 1 ? 'player' : 'players'} so far. Best guess wins! First come, first served.
         </p>
       </>,
     )

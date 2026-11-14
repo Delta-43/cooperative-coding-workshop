@@ -103,7 +103,7 @@ function Lobby({ state, onStart }: { state: GameState; onStart: () => void }) {
           <span>GUESS</span>
           <span className="outline">CLOSER!</span>
         </h1>
-        <p className="lede">Best guess wins! First come, first serve.</p>
+        <p className="lede">Best guess wins! First come, first served.</p>
         <div className="roster">
           <p className="roster-head">
             <b key={state.players.length}>{state.players.length}</b> {state.players.length === 1 ? 'duck' : 'ducks'} in the pond
