@@ -19,7 +19,7 @@ SLIDES.html            Shortcut: opens the slide deck
 materials/
 ├── PROJECT-SPEC.pdf   A copy of the team guide
 └── slides/            Slide deck: open index.html in a browser. The duck illustrations are in assets/
-live/                  The repo built on stage during the workshop (see live/README.md)
+live/                  The repo built on stage during the workshop (a submodule: delta-workshops/guess-closer)
 demo/                  The finished Guess Closer! game: contract, backend, frontend, plan, decisions and design
 .github/workflows/     CI on every pull request, the GitHub Pages publish, and the sync with Delta-43/workshops
 ```
@@ -66,6 +66,6 @@ See `demo/README.md` for details. The host keys are Space (main action), Backspa
 
 - **Workshop materials** (everything except `live/` and `demo/`): [CC BY-NC 4.0](LICENSE). You're welcome to reuse and adapt them for non-commercial workshops, with credit.
 - **Code in `demo/`**: [MIT](demo/LICENSE).
-- **Code in `live/`**: MIT, see the license in that repository.
+- **Code in `live/`**: MIT, see [the license in that repository](https://github.com/delta-workshops/guess-closer/blob/main/LICENSE).
 
 Part of [Delta-43/workshops](https://github.com/Delta-43/workshops).
