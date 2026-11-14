@@ -5,7 +5,7 @@ Guess Closer! is a live quiz game for a room. Two people build it, each with the
 ## Who owns what
 
 - `backend/`: Delta. Cloudflare Worker, one Durable Object per room.
-- `frontend/`: the Volunteer. React, TypeScript, Vite. Design layer: `frontend/src/styles/game.css`.
+- `frontend/`: the Volunteer. React, TypeScript, Vite. The look is the Volunteer's to design.
 - `contract/`: both. Change it first, in its own PR, before any code that depends on it.
 
 Only work inside the folder your issue owns. The issue's "Do not touch" line is a rule.
@@ -20,6 +20,7 @@ Only work inside the folder your issue owns. The issue's "Do not touch" line is 
 
 - One branch per issue, named after it: `b3-scoring`, `f2-answer-screen`.
 - Small PRs. CI must pass. A human approves; agents only comment.
-- Never read, print or commit secrets, tokens or `.env` files. Never deploy.
+- Never read, print or commit secrets, tokens or `.env` files. Never deploy: Delta deploys the Worker by hand.
+- The test Worker is `https://guess-closer-live.delta-43.workers.dev`. The frontend reads its address from `VITE_BACKEND_URL` and uses this one by default.
 - A decision goes into `DECISIONS.md` as one line, in the same PR.
 - British English in text the players see.
