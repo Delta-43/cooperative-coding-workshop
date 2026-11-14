@@ -1,0 +1,12 @@
+[
+  { "text": "How many rooms does Buckingham Palace have?", "unit": "rooms", "answer": 775 },
+  { "text": "What is the official architectural height of the Burj Khalifa?", "unit": "m", "answer": 828 },
+  { "text": "How many times does the International Space Station orbit the Earth in 24 hours?", "unit": "orbits", "answer": 16 },
+  { "text": "How many Earth days does Venus take to spin once on its axis?", "unit": "days", "answer": 243.025 },
+  { "text": "What is the maximum depth of Lake Baikal?", "unit": "m", "answer": 1642 },
+  { "text": "How long is the main span of the Golden Gate Bridge, between the towers?", "unit": "m", "answer": 1280 },
+  { "text": "On average, how far is the Moon from the Earth?", "unit": "km", "answer": 384400 },
+  { "text": "How much does the International Space Station weigh?", "unit": "kg", "answer": 419725 },
+  { "text": "How many steel wires are in one main cable of the Golden Gate Bridge?", "unit": "wires", "answer": 27572 },
+  { "text": "How many tiles cover the roof of the Sydney Opera House?", "unit": "tiles", "answer": 1056006 }
+]

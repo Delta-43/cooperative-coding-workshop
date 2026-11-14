@@ -14,6 +14,7 @@ contract/        The WebSocket messages both sides share: messages.md, schema.js
 backend/         The Cloudflare Worker and the room logic
 frontend/        Host screen and phone screens (React, TypeScript, Vite)
 docs/            DESIGN.md (the visual system) and mockup.html (the first sketch and mockup)
+                 QUESTIONS.md and questions.json (the question set, with a source for every answer)
 ```
 
 ## How it works
