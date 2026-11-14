@@ -45,6 +45,7 @@ export class Room extends DurableObject {
         answerTimes: {}, // playerId -> ms from the question opening to the last answer
         questionOpenedAt: null,
         reveal: null,
+        answerShown: false, // true once the big screen shows the answer; until then players do not get the result
         questions: loadQuestions(this.env).map(({ text, unit, answer }) => ({ text, unit, answer })),
         nextPlayer: 1,
       };
@@ -115,6 +116,7 @@ export class Room extends DurableObject {
 
       case "start":
       case "reveal":
+      case "show":
       case "next":
       case "kick": {
         if (who.role !== "host") return this.error(ws, "not_allowed", "Only the host can do that.");
@@ -175,6 +177,12 @@ export class Room extends DurableObject {
       }
       g.reveal = { correct: question.answer, results };
       g.phase = "reveal";
+      g.answerShown = false;
+      return null;
+    }
+    if (msg.type === "show") {
+      if (g.phase !== "reveal") return ["wrong_phase", "Reveal the answer first."];
+      g.answerShown = true;
       return null;
     }
     if (msg.type === "next") {
@@ -182,6 +190,7 @@ export class Room extends DurableObject {
       if (g.questionIndex + 1 >= g.questions.length) {
         g.phase = "over";
         g.reveal = null;
+        g.answerShown = false;
       } else {
         this.openQuestion(g.questionIndex + 1);
       }
@@ -198,6 +207,7 @@ export class Room extends DurableObject {
     g.answerTimes = {};
     g.questionOpenedAt = Date.now();
     g.reveal = null;
+    g.answerShown = false;
   }
 
   // ---- Sending ----
@@ -207,6 +217,10 @@ export class Room extends DurableObject {
     const who = ws.deserializeAttachment() ?? { role: "player", playerId: null };
     const connectedIds = new Set(this.ctx.getWebSockets().map((s) => s.deserializeAttachment()?.playerId).filter(Boolean));
     const q = g.questions[g.questionIndex];
+    const shown = g.phase === "reveal" && g.answerShown === true;
+    // The big screen builds up to the answer. Until it is shown there, a player gets no result and no points from this round.
+    const hidden = g.phase === "reveal" && !shown && who.role !== "host";
+    const pending = hidden ? Object.fromEntries(g.reveal.results.map((r) => [r.playerId, r.points])) : {};
     return {
       type: "state",
       code: g.code,
@@ -214,7 +228,7 @@ export class Room extends DurableObject {
       players: (g.phase === "over" ? finalOrder(g.players) : g.players).map((p) => ({
         id: p.id,
         name: p.name,
-        score: p.score,
+        score: p.score - (pending[p.id] ?? 0),
         time: p.time ?? 0,
         connected: connectedIds.has(p.id),
         answered: g.phase === "question" || g.phase === "reveal" ? p.id in g.answers : false,
@@ -226,7 +240,8 @@ export class Room extends DurableObject {
         playerId: who.playerId,
         answer: who.playerId && who.playerId in g.answers ? g.answers[who.playerId] : null,
       },
-      reveal: g.phase === "reveal" ? g.reveal : null,
+      answerShown: shown,
+      reveal: g.phase === "reveal" && !hidden ? g.reveal : null,
     };
   }
 

@@ -52,7 +52,18 @@ ada.send({ type: "answer", value: 90 });
 bo.send({ type: "answer", value: 50 });
 await latestState(host, (s) => s.answeredCount === 2);
 host.send({ type: "reveal" });
-const r = await latestState(ada, (s) => s.phase === "reveal");
+// The big screen builds up to the answer: until the host sends "show", players get no result and no new points.
+const hidden = await latestState(ada, (s) => s.phase === "reveal");
+assert.equal(hidden.reveal, null);
+assert.equal(hidden.answerShown, false);
+assert.ok(hidden.players.every((p) => p.score === 0), "points must not leak before the answer is shown");
+assert.ok(!JSON.stringify(hidden).includes('"correct"'), "answer must not leak before it is shown");
+const hostView = await latestState(host, (s) => s.phase === "reveal");
+assert.equal(typeof hostView.reveal.correct, "number");
+ada.send({ type: "show" });
+assert.equal((await ada.next((m) => m.type === "error")).code, "not_allowed");
+host.send({ type: "show" });
+const r = await latestState(ada, (s) => s.phase === "reveal" && s.answerShown);
 // Works with the public sample (answer 88) and the live question set: check the order against the real answer.
 assert.equal(typeof r.reveal.correct, "number");
 const err = (v) => Math.abs(v - r.reveal.correct) / Math.abs(r.reveal.correct);
