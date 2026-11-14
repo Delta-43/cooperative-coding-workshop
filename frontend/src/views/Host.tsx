@@ -65,7 +65,10 @@ function PlayersMenu({ players, onKick, onClose }: { players: PlayerInfo[]; onKi
       <ul>
         {players.map((p) => (
           <li key={p.id}>
-            <span className={p.connected ? '' : 'off'}>{p.name}</span>
+            <span className={p.connected ? '' : 'off'}>
+              {p.name}
+              {!p.connected && <small> · away</small>}
+            </span>
             <button
               className={`rm ${sure === p.id ? 'sure' : ''}`}
               onClick={() => {
@@ -100,13 +103,17 @@ function Lobby({ state, onStart }: { state: GameState; onStart: () => void }) {
           <span>GUESS</span>
           <span className="outline">CLOSER!</span>
         </h1>
-        <p className="lede">Closest guess wins. Same distance? Faster wins.</p>
+        <p className="lede">Best guess wins! First come, first serve.</p>
         <div className="roster">
           <p className="roster-head">
-            <b>{state.players.length}</b> {state.players.length === 1 ? 'duck' : 'ducks'} in the pond
+            <b key={state.players.length}>{state.players.length}</b> {state.players.length === 1 ? 'duck' : 'ducks'} in the pond
           </p>
           <p className="cloud">
-            {state.players.length === 0 ? 'Scan the code to join.' : cloud.shown}
+            {state.players.length === 0
+              ? 'Scan the code to join.'
+              : cloud.names.map((n, i) => (
+                  <span key={`${i}:${n}`}>{i > 0 ? ` · ${n}` : n}</span>
+                ))}
             {cloud.more > 0 && <em> and {cloud.more} more</em>}
           </p>
         </div>
@@ -258,7 +265,8 @@ function Reveal({ state, stage, onFill, onFilled, onNext }: RevealProps) {
             }}
           />
         </div>
-        <div className="level" style={{ bottom: `${layout.to}%` }}>
+        {/* Same scale as the guesses and the fill: the tube's inside starts 31px from each end of the meter. */}
+        <div className="level" style={{ bottom: `calc(31px + (100% - 62px) * ${layout.to / 100})` }}>
           <span>{correct}</span>
         </div>
         <div className="guesses">
@@ -284,7 +292,7 @@ function Final({ state, confirm, onNewGame }: { state: GameState; confirm: boole
   const top = order.slice(0, 5)
   return (
     <div className="final-layout">
-      <div className="winner">
+      <div className="winner" style={{ '--after': `${top.length * 140}ms` } as CSSProperties}>
         <Icon name="crown" size={64} className="gold" />
         {winner && <span className="sticker">Top duck</span>}
         <h2 className={`title ${winner && winner.name.length > 6 ? 'long' : ''}`}>
@@ -302,7 +310,7 @@ function Final({ state, confirm, onNewGame }: { state: GameState; confirm: boole
         </div>
         <ol className="board">
           {top.map((p, i) => (
-            <li key={p.id} className={i === 0 ? 'first' : ''}>
+            <li key={p.id} className={i === 0 ? 'first' : ''} style={{ animationDelay: `${(top.length - 1 - i) * 140}ms` }}>
               <span>{i + 1}</span>
               <span className="nm">{p.name}</span>
               <span className="mono">{p.score}</span>
@@ -322,7 +330,8 @@ export function Host({ code, hostToken, onNewGame }: { code: string; hostToken: 
   const [menu, setMenu] = useState(false)
   const [confirm, setConfirm] = useState(false)
   const revealKey = `${state?.phase}:${state?.question?.index ?? -1}`
-  const stage: RevealStage = revealFor.key === revealKey ? revealFor.stage : 'ready'
+  // After a reload in the middle of an answer, the server knows if the answer was already shown.
+  const stage: RevealStage = revealFor.key === revealKey ? revealFor.stage : state?.answerShown ? 'done' : 'ready'
   const setStage = useCallback((next: RevealStage) => setRevealFor({ key: revealKey, stage: next }), [revealKey])
   // The final screen has no question, so it shows the length of the question set the game used.
   const total = state?.question?.total ?? 10
@@ -340,14 +349,28 @@ export function Host({ code, hostToken, onNewGame }: { code: string; hostToken: 
     return () => clearTimeout(t)
   }, [confirm])
 
+  const fillStarted = useRef(0)
   const fill = useCallback(() => {
     const reduced = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
+    fillStarted.current = Date.now()
     setStage(reduced ? 'done' : 'filling')
   }, [setStage])
+  // The fill ends on the CSS animationend event. If that never arrives, this timer shows the answer anyway.
+  useEffect(() => {
+    if (stage !== 'filling') return
+    const t = setTimeout(() => setStage('done'), 2600)
+    return () => clearTimeout(t)
+  }, [stage, setStage])
   const newGame = () => {
     if (confirm) onNewGame()
     else setConfirm(true)
   }
+
+  // When the bar has settled, tell the server: only then do the phones get the result.
+  const mustShow = connected && state?.phase === 'reveal' && stage === 'done' && !state.answerShown
+  useEffect(() => {
+    if (mustShow) send({ type: 'show' })
+  }, [mustShow, send])
 
   useHostKeys({
     next: () => {
@@ -356,13 +379,16 @@ export function Host({ code, hostToken, onNewGame }: { code: string; hostToken: 
       else if (state.phase === 'question') send({ type: 'reveal' })
       else if (state.phase === 'reveal') {
         if (stage === 'ready') fill()
-        else if (stage === 'done') send({ type: 'next' })
+        // A second press skips the rest of the fill. The short wait ignores a clicker's double press.
+        else if (stage === 'filling') {
+          if (Date.now() - fillStarted.current > 500) setStage('done')
+        } else send({ type: 'next' })
       } else if (state.phase === 'over') newGame()
     },
     back: () => {
       if (menu) setMenu(false)
       else if (confirm) setConfirm(false)
-      else if (state?.phase === 'reveal' && stage === 'done') setStage('ready')
+      else if (state?.phase === 'reveal' && stage !== 'ready') setStage('ready')
     },
     menu: () => setMenu((m) => !m),
   })
@@ -389,7 +415,7 @@ export function Host({ code, hostToken, onNewGame }: { code: string; hostToken: 
     step = 'ANSWER'
     count = `QUESTION ${q.index + 1} OF ${q.total}`
     help = stage === 'done' ? 'EVERYONE ELSE: CHECK YOUR PHONE' : 'WHERE IS THE ANSWER?'
-    space = stage === 'done' ? (q.index + 1 >= q.total ? 'final scores' : 'next') : 'fill'
+    space = stage === 'done' ? (q.index + 1 >= q.total ? 'final scores' : 'next') : stage === 'filling' ? 'skip' : 'fill'
   } else if (state.phase === 'over') {
     step = 'GAME OVER'
     count = `${total} QUESTIONS`

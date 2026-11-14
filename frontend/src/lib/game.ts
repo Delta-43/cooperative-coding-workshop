@@ -34,7 +34,7 @@ export function standings(players: PlayerInfo[]): PlayerInfo[] {
 }
 
 /** A list of names that fits on one or two lines, then "and N more". */
-export function nameCloud(names: string[], budget = 100): { shown: string; more: number } {
+export function nameCloud(names: string[], budget = 100): { shown: string; names: string[]; more: number } {
   let shown = ''
   let count = 0
   for (const name of names) {
@@ -43,7 +43,7 @@ export function nameCloud(names: string[], budget = 100): { shown: string; more:
     shown = next
     count++
   }
-  return { shown, more: names.length - count }
+  return { shown, names: names.slice(0, count), more: names.length - count }
 }
 
 export interface Mark {

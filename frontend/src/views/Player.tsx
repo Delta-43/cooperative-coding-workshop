@@ -43,6 +43,8 @@ export function JoinForm({ initialCode = '', initialName = '', error }: { initia
             inputMode="text"
             autoCapitalize="characters"
             autoComplete="off"
+            autoCorrect="off"
+            spellCheck={false}
             enterKeyHint="next"
             aria-invalid={codeError ? true : undefined}
             onChange={(e) => setCode(e.target.value.toUpperCase().replace(CODE_LETTERS, ''))}
@@ -51,7 +53,7 @@ export function JoinForm({ initialCode = '', initialName = '', error }: { initia
         </label>
         <label className={`field ${nameError ? 'bad' : ''}`}>
           <span>Nickname</span>
-          <input value={name} maxLength={16} autoComplete="nickname" enterKeyHint="go" onChange={(e) => setName(e.target.value)} />
+          <input value={name} maxLength={16} autoComplete="nickname" autoCorrect="off" spellCheck={false} enterKeyHint="go" onChange={(e) => setName(e.target.value)} />
           {nameError ? <small className="err">{nameError}</small> : <small>Up to 16 characters. Keep it friendly.</small>}
         </label>
         <button className="btn primary block under" type="submit" disabled={code.length !== 4 || !name.trim()}>
@@ -88,10 +90,12 @@ interface Best {
 
 function Answer({ state, onSend }: { state: GameState; onSend: (value: number) => void }) {
   const q = state.question!
-  const [guess, setGuess] = useState(state.you.answer === null ? '' : String(state.you.answer))
+  // A guess is a whole number: digits only. This keeps "3,5" or "1.056.006" from being read as another number.
+  const [guess, setGuess] = useState(state.you.answer === null ? '' : String(Math.round(state.you.answer)).replace(/\D/g, ''))
   const [editing, setEditing] = useState(state.you.answer === null)
-  const value = Number(guess.replace(/[,\s]/g, ''))
-  const valid = guess.trim() !== '' && Number.isFinite(value)
+  const value = Number(guess)
+  const valid = guess !== ''
+  const fit = guess.length >= 9 ? 'small' : guess.length >= 7 ? 'mid' : ''
 
   if (!editing && state.you.answer !== null) {
     return (
@@ -132,12 +136,22 @@ function Answer({ state, onSend }: { state: GameState; onSend: (value: number) =
       <label className="field big">
         <span>Your guess</span>
         <div className="num-row">
-          <input value={guess} inputMode="decimal" enterKeyHint="send" autoComplete="off" autoFocus onChange={(e) => setGuess(e.target.value)} aria-label={`Your guess in ${q.unit}`} />
+          <input
+            className={fit}
+            value={guess}
+            inputMode="numeric"
+            pattern="[0-9]*"
+            enterKeyHint="send"
+            autoComplete="off"
+            autoFocus
+            onChange={(e) => setGuess(e.target.value.replace(/\D/g, '').slice(0, 10))}
+            aria-label={`Your guess in ${q.unit}, a whole number`}
+          />
           <em>{q.unit}</em>
         </div>
       </label>
       <p className="tiny nudge">
-        {state.answeredCount} of {state.players.length} have answered.
+        Whole numbers only. {state.answeredCount} of {state.players.length} have answered.
       </p>
       <button className="btn primary block under" type="submit" disabled={!valid}>
         Send answer <Icon name="arrow" size={22} />
@@ -304,7 +318,7 @@ export function Player({ code }: { code: string }) {
           <Duck pose="swimming" />
         </div>
         <p className="m-lede">
-          Waiting for the host to start. {state.players.length} {state.players.length === 1 ? 'player' : 'players'} so far. Closest guess wins. Same distance? Faster wins.
+          Waiting for the host to start. {state.players.length} {state.players.length === 1 ? 'player' : 'players'} so far. Best guess wins! First come, first serve.
         </p>
       </>,
     )
@@ -313,5 +327,19 @@ export function Player({ code }: { code: string }) {
     return shell(<Answer key={state.question.index} state={state} onSend={(value) => send({ type: 'answer', value })} />, state.you.answer !== null)
   }
   if (state.phase === 'reveal' && state.reveal && state.question) return shell(<Result state={state} />)
+  // Answers are closed, but the big screen has not shown the answer yet. The server holds the result back until then.
+  if (state.phase === 'reveal' && state.question) {
+    return shell(
+      <>
+        <h2 className="m-h">Answers are closed</h2>
+        {state.you.answer !== null && (
+          <p className="mono sent">
+            {formatNumber(state.you.answer)} {state.question.unit}
+          </p>
+        )}
+        <p className="m-lede">{state.you.answer !== null ? 'Your guess is in. Watch the big screen for the answer.' : 'You did not answer this one. Watch the big screen for the answer.'}</p>
+      </>,
+    )
+  }
   return shell(<Final state={state} best={best} />)
 }
