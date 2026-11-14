@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "closest-number-contract",
+  "title": "Guess Closer! contract",
+  "oneOf": [
+    { "$ref": "#/$defs/join" },
+    { "$ref": "#/$defs/answer" },
+    { "$ref": "#/$defs/hostAction" },
+    { "$ref": "#/$defs/kick" },
+    { "$ref": "#/$defs/state" },
+    { "$ref": "#/$defs/error" }
+  ],
+  "$defs": {
+    "join": {
+      "type": "object",
+      "required": ["type", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "join" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 16 },
+        "playerId": { "type": "string" }
+      }
+    },
+    "answer": {
+      "type": "object",
+      "required": ["type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "answer" },
+        "value": { "type": "number" }
+      }
+    },
+    "hostAction": {
+      "type": "object",
+      "required": ["type"],
+      "additionalProperties": false,
+      "properties": { "type": { "enum": ["start", "reveal", "show", "next"] } }
+    },
+    "kick": {
+      "type": "object",
+      "required": ["type", "playerId"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "kick" },
+        "playerId": { "type": "string" }
+      }
+    },
+    "error": {
+      "type": "object",
+      "required": ["type", "code", "message"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "error" },
+        "code": { "enum": ["bad_message", "wrong_phase", "not_allowed", "name_taken", "bad_name", "room_full", "no_room"] },
+        "message": { "type": "string" }
+      }
+    },
+    "state": {
+      "type": "object",
+      "required": ["type", "code", "phase", "players", "answeredCount", "question", "you", "answerShown", "reveal"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "state" },
+        "code": { "type": "string", "pattern": "^[A-Z]{4}$" },
+        "phase": { "enum": ["lobby", "question", "reveal", "over"] },
+        "players": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "name", "score", "time", "connected", "answered"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "score": { "type": "integer", "minimum": 0 },
+              "time": { "type": "integer", "minimum": 0 },
+              "connected": { "type": "boolean" },
+              "answered": { "type": "boolean" }
+            }
+          }
+        },
+        "answeredCount": { "type": "integer", "minimum": 0 },
+        "question": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "required": ["index", "total", "text", "unit"],
+              "additionalProperties": false,
+              "properties": {
+                "index": { "type": "integer", "minimum": 0 },
+                "total": { "type": "integer", "minimum": 1 },
+                "text": { "type": "string" },
+                "unit": { "type": "string" }
+              }
+            }
+          ]
+        },
+        "you": {
+          "type": "object",
+          "required": ["role", "playerId", "answer"],
+          "additionalProperties": false,
+          "properties": {
+            "role": { "enum": ["host", "player"] },
+            "playerId": { "type": ["string", "null"] },
+            "answer": { "type": ["number", "null"] }
+          }
+        },
+        "answerShown": { "type": "boolean" },
+        "reveal": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "required": ["correct", "results"],
+              "additionalProperties": false,
+              "properties": {
+                "correct": { "type": "number" },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["playerId", "name", "value", "error", "time", "rank", "points"],
+                    "additionalProperties": false,
+                    "properties": {
+                      "playerId": { "type": "string" },
+                      "name": { "type": "string" },
+                      "value": { "type": ["number", "null"] },
+                      "error": { "type": ["number", "null"] },
+                      "time": { "type": ["integer", "null"], "minimum": 0 },
+                      "rank": { "type": ["integer", "null"], "minimum": 1 },
+                      "points": { "type": "integer", "minimum": 0 }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

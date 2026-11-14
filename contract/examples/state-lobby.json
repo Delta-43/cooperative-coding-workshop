@@ -1,4 +1,0 @@
-{ "type": "state", "code": "KQWZ", "phase": "lobby",
-  "players": [ { "id": "p1", "name": "Ada", "score": 0, "time": 0, "connected": true, "answered": false } ],
-  "answeredCount": 0, "question": null,
-  "you": { "role": "player", "playerId": "p1", "answer": null }, "reveal": null }

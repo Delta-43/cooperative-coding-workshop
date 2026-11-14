@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Co-operative Coding: workshop slides</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- One file, no build step, no scripts from a CDN. Fonts load from Google Fonts and Fontshare.
+     Design system: DESIGN.md in the private workshop repo (comic panels on a night pond).
+     Keys: → / Space / Page Down next · ← / Page Up back · Home / End · F fullscreen.
+     The URL hash (#5) keeps your place on reload. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#011627; --white:#FDFFFC; --teal:#2EC4B6; --orange:#FF9F1C; --red:#C8102E;
+  --surface:oklch(0.245 0.045 250); --surface-2:oklch(0.275 0.045 250); --surface-3:oklch(0.32 0.045 250);
+  --soft:oklch(0.87 0.02 240); --muted:oklch(0.74 0.03 240); --rule:oklch(0.6 0.035 245);
+  --display:Anton,Impact,'Arial Narrow',sans-serif; --body:Switzer,'Helvetica Neue',Arial,sans-serif; --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  --edge:3px solid var(--navy); --pop:8px 8px 0 var(--teal); --pop-paper:8px 8px 0 var(--white);
+  --dots:radial-gradient(color-mix(in oklab,var(--navy) 16%,transparent) 1px,transparent 1.5px) 0 0/6px 6px;
+  --hatch:repeating-linear-gradient(-45deg,transparent 0 9px,color-mix(in oklab,var(--navy) 55%,transparent) 9px 13px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--navy);color:var(--white);font-family:var(--body);overflow:hidden}
+::selection{background:var(--teal);color:var(--navy)}
+
+/* Every slide is designed on a 1600 x 900 stage and scaled to fit, so it looks the same on a laptop or a projector. */
+.viewport{position:fixed;inset:0}
+.stage{position:absolute;left:50%;top:50%;width:1600px;height:900px;transform-origin:center;
+  background:radial-gradient(var(--surface-2) 1.3px,transparent 1.8px) 0 0/12px 12px,var(--navy);overflow:hidden}
+.slide{position:absolute;inset:0;padding:120px 112px 108px;display:none}
+.slide.on{display:block}
+.br{position:absolute;width:40px;height:40px;border:4px solid var(--teal)}
+.br.tl{top:30px;left:30px;border-right:0;border-bottom:0}.br.tr{top:30px;right:30px;border-left:0;border-bottom:0}
+.br.bl{bottom:30px;left:30px;border-right:0;border-top:0}.br.bb{bottom:30px;right:30px;border-left:0;border-top:0}
+.meta{position:absolute;left:104px;right:104px;display:flex;justify-content:space-between;align-items:center;font:500 20px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--soft)}
+.meta.top{top:40px}.meta.bot{bottom:38px}
+.stamp{padding:7px 14px 6px;border:2px solid currentColor;color:var(--teal)}
+.progress{position:absolute;left:104px;right:104px;bottom:76px;display:flex;gap:4px}
+.progress i{flex:1;height:6px;border:1.5px solid var(--rule)}
+.progress i.on{background:var(--teal);border-color:var(--teal)}
+
+/* type */
+h1,.h1{font:400 220px/.88 var(--display);letter-spacing:.02em;text-transform:uppercase;display:flex;flex-direction:column}
+h2,.h2{font:400 104px/.92 var(--display);letter-spacing:.02em;text-transform:uppercase}
+h3{font:600 34px/1.15 var(--body)}
+.outline{color:transparent;-webkit-text-stroke:3px var(--white)}
+.teal{color:var(--teal)}.orange{color:var(--orange)}
+p,li{font-size:30px;line-height:1.4}
+.lede{color:var(--soft);font-size:34px;line-height:1.35;max-width:30ch;margin-top:24px}
+.small{font-size:24px;color:var(--soft)}
+.mono{font-family:var(--mono)}
+code{font:500 .85em var(--mono);color:var(--teal)}
+
+/* panels */
+.panel{background:var(--surface);border:2px solid var(--rule);padding:26px 30px}
+.paper{background:var(--dots),var(--white);color:var(--navy);border:var(--edge);box-shadow:var(--pop);padding:26px 30px}
+.paper code{color:var(--navy);font-weight:700}
+.win{background:var(--dots),var(--orange);color:var(--navy);border:var(--edge);box-shadow:var(--pop-paper);padding:26px 30px}
+.tealp{background:var(--dots),var(--teal);color:var(--navy);border:var(--edge);box-shadow:var(--pop-paper);padding:26px 30px}
+.tealp code,.win code{color:var(--navy);font-weight:700}
+.sticker{position:absolute;display:inline-block;padding:12px 22px 10px;background:var(--dots),var(--red);color:var(--white);border:var(--edge);box-shadow:5px 5px 0 var(--white);font:400 36px/1 var(--display);letter-spacing:.04em;text-transform:uppercase;transform:rotate(-5deg)}
+.grid{display:grid;gap:28px}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g5{grid-template-columns:repeat(5,1fr)}
+.tag{display:inline-block;font:700 20px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:6px 10px;border:2px solid currentColor;margin-bottom:14px}
+.num{font:400 72px/.9 var(--display);color:var(--teal);margin-bottom:8px}
+ul.plain{list-style:none}
+ul.plain li{padding:12px 0 12px 40px;position:relative;border-bottom:1px dashed var(--rule)}
+ul.plain li:last-child{border:0}
+ul.plain li::before{content:"";position:absolute;left:0;top:24px;width:18px;height:18px;background:var(--teal);border:2px solid var(--navy)}
+table{border-collapse:collapse;width:100%}
+td,th{text-align:left;padding:14px 18px;border-bottom:2px solid var(--rule);font-size:27px;vertical-align:top}
+th{font:500 20px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--soft)}
+td.t{font:500 24px var(--mono);color:var(--teal);white-space:nowrap}
+.duck{position:absolute;pointer-events:none}
+.duck img{width:100%;height:auto;display:block}
+.qr{background:#fff;padding:16px;border:var(--edge);box-shadow:var(--pop);width:300px;height:300px}
+.qr svg{width:100%;height:100%;display:block}
+.vote{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:48px}
+.vote .panel{font-size:30px;line-height:1.3;min-height:190px}
+.vote .panel b{display:block;font:400 64px/1 var(--display);color:var(--teal);margin-bottom:12px}
+.flow{display:flex;align-items:stretch;gap:0;margin-top:40px}
+.flow>div{flex:1;padding:24px 18px;border:2px solid var(--rule);background:var(--surface);position:relative;font-size:26px;line-height:1.3}
+.flow>div+div{border-left:0}
+.flow>div b{display:block;font:400 44px/1 var(--display);text-transform:uppercase;color:var(--teal);margin-bottom:10px}
+.bar{height:40px;border:3px solid var(--white);box-shadow:6px 6px 0 var(--teal);margin-top:16px}
+.bar div{height:100%;background:var(--hatch),var(--teal)}
+.section .big{font:400 300px/.8 var(--display);color:transparent;-webkit-text-stroke:4px var(--teal)}
+.arch{font:500 28px/1.6 var(--mono);white-space:pre;color:var(--white)}
+.arch b{color:var(--teal);font-weight:700}
+.quote{font:500 42px/1.3 var(--body);max-width:30ch}
+.src{font:500 20px var(--mono);color:var(--muted);margin-top:18px}
+@media (prefers-reduced-motion:no-preference){.slide.on .rise{animation:rise .45s cubic-bezier(.19,1,.22,1) both}.slide.on .rise:nth-child(2){animation-delay:.08s}.slide.on .rise:nth-child(3){animation-delay:.16s}.slide.on .rise:nth-child(4){animation-delay:.24s}.slide.on .rise:nth-child(5){animation-delay:.32s}}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}}
+</style>
+</head>
+<body>
+<div class="viewport"><div class="stage" id="stage">
+<div class="br tl"></div><div class="br tr"></div><div class="br bl"></div><div class="br bb"></div>
+<div class="meta top"><span>CO-OPERATIVE CODING // 42 WARSAW</span><span class="stamp" id="section">START</span><span>18.11.2026</span></div>
+<div class="progress" id="progress"></div>
+<div class="meta bot"><span>TWO PEOPLE + TWO AGENTS</span><span id="count">01 / 32</span></div>
+
+<!-- 1 -->
+<section class="slide" data-section="Start">
+  <span class="sticker" style="left:770px;top:345px">Showcase</span>
+  <h1><span>CO-OPERATIVE</span><span class="outline">CODING</span></h1>
+  <p class="lede">Two people, two AI agents, one repo. How a small team plans, splits and ships a project together.</p>
+  <div class="duck" style="right:60px;bottom:120px;width:760px"><img src="assets/teal-flock.webp" alt=""></div>
+</section>
+
+<!-- 2 -->
+<section class="slide" data-section="Scan">
+  <div class="grid" style="grid-template-columns:1fr 340px;gap:80px;align-items:center;height:100%">
+    <div>
+      <h2>Scan here</h2>
+      <p class="lede">Play one round of <b>Guess Closer!</b> The closest guess wins.</p>
+    </div>
+    <div><div class="qr"><svg height="256" width="256" viewBox="0 0 33 33" role="img" aria-label="QR code: play Guess Closer!"><path fill="#ffffff" d="M0,0 h33v33H0z" shape-rendering="crispEdges"></path><path fill="#011627" d="M0 0h7v1H0zM8 0h1v1H8zM11 0h7v1H11zM23 0h2v1H23zM26,0 h7v1H26zM0 1h1v1H0zM6 1h1v1H6zM9 1h1v1H9zM13 1h2v1H13zM16 1h2v1H16zM19 1h4v1H19zM26 1h1v1H26zM32,1 h1v1H32zM0 2h1v1H0zM2 2h3v1H2zM6 2h1v1H6zM10 2h3v1H10zM14 2h1v1H14zM17 2h2v1H17zM21 2h1v1H21zM23 2h1v1H23zM26 2h1v1H26zM28 2h3v1H28zM32,2 h1v1H32zM0 3h1v1H0zM2 3h3v1H2zM6 3h1v1H6zM8 3h2v1H8zM12 3h1v1H12zM16 3h1v1H16zM18 3h2v1H18zM22 3h2v1H22zM26 3h1v1H26zM28 3h3v1H28zM32,3 h1v1H32zM0 4h1v1H0zM2 4h3v1H2zM6 4h1v1H6zM8 4h2v1H8zM16 4h1v1H16zM21 4h1v1H21zM23 4h1v1H23zM26 4h1v1H26zM28 4h3v1H28zM32,4 h1v1H32zM0 5h1v1H0zM6 5h1v1H6zM8 5h3v1H8zM15 5h1v1H15zM19 5h2v1H19zM22 5h1v1H22zM24 5h1v1H24zM26 5h1v1H26zM32,5 h1v1H32zM0 6h7v1H0zM8 6h1v1H8zM10 6h1v1H10zM12 6h1v1H12zM14 6h1v1H14zM16 6h1v1H16zM18 6h1v1H18zM20 6h1v1H20zM22 6h1v1H22zM24 6h1v1H24zM26,6 h7v1H26zM8 7h1v1H8zM12 7h1v1H12zM14 7h1v1H14zM17 7h2v1H17zM21 7h1v1H21zM24 7h1v1H24zM0 8h1v1H0zM4 8h1v1H4zM6 8h4v1H6zM12 8h1v1H12zM15 8h1v1H15zM17 8h1v1H17zM20 8h2v1H20zM23 8h7v1H23zM32,8 h1v1H32zM1 9h5v1H1zM9 9h2v1H9zM15 9h2v1H15zM18 9h1v1H18zM21 9h3v1H21zM25 9h1v1H25zM29 9h3v1H29zM4 10h1v1H4zM6 10h2v1H6zM9 10h2v1H9zM12 10h4v1H12zM17 10h1v1H17zM21 10h1v1H21zM23 10h1v1H23zM25 10h2v1H25zM29 10h1v1H29zM31 10h1v1H31zM0 11h1v1H0zM7 11h2v1H7zM10 11h4v1H10zM16 11h2v1H16zM20 11h2v1H20zM23 11h3v1H23zM32,11 h1v1H32zM1 12h3v1H1zM5 12h2v1H5zM9 12h3v1H9zM13 12h1v1H13zM16 12h7v1H16zM24 12h1v1H24zM26 12h1v1H26zM28 12h2v1H28zM31,12 h2v1H31zM0 13h2v1H0zM3 13h3v1H3zM9 13h1v1H9zM11 13h4v1H11zM18 13h1v1H18zM22 13h2v1H22zM25 13h1v1H25zM30 13h1v1H30zM1 14h3v1H1zM5 14h3v1H5zM10 14h1v1H10zM13 14h1v1H13zM15 14h1v1H15zM20 14h2v1H20zM23 14h4v1H23zM28 14h1v1H28zM31 14h1v1H31zM1 15h2v1H1zM4 15h1v1H4zM10 15h1v1H10zM13 15h1v1H13zM15 15h3v1H15zM19 15h1v1H19zM21 15h3v1H21zM25 15h2v1H25zM28 15h1v1H28zM1 16h2v1H1zM6 16h1v1H6zM8 16h1v1H8zM10 16h1v1H10zM12 16h1v1H12zM14 16h1v1H14zM17 16h3v1H17zM21 16h1v1H21zM23 16h1v1H23zM26 16h1v1H26zM28 16h2v1H28zM31 16h1v1H31zM1 17h1v1H1zM4 17h2v1H4zM7 17h1v1H7zM9 17h1v1H9zM11 17h8v1H11zM22 17h2v1H22zM25 17h1v1H25zM29 17h2v1H29zM1 18h1v1H1zM4 18h1v1H4zM6 18h1v1H6zM8 18h1v1H8zM10 18h2v1H10zM13 18h3v1H13zM18 18h1v1H18zM20 18h1v1H20zM23 18h1v1H23zM27 18h1v1H27zM29 18h1v1H29zM31 18h1v1H31zM0 19h4v1H0zM8 19h1v1H8zM10 19h1v1H10zM13 19h1v1H13zM17 19h2v1H17zM21 19h1v1H21zM23 19h5v1H23zM31 19h1v1H31zM0 20h1v1H0zM2 20h6v1H2zM9 20h3v1H9zM14 20h2v1H14zM18 20h1v1H18zM21 20h4v1H21zM26 20h1v1H26zM28 20h2v1H28zM32,20 h1v1H32zM0 21h3v1H0zM4 21h2v1H4zM10 21h2v1H10zM13 21h2v1H13zM16 21h3v1H16zM23 21h1v1H23zM25 21h1v1H25zM27 21h1v1H27zM29 21h3v1H29zM4 22h3v1H4zM8 22h1v1H8zM11 22h1v1H11zM16 22h1v1H16zM18 22h1v1H18zM20 22h1v1H20zM22 22h2v1H22zM25 22h1v1H25zM27 22h1v1H27zM29 22h1v1H29zM31 22h1v1H31zM3 23h1v1H3zM7 23h1v1H7zM9 23h3v1H9zM13 23h1v1H13zM17 23h1v1H17zM19 23h1v1H19zM21 23h1v1H21zM23 23h2v1H23zM28 23h1v1H28zM31,23 h2v1H31zM0 24h2v1H0zM4 24h4v1H4zM10 24h1v1H10zM15 24h1v1H15zM17 24h1v1H17zM20 24h2v1H20zM24 24h5v1H24zM32,24 h1v1H32zM8 25h6v1H8zM15 25h1v1H15zM17 25h2v1H17zM21 25h1v1H21zM24 25h1v1H24zM28 25h1v1H28zM30 25h2v1H30zM0 26h7v1H0zM8 26h1v1H8zM10 26h3v1H10zM14 26h2v1H14zM18 26h1v1H18zM20 26h1v1H20zM24 26h1v1H24zM26 26h1v1H26zM28 26h2v1H28zM31 26h1v1H31zM0 27h1v1H0zM6 27h1v1H6zM12 27h3v1H12zM19 27h3v1H19zM24 27h1v1H24zM28 27h1v1H28zM0 28h1v1H0zM2 28h3v1H2zM6 28h1v1H6zM8 28h1v1H8zM10 28h1v1H10zM12 28h5v1H12zM19 28h4v1H19zM24 28h6v1H24zM31,28 h2v1H31zM0 29h1v1H0zM2 29h3v1H2zM6 29h1v1H6zM10 29h1v1H10zM17 29h2v1H17zM21 29h4v1H21zM26 29h3v1H26zM0 30h1v1H0zM2 30h3v1H2zM6 30h1v1H6zM10 30h1v1H10zM12 30h2v1H12zM15 30h1v1H15zM17 30h1v1H17zM26 30h3v1H26zM0 31h1v1H0zM6 31h1v1H6zM12 31h1v1H12zM15 31h5v1H15zM21 31h6v1H21zM0 32h7v1H0zM8 32h1v1H8zM13 32h2v1H13zM17 32h1v1H17zM19 32h6v1H19zM29 32h1v1H29zM32,32 h1v1H32z" shape-rendering="crispEdges"></path></svg></div><p class="mono teal" style="margin-top:28px;font-size:22px">delta-43.github.io<br>/cooperative-coding-workshop</p></div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="slide" data-section="Plan">
+  <h2>Today</h2>
+  <table style="margin-top:36px">
+    <tr><th>Block</th><th>What it covers</th></tr>
+    <tr><td><b>1. The agent setup</b></td><td>Instructions, plan, skills, connectors, guardrails</td></tr>
+    <tr><td><b>2. The team</b></td><td>What changes with two people and two agents</td></tr>
+    <tr><td><b>3. The GitHub flow</b></td><td>Phases, issues, branches, pull requests, CI, sign-off</td></tr>
+    <tr><td><b>4. Build live</b></td><td>Backend and frontend in parallel, one agent each</td></tr>
+    <tr><td><b>5. Integrate and play</b></td><td>Merge both sides, play what we built</td></tr>
+    <tr><td><b>6. Sign-off</b></td><td>Review, safety, teardown</td></tr>
+  </table>
+</section>
+
+<!-- 5 -->
+<section class="slide section" data-section="1 · Agent setup">
+  <div class="big">01</div>
+  <h2 style="margin-top:20px">The agent setup</h2>
+  <p class="lede">A model alone is not an agent. The setup around it decides what it can do.</p>
+  <div class="duck" style="right:140px;top:150px;width:520px"><img src="assets/teal-flight-up.webp" alt=""></div>
+</section>
+
+<!-- 5b -->
+<section class="slide" data-section="1 · Agent setup">
+  <h2>Five layers around one agent</h2>
+  <div class="flow">
+    <div><b>Instructions</b><code>AGENTS.md</code><br>Standing rules: run, test, conventions</div>
+    <div><b>Plan</b><code>PLAN.md</code><br>The goal, phases and tasks for this project</div>
+    <div><b>Skills</b>Know-how loaded for one job</div>
+    <div><b>Connectors</b>MCP servers: tools and data to reach</div>
+    <div><b>Guardrails</b>Permissions, hooks, branch rules</div>
+  </div>
+  <p class="small" style="margin-top:44px">File names vary by harness (Claude Code, Codex, Cursor, Copilot, Gemini CLI). The layers do not.</p>
+</section>
+
+<!-- 6 -->
+<section class="slide" data-section="1 · Toolkit">
+  <h2>Three questions</h2>
+  <div class="grid g3" style="margin-top:56px">
+    <div class="paper rise"><div class="tag">Q1</div><h3>What should the environment contain?</h3><p style="font-size:26px;margin-top:12px">Instructions, files, tools. Everything in it costs context and can steer the agent.</p></div>
+    <div class="paper rise"><div class="tag">Q2</div><h3>Who decides it runs?</h3><p style="font-size:26px;margin-top:12px">You type it, the agent picks it, or a script calls it.</p></div>
+    <div class="paper rise"><div class="tag">Q3</div><h3>Where does it run?</h3><p style="font-size:26px;margin-top:12px">On your machine, in the vendor's cloud, or on someone else's server.</p></div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="slide" data-section="1 · Toolkit">
+  <table>
+    <tr><th></th><th>What it is</th><th>In our demo</th></tr>
+    <tr><td><b class="teal">MCP</b></td><td>A protocol that connects an agent to tools, data and APIs</td><td>A Cloudflare server in Claude Code; <code>/context</code> shows what it costs</td></tr>
+    <tr><td><b class="teal">Connector</b></td><td>A remote MCP server you add in claude.ai. Claude calls it from Anthropic's cloud, so the server must be reachable from the internet</td><td>The same kind of server, added once and usable from every Claude app</td></tr>
+    <tr><td><b class="teal">Skill</b></td><td>A folder with a <code>SKILL.md</code>: a name, a description and instructions. Loaded only when needed</td><td>Impeccable reviews our design</td></tr>
+    <tr><td><b class="teal">Subagent</b></td><td>A worker in its own clean context that returns a summary</td><td>Two isolated reviewers critiqued the game</td></tr>
+    <tr><td><b class="teal">Orchestrator</b></td><td>Not a product: a pattern. Ask "who holds the plan?"</td><td>One agent asked another to draw the ducks</td></tr>
+  </table>
+  <p class="src">Definitions: modelcontextprotocol.io, agentskills.io, code.claude.com/docs (checked November 2026)</p>
+</section>
+
+<!-- 8 -->
+<section class="slide" data-section="1 · Toolkit">
+  <h2>Skill vs MCP</h2>
+  <div class="grid g2" style="margin-top:56px;align-items:start">
+    <div class="tealp rise"><div class="tag">Skill</div><h3>Changes what the agent knows how to do</h3><p style="font-size:26px;margin-top:14px">"Critique this design." "Write it in my voice."</p></div>
+    <div class="paper rise"><div class="tag">MCP</div><h3>Changes what the agent can reach</h3><p style="font-size:26px;margin-top:14px">"List my Workers." "Read this ticket."</p></div>
+  </div>
+  <p class="quote" style="margin-top:60px">"MCP provides the connection; a skill teaches Claude how to use it well."</p>
+  <p class="src">Anthropic, Extend Claude Code</p>
+</section>
+
+<!-- 9 -->
+<section class="slide" data-section="1 · Toolkit">
+  <h2>Subagents: start with one</h2>
+  <div class="grid g2" style="margin-top:50px">
+    <div class="panel rise"><h3 class="teal">Reads split well</h3><p class="small" style="margin-top:12px">Research, review, search. Each worker reads in clean context and returns a summary.</p></div>
+    <div class="panel rise"><h3 class="orange">Writes do not</h3><p class="small" style="margin-top:12px">Two writers on the same files collide, for agents and for people. Split writes only by file, folder or branch. So we split backend and frontend.</p></div>
+  </div>
+  <div class="duck" style="right:150px;bottom:104px;width:210px"><img src="assets/teal-takeoff.webp" alt=""></div>
+</section>
+
+<!-- 10 -->
+<section class="slide" data-section="1 · Toolkit">
+  <h2>"Never edit .env"</h2>
+  <p class="lede" style="max-width:34ch">An instruction is a request, not a guarantee. Hooks, permissions and the server's rules are the guarantee.</p>
+  <div class="grid g3" style="margin-top:56px">
+    <div class="panel rise"><div class="tag teal">Request</div><p class="small">AGENTS.md, CLAUDE.md, a skill, a prompt</p></div>
+    <div class="panel rise"><div class="tag teal">Local guard</div><p class="small">Permission prompts, a hook that blocks a command</p></div>
+    <div class="paper rise"><div class="tag">Server guard</div><p style="font-size:24px">Branch protection: nothing reaches <code>main</code> without a PR and a human</p></div>
+  </div>
+</section>
+
+<!-- 11 -->
+<section class="slide" data-section="Vote 1">
+  <span class="sticker" style="right:120px;top:120px">Vote</span>
+  <h2>Predict</h2>
+  <p class="lede" style="max-width:36ch">Two agents edit <code>scoring.js</code> at the same time, on two branches. What happens when the second PR merges?</p>
+  <div class="vote">
+    <div class="panel"><b>A</b>Git merges both changes cleanly</div>
+    <div class="panel"><b>B</b>A merge conflict a human must fix</div>
+    <div class="panel"><b>C</b>It depends on which lines they touched</div>
+  </div>
+</section>
+
+<!-- 12 -->
+<section class="slide" data-section="Vote 1">
+  <h2>C. It depends on the lines.</h2>
+  <p class="lede" style="max-width:38ch">Git merges text, not meaning. It can only tell you that two changes touch the same lines, not that the result still works.</p>
+  <div class="grid g3" style="margin-top:50px">
+    <div class="panel rise"><div class="tag teal">Different lines</div><p class="small">Git merges both changes. The code can still be wrong, so CI runs the tests on the result</p></div>
+    <div class="panel rise"><div class="tag teal">Same lines</div><p class="small">A merge conflict. A person decides which change stays</p></div>
+    <div class="win rise"><div class="tag">Our rule</div><p style="font-size:24px">One owner per file. Two agents do not edit the same file at the same time.</p></div>
+  </div>
+</section>
+
+<!-- 13 -->
+<section class="slide section" data-section="2 · Team">
+  <div class="big">02</div>
+  <h2 style="margin-top:20px">Team setup</h2>
+  <p class="lede">One agent per person. Decide what is shared and what stays separate.</p>
+  <div class="duck" style="right:90px;top:200px;width:600px"><img src="assets/duck-pair.webp" alt=""></div>
+</section>
+
+<!-- 14 -->
+<section class="slide" data-section="2 · Team">
+  <h2>Who owns what</h2>
+  <div class="grid g2" style="margin-top:56px">
+    <div class="win rise"><div class="tag">Delta</div><h3>Coordinator and backend</h3><p style="font-size:26px;margin-top:12px">Cloudflare Worker, rooms, scoring. Signs off every phase.</p></div>
+    <div class="tealp rise"><div class="tag">Volunteer</div><h3>Frontend</h3><p style="font-size:26px;margin-top:12px">Host screen, phone screens, QR join. Never gets backend credentials.</p></div>
+  </div>
+  <p class="small" style="margin-top:50px">One agent per person, one clone each. The humans hold the plan.</p>
+</section>
+
+<!-- 15 -->
+<section class="slide" data-section="2 · Team">
+  <h2>Small on purpose</h2>
+  <div class="panel" style="margin-top:44px;padding:40px 48px">
+<div class="arch">Phones and laptops ───▶ <b>GitHub Pages</b>   (static frontend)
+        │
+        └── WebSocket ──▶ <b>Cloudflare Worker</b> ──▶ <b>Durable Object</b>
+                                              one per room: players,
+                                              question, answers, scores</div>
+  </div>
+  <p class="small" style="margin-top:36px">Backend and frontend live in separate folders, so the two agents rarely touch the same file.</p>
+</section>
+
+<!-- 16 -->
+<section class="slide" data-section="2 · Team">
+  <h2>The contract goes first</h2>
+  <div class="grid" style="grid-template-columns:1fr 1fr;gap:48px;margin-top:44px;align-items:start">
+    <div>
+      <p class="lede" style="margin-top:0">The WebSocket message format is the only thing both sides share. We agree it, review it and merge it before anyone builds.</p>
+      <p class="small" style="margin-top:30px">Skill at this moment: <b class="teal">API Contract Review</b></p>
+      <p class="small" style="margin-top:14px">On the right: two messages, shortened to fit.</p>
+    </div>
+    <div class="paper"><pre class="mono" style="font-size:22px;line-height:1.45">{ "type": "answer", "value": 88 }
+
+{ "type": "state",
+  "phase": "reveal",
+  "reveal": { "correct": 88,
+    "results": [ { "name": "Ada",
+      "value": 85, "time": 4210,
+      "rank": 1, "points": 3 } ] } }</pre></div>
+  </div>
+</section>
+
+<!-- 17 -->
+<section class="slide" data-section="2 · Team">
+  <h2>What the team shares</h2>
+  <div class="grid g3" style="margin-top:56px">
+    <div class="panel rise"><h3><code>AGENTS.md</code></h3><p class="small" style="margin-top:12px">Short, hand-written, read by both agents. A long generated one does more harm than good.</p></div>
+    <div class="panel rise"><h3><code>PLAN.md</code></h3><p class="small" style="margin-top:12px">One plan, owned by the humans. Phases and tasks, each with a "done when".</p></div>
+    <div class="panel rise"><h3><code>DECISIONS.md</code></h3><p class="small" style="margin-top:12px">One line per decision, committed with the PR that made it.</p></div>
+  </div>
+  <p class="small" style="margin-top:44px">If a harness wants its own file name, point it at <code>AGENTS.md</code>. Ours has a one-line <code>CLAUDE.md</code> that does.</p>
+</section>
+
+<!-- 18 -->
+<section class="slide section" data-section="3 · GitHub">
+  <div class="big">03</div>
+  <h2 style="margin-top:20px">The GitHub flow</h2>
+  <p class="lede">Phases, issues, branches, pull requests, CI and sign-off.</p>
+  <div class="duck" style="right:140px;top:150px;width:500px"><img src="assets/teal-hen-flight.webp" alt=""></div>
+</section>
+
+<!-- 19 -->
+<section class="slide" data-section="3 · GitHub">
+  <h2>From plan to main</h2>
+  <div class="flow">
+    <div><b>Phase</b>A milestone with one sign-off issue</div>
+    <div><b>Issue</b>One task, "done when" and a verify command</div>
+    <div><b>Branch</b>One per issue, one agent</div>
+    <div><b>PR</b>Small, with the verify output</div>
+    <div><b>CI</b>Build, tests, contract examples</div>
+    <div><b>Review</b>The other human approves</div>
+  </div>
+  <p class="small" style="margin-top:44px">A small-change lane skips the phase sign-off: a typo or copy fix needs only an issue and a PR.</p>
+</section>
+
+<!-- 20 -->
+<section class="slide" data-section="3 · GitHub">
+  <h2>Anatomy of an issue</h2>
+  <div class="paper" style="margin-top:40px;max-width:1150px">
+    <p style="font:700 30px var(--body)">Backend: break equal-error ties by answer time</p>
+    <table style="margin-top:18px">
+      <tr><td style="color:var(--navy);border-color:color-mix(in oklab,var(--navy) 25%,transparent);width:220px"><b>Done when</b></td><td style="color:var(--navy);border-color:color-mix(in oklab,var(--navy) 25%,transparent)">Equal error ranks the earlier answer first. A changed answer restarts the time.</td></tr>
+      <tr><td style="color:var(--navy);border-color:color-mix(in oklab,var(--navy) 25%,transparent)"><b>Verify</b></td><td style="color:var(--navy);border-color:color-mix(in oklab,var(--navy) 25%,transparent)"><code>cd backend &amp;&amp; npm test</code></td></tr>
+      <tr><td style="color:var(--navy);border:0"><b>Do not touch</b></td><td style="color:var(--navy);border:0"><code>frontend/</code></td></tr>
+    </table>
+  </div>
+  <p class="small" style="margin-top:40px">The same command runs for the agent, for the human and for CI.</p>
+</section>
+
+<!-- 21 -->
+<section class="slide" data-section="3 · GitHub">
+  <h2>Every pull request</h2>
+  <ul class="plain" style="margin-top:36px;max-width:1200px">
+    <li><b>CI must pass.</b> <span class="small">The branch rule blocks the merge button until it does.</span></li>
+    <li><b>The other person reviews.</b> <span class="small">One approval. Agents can comment, but a human approves.</span></li>
+    <li><b>Explain it with the agent closed.</b> <span class="small">What does it change, and what breaks if it is wrong?</span></li>
+    <li><b>Keep it small.</b> <span class="small">A size you can read in five minutes.</span></li>
+    <li><b>One fresh-context review.</b> <span class="small">A read-only subagent checks the diff against the issue.</span></li>
+  </ul>
+</section>
+
+<!-- 22 -->
+<section class="slide" data-section="Vote 2">
+  <span class="sticker" style="right:120px;top:120px">Vote</span>
+  <h2>Predict</h2>
+  <p class="lede" style="max-width:36ch">Bo and Cy are both 8 away from the answer. Bo answered first. Who gets the 2 points?</p>
+  <div class="vote">
+    <div class="panel"><b>A</b>Both: they share 2nd place</div>
+    <div class="panel"><b>B</b>Bo: the earlier answer wins</div>
+    <div class="panel"><b>C</b>Nobody: ties score zero</div>
+  </div>
+</section>
+
+<!-- 23 -->
+<section class="slide" data-section="Vote 2">
+  <h2>It was A. Now it is B.</h2>
+  <p class="lede" style="max-width:38ch">The first contract said ties share a rank. We changed it last week, in a pull request, and the tests prove it.</p>
+  <div class="grid g3" style="margin-top:50px">
+    <div class="panel rise"><div class="tag teal">Contract</div><p class="small">New rule and a <code>time</code> field</p></div>
+    <div class="panel rise"><div class="tag teal">Tests</div><p class="small">Every test passes in CI, plus a live run</p></div>
+    <div class="win rise"><div class="tag">Phone</div><p style="font-size:24px">"Bo was also off by 8 and answered 4 seconds sooner."</p></div>
+  </div>
+</section>
+
+<!-- 24 -->
+<section class="slide section" data-section="Break">
+  <h2 style="margin-top:20px">Break</h2>
+  <div class="duck" style="right:170px;bottom:130px;width:440px"><img src="assets/teal-preening.webp" alt=""></div>
+</section>
+
+<!-- 25 -->
+<section class="slide section" data-section="4 · Build">
+  <div class="big">04</div>
+  <h2 style="margin-top:20px">Build live</h2>
+  <p class="lede">Two people, two agents, one repo, in parallel. Claude Code for the demo; any harness would do.</p>
+  <div class="duck" style="right:130px;top:150px;width:520px"><img src="assets/teal-flight-down.webp" alt=""></div>
+</section>
+
+<!-- 26 -->
+<section class="slide" data-section="4 · Build">
+  <h2>The board</h2>
+  <table style="margin-top:36px">
+    <tr><th>Step</th><th>Who</th><th>Skill, at that moment</th></tr>
+    <tr><td>Contract merged first, on a skeleton</td><td>Both</td><td class="t">API Contract Review</td></tr>
+    <tr><td>Rooms and codes, answer intake, scoring</td><td>Delta</td><td class="t">Clean Code</td></tr>
+    <tr><td>Join screen, answer screen, host board</td><td>Volunteer</td><td class="t">Impeccable · better-ui</td></tr>
+    <tr><td>Leaderboard motion</td><td>Volunteer</td><td class="t">improve-animations</td></tr>
+    <tr><td>Phone screen checks</td><td>Volunteer</td><td class="t">Apple HIG</td></tr>
+  </table>
+  <p class="small" style="margin-top:30px">Each skill does one job at one named moment and reports. It does not rewrite.</p>
+</section>
+
+<!-- 27 -->
+<section class="slide" data-section="Vote 3">
+  <span class="sticker" style="right:120px;top:120px">Vote</span>
+  <h2>Predict</h2>
+  <p class="lede" style="max-width:36ch">The agent says "all tests pass". CI is red. Can we merge?</p>
+  <div class="vote">
+    <div class="panel"><b>A</b>Yes: trust the agent</div>
+    <div class="panel"><b>B</b>No: the branch rule blocks it</div>
+    <div class="panel"><b>C</b>Yes, if the reviewer approves</div>
+  </div>
+</section>
+
+<!-- 28 -->
+<section class="slide" data-section="Vote 3">
+  <h2>B. The rule blocks it.</h2>
+  <p class="lede" style="max-width:38ch">"All tests pass" is a claim. CI is the check. <code>main</code> takes a pull request only when the check is green, and an approval does not change that.</p>
+  <div class="grid g3" style="margin-top:50px">
+    <div class="panel rise"><div class="tag teal">Claim</div><p class="small">The agent ran the tests on its own machine, maybe on older code</p></div>
+    <div class="panel rise"><div class="tag teal">Check</div><p class="small">CI runs the same commands on a clean machine, for every push</p></div>
+    <div class="win rise"><div class="tag">Rule</div><p style="font-size:24px">Red check: no merge, for anyone. Fix the branch, push again.</p></div>
+  </div>
+</section>
+
+<!-- 29 -->
+<section class="slide section" data-section="5 · Play">
+  <div class="grid" style="grid-template-columns:1fr 340px;gap:80px;align-items:center;height:100%">
+    <div><div class="big">05</div><h2 style="margin-top:20px">Integrate and play</h2><p class="lede">Both sides merged. Scan again and play the finished game.</p></div>
+    <div class="qr"><svg height="256" width="256" viewBox="0 0 33 33" role="img" aria-label="QR code: play Guess Closer!"><path fill="#ffffff" d="M0,0 h33v33H0z" shape-rendering="crispEdges"></path><path fill="#011627" d="M0 0h7v1H0zM8 0h1v1H8zM11 0h7v1H11zM23 0h2v1H23zM26,0 h7v1H26zM0 1h1v1H0zM6 1h1v1H6zM9 1h1v1H9zM13 1h2v1H13zM16 1h2v1H16zM19 1h4v1H19zM26 1h1v1H26zM32,1 h1v1H32zM0 2h1v1H0zM2 2h3v1H2zM6 2h1v1H6zM10 2h3v1H10zM14 2h1v1H14zM17 2h2v1H17zM21 2h1v1H21zM23 2h1v1H23zM26 2h1v1H26zM28 2h3v1H28zM32,2 h1v1H32zM0 3h1v1H0zM2 3h3v1H2zM6 3h1v1H6zM8 3h2v1H8zM12 3h1v1H12zM16 3h1v1H16zM18 3h2v1H18zM22 3h2v1H22zM26 3h1v1H26zM28 3h3v1H28zM32,3 h1v1H32zM0 4h1v1H0zM2 4h3v1H2zM6 4h1v1H6zM8 4h2v1H8zM16 4h1v1H16zM21 4h1v1H21zM23 4h1v1H23zM26 4h1v1H26zM28 4h3v1H28zM32,4 h1v1H32zM0 5h1v1H0zM6 5h1v1H6zM8 5h3v1H8zM15 5h1v1H15zM19 5h2v1H19zM22 5h1v1H22zM24 5h1v1H24zM26 5h1v1H26zM32,5 h1v1H32zM0 6h7v1H0zM8 6h1v1H8zM10 6h1v1H10zM12 6h1v1H12zM14 6h1v1H14zM16 6h1v1H16zM18 6h1v1H18zM20 6h1v1H20zM22 6h1v1H22zM24 6h1v1H24zM26,6 h7v1H26zM8 7h1v1H8zM12 7h1v1H12zM14 7h1v1H14zM17 7h2v1H17zM21 7h1v1H21zM24 7h1v1H24zM0 8h1v1H0zM4 8h1v1H4zM6 8h4v1H6zM12 8h1v1H12zM15 8h1v1H15zM17 8h1v1H17zM20 8h2v1H20zM23 8h7v1H23zM32,8 h1v1H32zM1 9h5v1H1zM9 9h2v1H9zM15 9h2v1H15zM18 9h1v1H18zM21 9h3v1H21zM25 9h1v1H25zM29 9h3v1H29zM4 10h1v1H4zM6 10h2v1H6zM9 10h2v1H9zM12 10h4v1H12zM17 10h1v1H17zM21 10h1v1H21zM23 10h1v1H23zM25 10h2v1H25zM29 10h1v1H29zM31 10h1v1H31zM0 11h1v1H0zM7 11h2v1H7zM10 11h4v1H10zM16 11h2v1H16zM20 11h2v1H20zM23 11h3v1H23zM32,11 h1v1H32zM1 12h3v1H1zM5 12h2v1H5zM9 12h3v1H9zM13 12h1v1H13zM16 12h7v1H16zM24 12h1v1H24zM26 12h1v1H26zM28 12h2v1H28zM31,12 h2v1H31zM0 13h2v1H0zM3 13h3v1H3zM9 13h1v1H9zM11 13h4v1H11zM18 13h1v1H18zM22 13h2v1H22zM25 13h1v1H25zM30 13h1v1H30zM1 14h3v1H1zM5 14h3v1H5zM10 14h1v1H10zM13 14h1v1H13zM15 14h1v1H15zM20 14h2v1H20zM23 14h4v1H23zM28 14h1v1H28zM31 14h1v1H31zM1 15h2v1H1zM4 15h1v1H4zM10 15h1v1H10zM13 15h1v1H13zM15 15h3v1H15zM19 15h1v1H19zM21 15h3v1H21zM25 15h2v1H25zM28 15h1v1H28zM1 16h2v1H1zM6 16h1v1H6zM8 16h1v1H8zM10 16h1v1H10zM12 16h1v1H12zM14 16h1v1H14zM17 16h3v1H17zM21 16h1v1H21zM23 16h1v1H23zM26 16h1v1H26zM28 16h2v1H28zM31 16h1v1H31zM1 17h1v1H1zM4 17h2v1H4zM7 17h1v1H7zM9 17h1v1H9zM11 17h8v1H11zM22 17h2v1H22zM25 17h1v1H25zM29 17h2v1H29zM1 18h1v1H1zM4 18h1v1H4zM6 18h1v1H6zM8 18h1v1H8zM10 18h2v1H10zM13 18h3v1H13zM18 18h1v1H18zM20 18h1v1H20zM23 18h1v1H23zM27 18h1v1H27zM29 18h1v1H29zM31 18h1v1H31zM0 19h4v1H0zM8 19h1v1H8zM10 19h1v1H10zM13 19h1v1H13zM17 19h2v1H17zM21 19h1v1H21zM23 19h5v1H23zM31 19h1v1H31zM0 20h1v1H0zM2 20h6v1H2zM9 20h3v1H9zM14 20h2v1H14zM18 20h1v1H18zM21 20h4v1H21zM26 20h1v1H26zM28 20h2v1H28zM32,20 h1v1H32zM0 21h3v1H0zM4 21h2v1H4zM10 21h2v1H10zM13 21h2v1H13zM16 21h3v1H16zM23 21h1v1H23zM25 21h1v1H25zM27 21h1v1H27zM29 21h3v1H29zM4 22h3v1H4zM8 22h1v1H8zM11 22h1v1H11zM16 22h1v1H16zM18 22h1v1H18zM20 22h1v1H20zM22 22h2v1H22zM25 22h1v1H25zM27 22h1v1H27zM29 22h1v1H29zM31 22h1v1H31zM3 23h1v1H3zM7 23h1v1H7zM9 23h3v1H9zM13 23h1v1H13zM17 23h1v1H17zM19 23h1v1H19zM21 23h1v1H21zM23 23h2v1H23zM28 23h1v1H28zM31,23 h2v1H31zM0 24h2v1H0zM4 24h4v1H4zM10 24h1v1H10zM15 24h1v1H15zM17 24h1v1H17zM20 24h2v1H20zM24 24h5v1H24zM32,24 h1v1H32zM8 25h6v1H8zM15 25h1v1H15zM17 25h2v1H17zM21 25h1v1H21zM24 25h1v1H24zM28 25h1v1H28zM30 25h2v1H30zM0 26h7v1H0zM8 26h1v1H8zM10 26h3v1H10zM14 26h2v1H14zM18 26h1v1H18zM20 26h1v1H20zM24 26h1v1H24zM26 26h1v1H26zM28 26h2v1H28zM31 26h1v1H31zM0 27h1v1H0zM6 27h1v1H6zM12 27h3v1H12zM19 27h3v1H19zM24 27h1v1H24zM28 27h1v1H28zM0 28h1v1H0zM2 28h3v1H2zM6 28h1v1H6zM8 28h1v1H8zM10 28h1v1H10zM12 28h5v1H12zM19 28h4v1H19zM24 28h6v1H24zM31,28 h2v1H31zM0 29h1v1H0zM2 29h3v1H2zM6 29h1v1H6zM10 29h1v1H10zM17 29h2v1H17zM21 29h4v1H21zM26 29h3v1H26zM0 30h1v1H0zM2 30h3v1H2zM6 30h1v1H6zM10 30h1v1H10zM12 30h2v1H12zM15 30h1v1H15zM17 30h1v1H17zM26 30h3v1H26zM0 31h1v1H0zM6 31h1v1H6zM12 31h1v1H12zM15 31h5v1H15zM21 31h6v1H21zM0 32h7v1H0zM8 32h1v1H8zM13 32h2v1H13zM17 32h1v1H17zM19 32h6v1H19zM29 32h1v1H29zM32,32 h1v1H32z" shape-rendering="crispEdges"></path></svg></div>
+  </div>
+  <div class="duck" style="right:205px;bottom:100px;width:175px"><img src="assets/teal-landing.webp" alt=""></div>
+</section>
+
+<!-- 30 -->
+<section class="slide" data-section="6 · Sign-off">
+  <h2>Sign-off</h2>
+  <div class="grid g2" style="margin-top:50px">
+    <div class="paper rise"><div class="tag">Phase N sign-off</div><p style="font-size:26px">One issue per phase. Only a human closes it, after checking every "done when".</p></div>
+    <div class="tealp rise"><div class="tag">Explain the PR</div><p style="font-size:26px">Agent closed. What changed, and what breaks if it is wrong?</p></div>
+  </div>
+  <p class="quote" style="margin-top:56px;font-size:34px">"You are expected to understand and to be able to defend everything you submit."</p>
+  <p class="src">Linux kernel, Documentation/process/generated-content.rst</p>
+</section>
+
+<!-- 31 -->
+<section class="slide" data-section="6 · Safety">
+  <h2>Five habits</h2>
+  <ul class="plain" style="margin-top:30px;max-width:1250px">
+    <li><b>Give the agent the least you can.</b> <span class="small">One repo, a short-lived token, no real secrets in the folder.</span></li>
+    <li><b>Everything it reads is untrusted.</b> <span class="small">Issues, web pages, skills and MCP servers can all carry instructions.</span></li>
+    <li><b>Keep the permission prompts on.</b> <span class="small">No "skip permissions" outside a throwaway machine.</span></li>
+    <li><b>Nothing reaches main without a PR and a human.</b></li>
+    <li><b>You own what you ship.</b> <span class="small">Explain it, say AI helped, keep personal data out.</span></li>
+  </ul>
+  <p class="small" style="margin-top:22px">After today: remove the Volunteer's access, delete the test Worker, rotate every token we used.</p>
+  <div class="duck" style="right:90px;bottom:110px;width:260px"><img src="assets/teal-look-back.webp" alt=""></div>
+</section>
+
+<!-- 32 -->
+<section class="slide" data-section="End">
+  <div class="grid" style="grid-template-columns:1fr 340px;gap:80px;align-items:center;height:100%">
+    <div>
+      <h1 style="font-size:180px"><span>THANKS</span><span class="outline">QUESTIONS?</span></h1>
+      <p class="lede">The repo has the game, the contract, these slides and the team guide.</p>
+      <p class="mono teal" style="margin-top:24px;font-size:24px">github.com/Delta-43/cooperative-coding-workshop</p>
+    </div>
+    <div class="qr"><svg height="256" width="256" viewBox="0 0 33 33" role="img" aria-label="QR code: the workshop repository"><path fill="#ffffff" d="M0,0 h33v33H0z" shape-rendering="crispEdges"></path><path fill="#011627" d="M0 0h7v1H0zM11 0h1v1H11zM16 0h5v1H16zM23 0h1v1H23zM26,0 h7v1H26zM0 1h1v1H0zM6 1h1v1H6zM9 1h2v1H9zM12 1h1v1H12zM15 1h2v1H15zM18 1h1v1H18zM20 1h1v1H20zM22 1h1v1H22zM26 1h1v1H26zM32,1 h1v1H32zM0 2h1v1H0zM2 2h3v1H2zM6 2h1v1H6zM8 2h1v1H8zM10 2h1v1H10zM14 2h1v1H14zM18 2h1v1H18zM20 2h2v1H20zM26 2h1v1H26zM28 2h3v1H28zM32,2 h1v1H32zM0 3h1v1H0zM2 3h3v1H2zM6 3h1v1H6zM8 3h1v1H8zM10 3h2v1H10zM15 3h1v1H15zM17 3h1v1H17zM22 3h1v1H22zM24 3h1v1H24zM26 3h1v1H26zM28 3h3v1H28zM32,3 h1v1H32zM0 4h1v1H0zM2 4h3v1H2zM6 4h1v1H6zM8 4h1v1H8zM11 4h1v1H11zM13 4h9v1H13zM23 4h1v1H23zM26 4h1v1H26zM28 4h3v1H28zM32,4 h1v1H32zM0 5h1v1H0zM6 5h1v1H6zM8 5h1v1H8zM10 5h1v1H10zM12 5h3v1H12zM20 5h1v1H20zM26 5h1v1H26zM32,5 h1v1H32zM0 6h7v1H0zM8 6h1v1H8zM10 6h1v1H10zM12 6h1v1H12zM14 6h1v1H14zM16 6h1v1H16zM18 6h1v1H18zM20 6h1v1H20zM22 6h1v1H22zM24 6h1v1H24zM26,6 h7v1H26zM8 7h2v1H8zM11 7h1v1H11zM14 7h1v1H14zM16 7h1v1H16zM18 7h2v1H18zM21 7h1v1H21zM24 7h1v1H24zM0 8h1v1H0zM2 8h5v1H2zM10 8h2v1H10zM13 8h2v1H13zM17 8h1v1H17zM23 8h1v1H23zM26 8h5v1H26zM0 9h1v1H0zM2 9h2v1H2zM8 9h1v1H8zM10 9h2v1H10zM13 9h1v1H13zM16 9h2v1H16zM19 9h3v1H19zM23 9h1v1H23zM26 9h2v1H26zM29,9 h4v1H29zM0 10h3v1H0zM4 10h1v1H4zM6 10h1v1H6zM13 10h5v1H13zM22 10h1v1H22zM24 10h2v1H24zM28 10h1v1H28zM30 10h2v1H30zM0 11h2v1H0zM3 11h2v1H3zM7 11h1v1H7zM10 11h2v1H10zM13 11h1v1H13zM16 11h1v1H16zM20 11h3v1H20zM24 11h2v1H24zM28 11h4v1H28zM2 12h1v1H2zM6 12h3v1H6zM10 12h2v1H10zM14 12h1v1H14zM16 12h2v1H16zM20 12h1v1H20zM23 12h2v1H23zM27 12h3v1H27zM31 12h1v1H31zM3 13h2v1H3zM10 13h1v1H10zM12 13h1v1H12zM15 13h1v1H15zM19 13h2v1H19zM23 13h1v1H23zM26 13h1v1H26zM30,13 h3v1H30zM1 14h2v1H1zM4 14h5v1H4zM10 14h7v1H10zM20 14h1v1H20zM22 14h1v1H22zM24 14h5v1H24zM31 14h1v1H31zM0 15h5v1H0zM7 15h1v1H7zM10 15h1v1H10zM15 15h1v1H15zM18 15h2v1H18zM21 15h1v1H21zM25 15h2v1H25zM29 15h2v1H29zM0 16h1v1H0zM6 16h1v1H6zM12 16h1v1H12zM15 16h1v1H15zM17 16h1v1H17zM19 16h1v1H19zM22 16h1v1H22zM24 16h2v1H24zM27 16h2v1H27zM32,16 h1v1H32zM2 17h2v1H2zM5 17h1v1H5zM8 17h1v1H8zM10 17h5v1H10zM18 17h1v1H18zM20 17h1v1H20zM23 17h1v1H23zM26 17h2v1H26zM29 17h2v1H29zM32,17 h1v1H32zM0 18h3v1H0zM4 18h3v1H4zM12 18h5v1H12zM18 18h1v1H18zM20 18h3v1H20zM24 18h5v1H24zM30 18h2v1H30zM1 19h3v1H1zM5 19h1v1H5zM10 19h2v1H10zM13 19h1v1H13zM18 19h5v1H18zM25 19h1v1H25zM27 19h4v1H27zM1 20h3v1H1zM5 20h2v1H5zM11 20h1v1H11zM13 20h3v1H13zM18 20h2v1H18zM22 20h1v1H22zM24 20h2v1H24zM28 20h2v1H28zM0 21h2v1H0zM3 21h3v1H3zM8 21h1v1H8zM10 21h1v1H10zM13 21h4v1H13zM18 21h6v1H18zM26 21h1v1H26zM30 21h1v1H30zM32,21 h1v1H32zM0 22h1v1H0zM3 22h2v1H3zM6 22h2v1H6zM9 22h2v1H9zM12 22h3v1H12zM18 22h1v1H18zM25 22h1v1H25zM29 22h3v1H29zM0 23h1v1H0zM2 23h2v1H2zM5 23h1v1H5zM7 23h2v1H7zM14 23h1v1H14zM16 23h1v1H16zM19 23h1v1H19zM21 23h3v1H21zM25,23 h8v1H25zM0 24h1v1H0zM4 24h1v1H4zM6 24h3v1H6zM12 24h3v1H12zM16 24h3v1H16zM22 24h8v1H22zM31 24h1v1H31zM8 25h3v1H8zM13 25h1v1H13zM17 25h3v1H17zM21 25h1v1H21zM23 25h2v1H23zM28 25h1v1H28zM30,25 h3v1H30zM0 26h7v1H0zM9 26h2v1H9zM12 26h1v1H12zM15 26h1v1H15zM17 26h1v1H17zM20 26h1v1H20zM22 26h3v1H22zM26 26h1v1H26zM28 26h1v1H28zM30 26h2v1H30zM0 27h1v1H0zM6 27h1v1H6zM8 27h3v1H8zM12 27h7v1H12zM20 27h5v1H20zM28,27 h5v1H28zM0 28h1v1H0zM2 28h3v1H2zM6 28h1v1H6zM8 28h3v1H8zM15 28h2v1H15zM19 28h2v1H19zM22 28h1v1H22zM24 28h6v1H24zM31,28 h2v1H31zM0 29h1v1H0zM2 29h3v1H2zM6 29h1v1H6zM8 29h2v1H8zM11 29h1v1H11zM13 29h1v1H13zM15 29h1v1H15zM17 29h4v1H17zM23 29h3v1H23zM28,29 h5v1H28zM0 30h1v1H0zM2 30h3v1H2zM6 30h1v1H6zM8 30h4v1H8zM15 30h2v1H15zM20 30h1v1H20zM22 30h1v1H22zM26 30h2v1H26zM30 30h1v1H30zM0 31h1v1H0zM6 31h1v1H6zM11 31h2v1H11zM14 31h2v1H14zM19 31h4v1H19zM28 31h3v1H28zM0 32h7v1H0zM8 32h2v1H8zM11 32h9v1H11zM22 32h6v1H22zM31 32h1v1H31z" shape-rendering="crispEdges"></path></svg></div>
+  </div>
+  <div class="duck" style="right:120px;bottom:88px;width:360px"><img src="assets/teal-pond.webp" alt=""></div>
+</section>
+
+</div></div>
+<script>
+const slides = [...document.querySelectorAll('.slide')]
+const stage = document.getElementById('stage')
+const progress = document.getElementById('progress')
+slides.forEach(() => progress.appendChild(document.createElement('i')))
+let i = Math.min(Math.max((parseInt(location.hash.slice(1), 10) || 1) - 1, 0), slides.length - 1)
+function fit() { stage.style.transform = `translate(-50%,-50%) scale(${Math.min(innerWidth / 1600, innerHeight / 900)})` }
+function show(n) {
+  i = Math.min(Math.max(n, 0), slides.length - 1)
+  slides.forEach((s, k) => s.classList.toggle('on', k === i))
+  progress.querySelectorAll('i').forEach((b, k) => b.classList.toggle('on', k <= i))
+  document.getElementById('section').textContent = slides[i].dataset.section
+  document.getElementById('count').textContent = `${String(i + 1).padStart(2, '0')} / ${slides.length}`
+  history.replaceState(null, '', '#' + (i + 1))
+}
+addEventListener('keydown', (e) => {
+  if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); show(i + 1) }
+  else if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); show(i - 1) }
+  else if (e.key === 'Home') show(0)
+  else if (e.key === 'End') show(slides.length - 1)
+  else if (e.key.toLowerCase() === 'f') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()
+})
+stage.addEventListener('click', (e) => show(i + (e.clientX > innerWidth / 2 ? 1 : -1)))
+addEventListener('resize', fit)
+fit(); show(i)
+</script>
+</body>
+</html>
