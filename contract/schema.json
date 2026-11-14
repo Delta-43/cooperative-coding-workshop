@@ -34,7 +34,7 @@
       "type": "object",
       "required": ["type"],
       "additionalProperties": false,
-      "properties": { "type": { "enum": ["start", "reveal", "next"] } }
+      "properties": { "type": { "enum": ["start", "reveal", "show", "next"] } }
     },
     "kick": {
       "type": "object",
@@ -57,7 +57,7 @@
     },
     "state": {
       "type": "object",
-      "required": ["type", "code", "phase", "players", "answeredCount", "question", "you", "reveal"],
+      "required": ["type", "code", "phase", "players", "answeredCount", "question", "you", "answerShown", "reveal"],
       "additionalProperties": false,
       "properties": {
         "type": { "const": "state" },
@@ -106,6 +106,7 @@
             "answer": { "type": ["number", "null"] }
           }
         },
+        "answerShown": { "type": "boolean" },
         "reveal": {
           "oneOf": [
             { "type": "null" },

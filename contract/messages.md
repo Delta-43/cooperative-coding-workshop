@@ -31,7 +31,8 @@ The frontend reads the backend address from a setting (`BACKEND_URL`), so it can
 | `join` | player | `name` (1 to 16 characters), `playerId` (optional) | First message. Send the saved `playerId` to come back after a dropped connection |
 | `answer` | player | `value` (number) | During `question`. A second answer replaces the first |
 | `start` | host | none | In `lobby`, with at least one player |
-| `reveal` | host | none | In `question` |
+| `reveal` | host | none | In `question`. Closes the answers and scores the round. Only the host receives the result |
+| `show` | host | none | In `reveal`, when the big screen shows the answer. From then on players receive the result too. Sending it again does nothing |
 | `next` | host | none | In `reveal`. After the last question the phase becomes `over` |
 | `kick` | host | `playerId` | Any time |
 
@@ -50,6 +51,7 @@ The frontend reads the backend address from a setting (`BACKEND_URL`), so it can
   "answeredCount": 1,
   "question": { "index": 0, "total": 8, "text": "How many keys does a standard piano have?", "unit": "keys" },
   "you": { "role": "player", "playerId": "p1", "answer": 88 },
+  "answerShown": true,
   "reveal": {
     "correct": 88,
     "results": [
@@ -61,6 +63,7 @@ The frontend reads the backend address from a setting (`BACKEND_URL`), so it can
 
 - `question` is `null` in `lobby` and `over`.
 - `reveal` is `null` unless the phase is `reveal`. **The correct answer is never sent before `reveal`.**
+- `answerShown` is `true` after the host sends `show` for the current question, and `false` at every other time. The big screen builds up to the answer, so phones must not show it first: **in `reveal`, a player's `reveal` is `null` and `players[].score` leaves out this round's points until `answerShown` is `true`.** The host always receives the full result.
 - `you.answer` is your own answer, or `null`. In `question` a player never sees other players' answers.
 - A host has `you.role` set to `host` and no `playerId`.
 - `reveal.results[].time` is the milliseconds from the question opening to that player's last answer, or `null` with no answer.

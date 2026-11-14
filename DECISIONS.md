@@ -9,3 +9,4 @@ One line per decision: the date, what we decided, and why. Newest at the bottom.
 - 2026-11-13: Equal final scores go to the lower total answer time (PR #1).
 - 2026-11-13: The projector shows counts and the top 3 or 5 only. Nobody's miss is shown by name.
 - 2026-11-13: The host drives the game with Space, Backspace and Esc, so a clicker works.
+- 2026-11-14: Phones get a round's result only after the big screen shows the answer (host message `show`). The server holds it back, so no phone can spoil the reveal.

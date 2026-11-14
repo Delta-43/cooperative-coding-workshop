@@ -3,4 +3,4 @@
   "answeredCount": 1,
   "question": { "index": 0, "total": 8, "text": "How many keys does a standard piano have?", "unit": "keys" },
   "you": { "role": "host", "playerId": null, "answer": null },
-  "reveal": { "correct": 88, "results": [ { "playerId": "p1", "name": "Ada", "value": 80, "error": 0.0909, "time": 4210, "rank": 1, "points": 3 } ] } }
+  "answerShown": true, "reveal": { "correct": 88, "results": [ { "playerId": "p1", "name": "Ada", "value": 80, "error": 0.0909, "time": 4210, "rank": 1, "points": 3 } ] } }
