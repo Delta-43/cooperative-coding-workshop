@@ -8,22 +8,20 @@ It is a showcase, not a hands-on session. The Volunteer and I build on stage, ea
 
 **Play the game:** [delta-43.github.io/cooperative-coding-workshop](https://delta-43.github.io/cooperative-coding-workshop/). Open `#/host` on a big screen to host a room, and scan the QR code with your phone to join.
 
-The demo project is **Guess Closer!**, a live quiz for a room. Players answer number questions on their phones, and the closest guess wins the round. Equal distance goes to the earlier answer. The frontend runs on GitHub Pages, and the backend is a Cloudflare Worker with one Durable Object per room.
+The demo project is **Guess Closer!**, a live quiz for a room. Players answer number questions on their phones, and the closest guess wins the round. Equal guesses go to the earlier answer. The frontend runs on GitHub Pages, and the backend is a Cloudflare Worker with one Durable Object per room.
 
 ## What's in here
 
 ```
-PROJECT-SPEC.pdf       The team brief: get-ready guide, roles, architecture, contract, phases and issues, rules
+PROJECT-SPEC.pdf       The team guide: set up each computer, the first conversation, the plan, the repo, CI, the working loop
 POSTER.pdf             Event poster (A4)
 SLIDES.html            Shortcut: opens the slide deck
-AGENTS.md              Short, hand-written instructions both agents read (CLAUDE.md imports it)
-DECISIONS.md           One line per decision
-contract/              The WebSocket messages both sides share: messages.md, schema.json, examples
-backend/               The Cloudflare Worker and the room logic (Delta)
-frontend/              Host screen and phone screens (Volunteer)
 materials/
-└── slides/            Slide deck: open index.html in a browser
-.github/workflows/     CI on every pull request, and the GitHub Pages publish
+├── PROJECT-SPEC.pdf   A copy of the team guide
+└── slides/            Slide deck: open index.html in a browser. The duck illustrations are in assets/
+live/                  The repo built on stage during the workshop (see live/README.md)
+demo/                  The finished Guess Closer! game: contract, backend, frontend, plan, decisions and design
+.github/workflows/     CI on every pull request, the GitHub Pages publish, and the sync with Delta-43/workshops
 ```
 
 ## The workflow in one picture
@@ -52,21 +50,22 @@ The URL keeps the slide number (`index.html#8`), so reloading keeps your place.
 ## Run the game yourself
 
 ```sh
-cd backend && npm ci && npm test        # Worker tests and contract examples
-cd frontend && npm ci && npm run dev    # http://localhost:5173
+cd demo/backend && npm ci && npm test        # Worker tests and contract examples
+cd demo/frontend && npm ci && npm run dev    # http://localhost:5173
 ```
 
-See `backend/README.md` and `frontend/README.md` for details. The host keys are Space (main action), Backspace (back) and Esc (players).
+See `demo/README.md` for details. The host keys are Space (main action), Backspace (back) and Esc (players).
 
 ## Credits
 
 - The duck illustrations were made for this workshop with OpenAI's image generation, through the Codex CLI.
-- Research behind the workflow: Anthropic's Claude Code documentation, the Model Context Protocol and Agent Skills specifications, Simon Willison's "lethal trifecta", and the Linux kernel's policy on generated content. The project brief lists the details.
+- Research behind the workflow: Anthropic's Claude Code documentation, the Model Context Protocol and Agent Skills specifications, Simon Willison's "lethal trifecta", and the Linux kernel's policy on generated content. The team guide lists the details.
 - Typefaces: [Anton](https://fonts.google.com/specimen/Anton) and [JetBrains Mono](https://www.jetbrains.com/lp/mono/) (SIL Open Font License), and [Switzer](https://www.fontshare.com/fonts/switzer) (ITF Free Font License).
 
 ## License
 
-- **Workshop materials** (everything except `backend/`, `frontend/` and `contract/`): [CC BY-NC 4.0](LICENSE). You're welcome to reuse and adapt them for non-commercial workshops, with credit.
-- **Code in `backend/`, `frontend/` and `contract/`**: MIT, see the `LICENSE` file in each folder.
+- **Workshop materials** (everything except `live/` and `demo/`): [CC BY-NC 4.0](LICENSE). You're welcome to reuse and adapt them for non-commercial workshops, with credit.
+- **Code in `demo/`**: [MIT](demo/LICENSE).
+- **Code in `live/`**: MIT, see the license in that repository.
 
 Part of [Delta-43/workshops](https://github.com/Delta-43/workshops).

@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guess Closer!: sketch and mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=JetBrains+Mono:wght@400;500;700&family=Caveat:wght@500&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700&display=swap" rel="stylesheet">
+<style>:root{
+  color-scheme: dark;
+  /* Palette: five colours, nothing else. Tints of navy are the only extra values */
+  --c-navy:#011627; --c-white:#FDFFFC; --c-teal:#2EC4B6; --c-orange:#FF9F1C; --c-red:#C8102E;
+  /* Type (from Guided Coding) */
+  --font-display: Anton, Impact, 'Arial Narrow', sans-serif;
+  --font-body: Switzer, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  /* Night pond: navy field and navy-tinted surfaces */
+  --md-bg: var(--c-navy);
+  --md-surface: oklch(0.245 0.045 250); --md-surface-2: oklch(0.275 0.045 250); --md-surface-3: oklch(0.32 0.045 250);
+  --md-border: oklch(0.37 0.04 250);
+  --md-text: var(--c-white); --md-soft: oklch(0.87 0.02 240); --md-muted: oklch(0.74 0.03 240);
+  --ease-out: cubic-bezier(0.19, 1, 0.22, 1);
+  /* Roles */
+  --accent: var(--c-teal);            /* the pond: actions, data, progress, focus */
+  --accent-ink: var(--c-navy);        /* text on teal */
+  --winner: var(--c-orange);          /* the winner, one panel per screen; also the crown */
+  --sticker: var(--c-red);            /* stickers, errors, warnings */
+  --red-text: oklch(0.7 0.17 22);     /* red tint for error text on navy (C8102E itself is too dark for small text) */
+  /* Placeholder duck */
+  --duck-head: var(--c-orange); --duck-eye: var(--c-teal); --duck-bill: oklch(0.87 0.02 240); --duck-wing: var(--c-red);
+  --duck-feather: oklch(0.56 0.025 245); --duck-feather-dark: oklch(0.42 0.03 245);
+  /* Comic panels: paper and ink, halftone paint, square corners, hard offset shadows */
+  --paper: var(--c-white);            /* main button, bubbles, outlines on navy */
+  --ink: var(--c-navy);               /* panel edges and text on paint and paper */
+  --rule: oklch(0.6 0.035 245);       /* outlines that must survive a washed-out projector (about 3:1 on navy) */
+  --line: 3px;                        /* the edge that does the work a shadow would */
+  --hair: 2px;
+  --r-card: 0;                        /* square 90 degree corners everywhere */
+  --r-full: 0;
+  --edge: 3px solid var(--ink);       /* the ink line between fill and shadow */
+  /* hard offset shadows: solid, no blur. Ink would vanish on navy, so they are teal or paper */
+  --pop: 6px 6px 0 var(--accent);
+  --pop-sm: 4px 4px 0 var(--accent);
+  --pop-paper: 6px 6px 0 var(--paper);
+  --pop-dim: 5px 5px 0 var(--md-surface-3);
+  /* halftone print dots over a flat fill */
+  --dots: radial-gradient(color-mix(in oklab,var(--ink) 16%,transparent) 1px,transparent 1.4px) 0 0/5px 5px;
+  --dots-faint: radial-gradient(var(--md-surface-2) 1.1px,transparent 1.5px) 0 0/9px 9px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--md-bg);color:var(--md-text);font-family:var(--font-body);font-size:17px;line-height:1.5}
+.wrap{max-width:1320px;margin:0 auto;padding:0 20px}
+section{padding:56px 0}
+h1,h2{margin:0}
+.doc-head{position:sticky;top:0;z-index:10;display:flex;gap:24px;align-items:center;justify-content:space-between;padding:14px 24px;background:var(--md-bg);border-bottom:var(--hair) solid var(--md-border)}
+.doc-head h1{font-family:var(--font-display);font-weight:400;text-transform:uppercase;font-size:28px;line-height:1}
+.doc-head p{margin:2px 0 0;font:500 12px/1.3 var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--md-muted)}
+.doc-head nav{display:flex;gap:8px;flex-wrap:wrap}
+.doc-head nav a{color:var(--md-soft);text-decoration:none;padding:7px 16px;border:var(--hair) solid var(--md-border);font:700 13px/1.4 var(--font-body);letter-spacing:.05em;text-transform:uppercase;transition:border-color 150ms var(--ease-out),color 150ms var(--ease-out)}
+.doc-head nav a:hover{border-color:var(--accent);color:var(--accent)}
+.doc-head nav a:focus-visible,.btn:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+section > .wrap > h2, section > h2{font-family:var(--font-display);font-weight:400;text-transform:uppercase;font-size:44px;line-height:1;margin-bottom:12px}
+.note{max-width:65ch;text-wrap:pretty;color:var(--md-soft);margin:0 0 28px}
+::selection{background:var(--accent);color:var(--accent-ink)}
+input{caret-color:var(--accent)}
+.mono,.gs,.pts,.code,.big-num,.m-big,.num{font-variant-numeric:tabular-nums}
+
+/* ---------- sketch ---------- */
+.paper{background:#ecebe4;color:#2b2a26}
+.paper .note{color:#4a4943}
+.wf-row{display:flex;flex-wrap:wrap;gap:28px;margin-bottom:36px;align-items:flex-start}
+.wf{margin:0}
+.wf figcaption{font:500 20px/1.2 Caveat,cursive;margin-top:8px;max-width:320px}
+.wf-frame{position:relative;border:2px solid #2b2a26;border-radius:6px;background:#f7f6f0}
+.wb{position:absolute;border:1.5px dashed #6a685f;border-radius:4px;font:500 15px/1.15 Caveat,cursive;padding:3px 6px;color:#2b2a26;overflow:hidden}
+.wb.t{border-style:solid;font-size:19px}
+.wb.s{border:none;color:#5d5b52}
+.wb.b{background:#d9d7cb;border-style:solid;font-size:17px;text-align:center;border-radius:999px;display:flex;align-items:center;justify-content:center}
+.wb.b2{border-style:solid;border-radius:999px;text-align:center;display:flex;align-items:center;justify-content:center}
+.wb.qr{background:repeating-linear-gradient(45deg,#e2e0d4 0 6px,#f7f6f0 6px 12px);display:flex;align-items:center;justify-content:center;font-size:22px}
+.wb.d{background:#e7e5da;border-radius:40px;display:flex;align-items:center;justify-content:center}
+.wb.i{border-style:solid;border-radius:10px}
+.wb.w{background:#dfe7d4;border-style:solid}
+.wb.l{border-style:solid}
+
+/* ---------- screens ---------- */
+.stack{display:flex;flex-direction:column;gap:48px}
+.shot{margin:0}
+.shot figcaption{margin-top:12px;font:500 12px/1.3 var(--font-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--md-muted)}
+.shot-frame{overflow:auto;border-radius:var(--r-card);max-width:100%;width:fit-content}
+.phones{display:flex;flex-wrap:wrap;gap:36px}
+.screen{position:relative;background:var(--dots-faint),var(--md-bg);color:var(--md-text);overflow:hidden}
+.screen.host{width:960px;height:540px;padding:68px 56px 60px;border:var(--hair) solid var(--md-border);padding:56px 56px 52px}
+.phone{width:376px;padding:8px;border-radius:44px;background:var(--md-surface-3);border:var(--hair) solid var(--md-border)}
+.screen.mobile{width:360px;height:700px;border-radius:36px;display:flex;flex-direction:column}
+.statusbar{display:flex;justify-content:space-between;padding:14px 24px 6px;font:500 13px var(--font-mono);color:var(--md-soft)}
+
+.bracket{position:absolute;width:28px;height:28px;border:var(--line) solid var(--accent)}
+.bracket.tl{top:20px;left:20px;border-right:0;border-bottom:0}
+.bracket.tr{top:20px;right:20px;border-left:0;border-bottom:0}
+.bracket.bl{bottom:20px;left:20px;border-right:0;border-top:0}
+.bracket.br{bottom:20px;right:20px;border-left:0;border-top:0}
+.meta{position:absolute;left:64px;right:64px;display:flex;justify-content:space-between;align-items:center;gap:16px;font:500 16px/1 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--md-soft)}
+.meta.top{top:24px}.meta.bottom{bottom:22px}
+.keys{display:flex;gap:16px}
+.key{display:inline-flex;align-items:center;gap:7px}
+.key kbd{font:700 16px/1 var(--font-mono);padding:4px 8px;border:var(--hair) solid var(--paper);color:var(--paper);box-shadow:2px 2px 0 var(--accent);letter-spacing:.04em}
+/* stamped mono tag: a label pressed into the page, not a button */
+.stamp{display:inline-block;padding:5px 10px 4px;border:1.5px solid currentColor;color:var(--accent);line-height:1}
+
+/* poster type: tighter leading, slight tracking, bigger */
+.title{margin:0;display:flex;flex-direction:column;font-family:var(--font-display);font-weight:400;text-transform:uppercase;font-size:100px;line-height:.93;letter-spacing:.02em}
+.title.sm{font-size:100px}
+.outline{color:transparent;-webkit-text-stroke:2.5px var(--md-text)}
+.lede{margin:16px 0 0;color:var(--md-soft);font-size:20px}
+.mono{font-family:var(--font-mono)}
+
+/* buttons: comic panels. Square, black edge, halftone fill, hard offset shadow that moves when pressed */
+.btn{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:12px;border:var(--edge);border-radius:0;font:700 17px/1 var(--font-body);letter-spacing:.05em;text-transform:uppercase;padding:0 28px;height:56px;cursor:pointer;color:inherit;background:none;transition:transform 90ms var(--ease-out),box-shadow 90ms var(--ease-out),background-color 150ms var(--ease-out)}
+.btn:hover{transform:translate(-2px,-2px)}
+.btn:active{transform:translate(4px,4px);box-shadow:2px 2px 0 var(--accent)}
+/* primary: cream paper with print dots, pond shadow */
+.btn.primary{background:var(--dots),var(--paper);color:var(--ink);box-shadow:var(--pop)}
+.btn.primary:hover{box-shadow:8px 8px 0 var(--accent)}
+/* secondary: pond paint with dots, cream shadow */
+.btn.outlined,.btn.tonal{background:var(--dots),var(--accent);color:var(--ink);box-shadow:var(--pop-paper)}
+.btn.outlined:hover,.btn.tonal:hover{box-shadow:8px 8px 0 var(--paper)}
+.btn.outlined:active,.btn.tonal:active{box-shadow:2px 2px 0 var(--paper)}
+.btn.xl{height:68px;font-size:20px;padding:0 34px}
+.btn.block{width:100%}
+.btn .ic{flex:none}
+.btn.primary .ic{background:var(--ink);color:var(--paper);padding:5px;margin-right:-12px}
+.btn.primary.xl .ic{padding:6px;margin-right:-16px}
+
+
+/* sticker: one per screen at most, tilted, flat paint */
+.sticker{position:absolute;z-index:2;display:inline-block;padding:8px 14px 6px;background:var(--dots),var(--sticker);color:var(--paper);border:var(--edge);box-shadow:4px 4px 0 var(--paper);font:400 22px/1 var(--font-display);letter-spacing:.04em;text-transform:uppercase;transform:rotate(-5deg)}
+
+/* host: lobby */
+.lobby{display:grid;grid-template-columns:1fr 300px;gap:40px;height:calc(100% - 14px);align-items:center}
+.lobby .title{font-size:92px}
+.lobby-left{position:relative}
+.lobby-left .sticker{top:-4px;left:268px}
+.roster{margin:14px 0 22px;max-width:520px}
+.roster-head{margin:0;display:flex;align-items:baseline;gap:10px;font:600 20px/1 var(--font-body)}
+.roster-head b{font:400 40px/1 var(--font-display);color:var(--accent)}
+.cloud{margin:8px 0 0;font:500 18px/1.5 var(--font-body);color:var(--md-soft)}
+.cloud em{font-style:normal;color:var(--accent);white-space:nowrap}
+.lobby-right{display:flex;flex-direction:column;align-items:flex-start}
+.perch{width:96px;align-self:flex-end;margin:0 18px -8px 0;position:relative;z-index:1}
+.qr-card{background:#fff;color:var(--c-navy);padding:12px;width:184px;height:184px;border:var(--edge);box-shadow:var(--pop)}
+.qr-card svg{width:100%;height:100%;display:block}
+.code{font:400 64px/1 var(--font-display);letter-spacing:.14em;margin:16px 0 0 2px;text-transform:uppercase;color:var(--accent)}
+.url{margin:8px 0 0;font:500 16px/1.35 var(--font-mono);color:var(--md-soft)}
+.url b{color:var(--md-text);font-weight:500}
+/* placeholder duck, comic: flat fills, cream ink lines */
+.duck{display:block;width:100%;height:auto;overflow:visible}
+.duck .ln{stroke:var(--paper);stroke-width:2.5;stroke-linejoin:round}
+
+/* progress: printed blocks. Done = solid, now = hatched, to come = outline */
+.seg{display:flex;gap:6px;margin:4px 0 18px}
+.seg i{flex:1;height:12px;border:var(--hair) solid var(--rule)}
+.seg i.on{background:var(--accent);border-color:var(--accent)}
+.seg i.now{border-color:var(--accent);background:repeating-linear-gradient(-45deg,var(--accent) 0 2px,transparent 2px 6px)}
+.seg.sm{margin:0}.seg.sm i{height:10px}
+
+/* host: question */
+.q-layout{display:grid;grid-template-columns:1fr 250px;gap:36px;height:calc(100% - 52px)}
+.q-main{display:flex;flex-direction:column}
+.q-text{margin:4px 0 0;font:600 46px/1.1 var(--font-body);letter-spacing:-.01em;text-wrap:balance;max-width:20ch}
+.unit{margin:18px 0 0;font-size:22px;color:var(--md-soft)}
+.unit b{font-family:var(--font-mono);font-weight:500;color:var(--accent);border:var(--hair) solid var(--accent);padding:1px 12px;margin-left:6px}
+.act{margin-top:auto;display:flex;align-items:center;gap:28px}
+.status{margin:0;font:500 22px/1.15 var(--font-body);color:var(--md-soft)}
+.status b{font:400 44px/1 var(--font-display);color:var(--accent);margin-right:4px}
+.q-side{align-self:center;background:var(--md-surface);border:var(--hair) solid var(--rule);box-shadow:var(--pop-dim);padding:18px 20px 12px}
+.side-title{margin:0 0 6px;font:500 16px/1.2 var(--font-mono);letter-spacing:.05em;white-space:nowrap;text-transform:uppercase;color:var(--md-soft)}
+.count-big{margin:6px 0 14px;display:flex;align-items:baseline;gap:10px}
+.count-big b{font:400 104px/.85 var(--font-display);color:var(--accent)}
+.count-big span{font:600 24px/1 var(--font-body);color:var(--md-soft)}
+.hbar{height:30px;border:var(--line) solid var(--paper);box-shadow:var(--pop-sm)}
+.hbar div{height:100%;background:repeating-linear-gradient(-45deg,transparent 0 7px,color-mix(in oklab,var(--accent-ink) 55%,transparent) 7px 10px),var(--accent)}
+.count-note{margin:18px 0 6px;font-size:16px;line-height:1.35;color:var(--md-soft)}
+.plist{list-style:none;margin:0;padding:0}
+.plist li{padding:6px 0;font-size:21px;border-bottom:1px dashed var(--rule)}
+.plist li:last-child{border:0}
+
+/* host: answer. Staged: empty tube and guesses, Space fills the bar, then the number and top 3 */
+.rv-layout{display:grid;grid-template-columns:1fr 340px;gap:36px;height:calc(100% - 6px)}
+.rv-main{display:grid}
+.rv-main>.before,.rv-main>.after{grid-area:1/1;display:flex;flex-direction:column;align-items:flex-start;transition:opacity .35s var(--ease-out),transform .35s var(--ease-out)}
+.reveal .after,.reveal .after-only,.reveal .level{opacity:0}
+.reveal .after{transform:translateY(10px);pointer-events:none}
+.reveal[data-stage=done] .before,.reveal[data-stage=done] .before-only{opacity:0;pointer-events:none}
+.reveal[data-stage=done] .after,.reveal[data-stage=done] .after-only,.reveal[data-stage=done] .level{opacity:1;transform:none;pointer-events:auto}
+.reveal[data-stage=done] .podium li{animation:land .4s var(--ease-out) both}
+.reveal[data-stage=done] .podium li:nth-child(2){animation-delay:.12s}.reveal[data-stage=done] .podium li:nth-child(3){animation-delay:.24s}
+@keyframes land{from{opacity:0;transform:translateY(10px)}}
+.before-only,.after-only{transition:opacity .2s}
+.meta .before-only,.meta .after-only{position:absolute;left:0}
+.reveal .meta.bottom .keys{margin-left:auto}
+.reveal .meta.bottom .key{position:relative}
+.reveal .key .before-only,.reveal .key .after-only{position:static}
+.reveal[data-stage=done] .key .before-only,.reveal:not([data-stage=done]) .key .after-only{display:none}
+.reveal:focus-visible{outline:3px solid var(--accent);outline-offset:4px}
+.rv-q{margin:0;font:500 20px/1.3 var(--font-body);color:var(--md-soft)}
+.rv-q.big{font:600 34px/1.15 var(--font-body);color:var(--md-text);max-width:18ch;text-wrap:balance}
+.rv-hint{margin:0 0 auto;font-size:20px;color:var(--md-soft)}
+.big-num{margin:6px 0 16px;display:flex;align-items:baseline;gap:14px;font:400 112px/.85 var(--font-display);letter-spacing:.02em;text-transform:uppercase;color:var(--accent)}
+.big-num span{font-size:38px;color:var(--md-soft)}
+.big-num.unknown{color:transparent;-webkit-text-stroke:2.5px var(--accent);margin:18px 0 12px}
+.big-num.unknown span{-webkit-text-stroke:0;color:var(--md-soft)}
+.podium{list-style:none;margin:0 0 22px;padding:0;width:100%;display:flex;flex-direction:column;gap:8px}
+.podium li{display:grid;grid-template-columns:30px auto 1fr auto;align-items:center;column-gap:12px;height:48px;padding:0 16px 0 12px;background:var(--md-surface);border:var(--hair) solid var(--rule)}
+.podium .rk,.podium .ic{font:700 18px var(--font-mono);color:var(--md-soft);justify-self:center}
+.podium .nm{font:600 22px/1 var(--font-body)}
+.podium .gs{font:500 16px/1.2 var(--font-mono);color:var(--md-text)}
+.podium .pts{font:700 22px var(--font-mono);color:var(--accent)}
+.podium li.first{height:54px;margin-bottom:4px;background:var(--dots),var(--winner);border:var(--edge);box-shadow:var(--pop-paper);color:var(--ink)}
+.podium li.first .ic,.podium li.first .gs,.podium li.first .pts{color:var(--ink)}
+/* the meter */
+.meter{position:relative;height:100%}
+.tube{position:absolute;left:52px;top:28px;bottom:28px;width:76px;border:var(--line) solid var(--paper);box-shadow:var(--pop);background:var(--md-bg);transform-origin:50% 100%}
+.fill{position:absolute;left:0;right:0;bottom:0;height:var(--to);
+  background:repeating-linear-gradient(-45deg,transparent 0 7px,color-mix(in oklab,var(--accent-ink) 55%,transparent) 7px 10px),var(--accent)}
+.reveal[data-stage=ready] .fill{height:0}
+/* hatched leading edge while it loads */
+.fill::after{content:"";position:absolute;left:0;right:0;bottom:100%;height:22px;background:repeating-linear-gradient(-45deg,var(--accent) 0 2px,transparent 2px 7px);opacity:0}
+.reveal[data-stage=filling] .fill{animation:fill-up 2.2s both}
+.reveal[data-stage=filling] .fill::after{opacity:.85}
+.reveal[data-stage=filling] .tube{animation:jiggle .34s ease-in-out 6 both}
+/* bursts, each one eased; then a small overshoot, wobble, settle */
+@keyframes fill-up{
+  0%{height:0;animation-timing-function:cubic-bezier(.3,.9,.4,1)}
+  16%{height:calc(var(--to) * .32);animation-timing-function:linear}
+  22%{height:calc(var(--to) * .34);animation-timing-function:cubic-bezier(.3,.9,.4,1)}
+  40%{height:calc(var(--to) * .64);animation-timing-function:linear}
+  46%{height:calc(var(--to) * .66);animation-timing-function:cubic-bezier(.3,.9,.4,1)}
+  66%{height:calc(var(--to) + 4%);animation-timing-function:ease-in-out}
+  76%{height:calc(var(--to) - 2%);animation-timing-function:ease-in-out}
+  86%{height:calc(var(--to) + .8%);animation-timing-function:ease-in-out}
+  100%{height:var(--to)}}
+@keyframes jiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-.8deg)}75%{transform:rotate(.7deg)}}
+.meter .guesses,.meter .level{position:absolute;left:52px;right:0;top:31px;bottom:31px}
+.meter .level{top:auto;height:0;border-top:var(--line) solid var(--paper);left:40px;right:auto;width:100px;transition:opacity .3s}
+.level span{position:absolute;right:calc(100% + 8px);top:-12px;font:700 20px/1 var(--font-mono);color:var(--accent)}
+.guesses{pointer-events:none}
+.g{position:absolute;left:calc(94px + var(--lvl,0) * 17px);width:13px;height:13px;margin-bottom:-6px;background:var(--md-soft);border:2px solid var(--ink)}
+.g.top{left:94px;width:19px;height:19px;margin-bottom:-9px;background:var(--paper);z-index:1}
+.g.top.first{background:var(--winner)}
+.g.top span{position:absolute;left:30px;top:-3px;font:700 17px/1 var(--font-body);color:var(--md-text);white-space:nowrap;background:var(--md-bg);padding:0 4px}
+.g.top.first span{color:var(--winner)}
+.g.top.first span{top:-10px}.g.top.below span{top:6px}
+.reveal[data-stage=filling] .before .btn{opacity:.35;transition:opacity .2s}
+.tick{position:absolute;left:0;width:44px;text-align:right;font:500 16px/1 var(--font-mono);color:var(--md-soft)}
+.t-hi{top:30px}.t-lo{bottom:30px}
+.far{position:absolute;left:146px;font:500 16px/1 var(--font-mono);color:var(--md-soft)}
+.far.hi{top:0}.far.lo{bottom:0}
+.reveal { cursor:pointer }
+
+/* host: final */
+.final-layout{display:grid;grid-template-columns:1fr 390px;gap:48px;height:calc(100% + 8px);align-items:center}
+.winner{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.winner .gold{color:var(--winner)}
+.winner .btn{margin-top:18px}
+.winner .sticker{top:66px;left:200px}
+.board-wrap{position:relative}
+.perch-board{position:absolute;width:78px;right:16px;top:-50px;z-index:1}
+.board{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.board li{display:grid;grid-template-columns:44px 1fr 56px;align-items:center;gap:8px;height:52px;padding:6px 20px 6px 8px;background:var(--md-surface);border:var(--hair) solid var(--rule);font-size:22px}
+.board li>span:first-child{text-align:center;font:500 18px var(--font-mono);color:var(--md-soft)}
+.board .nm{font-weight:600}
+.board .mono{text-align:right;font-weight:700}
+.board li.first{background:var(--dots),var(--winner);border:var(--edge);box-shadow:var(--pop-paper);margin-bottom:6px;color:var(--ink);height:64px;font-size:28px}
+.board li.first>span:first-child,.board li.first .mono{color:var(--ink)}
+.more{margin:14px 0 0;font-size:18px;color:var(--md-soft)}
+
+/* ---------- phone ---------- */
+.m-top{display:flex;justify-content:space-between;align-items:center;padding:10px 20px}
+.who{font-weight:600;font-size:18px}
+.pts-chip{font:700 14px/1 var(--font-mono);padding:6px 10px;border:var(--hair) solid var(--accent);color:var(--accent)}
+.m-pad{flex:1;display:flex;flex-direction:column;gap:16px;padding:16px 22px 28px}
+.m-pad.center{align-items:center;justify-content:center;text-align:center}
+.m-title{margin:12px 0 0;display:flex;flex-direction:column;font:400 72px/.92 var(--font-display);letter-spacing:.02em;text-transform:uppercase}
+.m-title.sm{font-size:64px;margin:12px 0}
+.m-lede{margin:0;color:var(--md-soft);font-size:17px;max-width:30ch;text-wrap:pretty}
+.m-h{margin:4px 0 0;font:600 26px/1.15 var(--font-body);display:flex;align-items:center;gap:10px}
+.m-h.done .ic{color:var(--accent)}.m-h.warn .ic{color:var(--red-text)}
+.m-q-sm{margin:0;font-size:15px;line-height:1.35;color:var(--md-soft);max-width:28ch}
+.m-q{margin:0;font:600 27px/1.2 var(--font-body);text-wrap:balance}
+.field{display:flex;flex-direction:column;gap:6px;text-align:left}
+.field>span{font:500 13px/1 var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--md-soft);padding-left:2px}
+.field input{height:60px;border-radius:0;border:var(--line) solid var(--md-muted);background:var(--md-surface);color:var(--md-text);font:500 20px var(--font-body);padding:0 18px;width:100%}
+.field input:focus{outline:none;border-color:var(--accent);box-shadow:var(--pop-sm)}
+.field.bad input{border-color:var(--red-text)}
+.field .err{color:var(--red-text);font-size:15px;line-height:1.35}
+.field input.code-in{font:400 34px var(--font-display);letter-spacing:.3em;text-transform:uppercase;text-align:center;color:var(--accent)}
+.field small{font-size:14px;color:var(--md-muted);padding-left:2px}
+.num-row{display:flex;align-items:center;gap:12px;border:var(--line) solid var(--accent);background:var(--md-surface);box-shadow:var(--pop-sm);padding:0 22px;height:88px}
+.num-row:focus-within{box-shadow:var(--pop)}
+.field.big .num-row .num:focus{outline:none;border:0;box-shadow:none}
+.field.big .num-row .num{border:0;background:none;height:auto;padding:0;font:500 44px var(--font-mono);color:var(--md-text);flex:1;min-width:0}
+.num-row em{font:500 18px var(--font-mono);font-style:normal;color:var(--md-muted)}
+.m-pad .btn.block{margin-top:auto}
+.m-pad .btn.block.under{margin-top:4px}
+.duck-wrap{width:170px}.duck-wrap.sm{width:120px;margin-top:6px}
+/* speech bubble: the duck talks */
+.bubble{position:relative;margin:0 0 10px;padding:14px 20px;background:var(--dots),var(--paper);color:var(--ink);border:var(--edge);box-shadow:var(--pop);font:400 30px/1 var(--font-display);letter-spacing:.02em;text-transform:uppercase}
+.bubble::before,.bubble::after{content:"";position:absolute;left:58%;border:14px solid transparent;border-bottom:0;border-left-width:4px}
+.bubble::before{bottom:-19px;margin-left:-3px;border-width:19px 19px 0 6px;border-top-color:var(--ink)}
+.bubble::after{bottom:-13px;border-top-color:var(--paper)}
+.sent{margin:0;font-size:26px;color:var(--accent)}
+.m-big{margin:0;display:flex;align-items:baseline;gap:10px;font:400 112px/.85 var(--font-display);letter-spacing:.02em;text-transform:uppercase;color:var(--accent)}
+.m-big span{font-size:34px;color:var(--md-soft)}
+.result-card{width:100%;padding:16px 18px;background:var(--dots),var(--winner);border:var(--edge);box-shadow:var(--pop-paper);color:var(--ink);text-align:left}
+.result-card p{margin:0;font-size:19px}
+.result-card.tie{background:var(--md-surface);color:var(--md-text);border-color:var(--accent);box-shadow:var(--pop)}
+.result-card.tie .place span{color:var(--accent)}
+.result-card.plain{background:var(--md-surface);color:var(--md-text);border:var(--hair) solid var(--rule);box-shadow:none}
+.result-card .place{margin-top:8px;font:400 48px/.85 var(--font-display);text-transform:uppercase;display:flex;justify-content:space-between;align-items:flex-end}
+.result-card .place span{font-family:var(--font-mono);font-weight:700;font-size:30px;line-height:1}
+.tiny{font-size:14px;line-height:1.35;color:var(--md-muted);text-wrap:pretty}
+.nudge{margin:-4px 0 0;color:var(--md-soft)}
+.gold{color:var(--winner)}
+
+.decisions{max-width:72ch;padding-left:20px;color:var(--md-soft)}
+.decisions li{margin-bottom:10px}
+.decisions b{color:var(--md-text)}
+@media (max-width:440px){.phone{zoom:.84}.screen.host{zoom:.36}}
+.decisions li{text-wrap:pretty}
+@media (prefers-reduced-motion:reduce){.fill,.fill::after,.tube,.podium li{animation:none!important}.fill::after{opacity:0}*{transition:none!important;scroll-behavior:auto!important}.btn:hover,.btn:active{transform:none}}
+</style>
+</head>
+<body>
+<header class="doc-head"><div><h1>Guess Closer!</h1><p>Sketch and mockup · final · 13 November 2026</p></div>
+<nav aria-label="Sections"><a href="#sketch">Sketch</a><a href="#host">Host screens</a><a href="#phone">Phone screens</a><a href="#decisions">Decisions</a></nav></header>
+
+<section id="sketch" class="paper"><div class="wrap"><h2>1 · Sketch</h2>
+<p class="note">Structure only. The host screen is on a projector: one thing to read at a time. The phone is held in one hand: one task per screen.</p>
+<div class="wf-row host-row"><figure class="wf "><div class="wf-frame" style="width:320px;height:180px"><div class="wb t" style="left:10px;top:8px;width:150px;height:26px">GUESS CLOSER!</div><div class="wb s" style="left:10px;top:40px;width:150px;height:14px">join at ... or scan</div><div class="wb qr" style="left:176px;top:10px;width:134px;height:134px">QR</div><div class="wb t" style="left:10px;top:70px;width:150px;height:40px">ROOM CODE  KQWZ</div><div class="wb s" style="left:10px;top:124px;width:150px;height:14px">Ada · Bo · Cy · Di ...</div><div class="wb b" style="left:176px;top:150px;width:134px;height:22px">START GAME →</div><div class="wb d" style="left:10px;top:150px;width:60px;height:24px">duck</div></div><figcaption>H1 · Lobby: QR, code, who has joined</figcaption></figure><figure class="wf "><div class="wf-frame" style="width:320px;height:180px"><div class="wb s" style="left:10px;top:8px;width:300px;height:10px">question 3 of 10  ▮▮▮▯▯▯▯▯▯▯</div><div class="wb t" style="left:10px;top:26px;width:200px;height:56px">The question, big enough for the back row</div><div class="wb s" style="left:10px;top:90px;width:100px;height:16px">answer in: keys</div><div class="wb l" style="left:222px;top:30px;width:88px;height:120px">players · ✓ answered</div><div class="wb s" style="left:10px;top:108px;width:120px;height:16px">5 of 7 answered</div><div class="wb b" style="left:10px;top:150px;width:120px;height:24px">REVEAL ANSWER</div></div><figcaption>H2 · Question: what, unit, who has answered</figcaption></figure><figure class="wf "><div class="wf-frame" style="width:320px;height:180px"><div class="wb t" style="left:10px;top:8px;width:300px;height:44px">88 keys   (the answer, huge)</div><div class="wb w" style="left:10px;top:62px;width:300px;height:20px">1  Ada   85   off by 3.4%   +3</div><div class="wb l" style="left:10px;top:86px;width:300px;height:20px">2  Bo    80   off by 9.1%   +2</div><div class="wb l" style="left:10px;top:110px;width:300px;height:20px">3  Cy    120  off by 36%    +1</div><div class="wb b" style="left:10px;top:150px;width:130px;height:24px">NEXT QUESTION →</div></div><figcaption>H3 · Reveal: answer, ranked guesses, points</figcaption></figure><figure class="wf "><div class="wf-frame" style="width:320px;height:180px"><div class="wb t" style="left:10px;top:8px;width:300px;height:50px">ADA wins (crown)</div><div class="wb l" style="left:10px;top:70px;width:300px;height:16px">leaderboard rows ...</div><div class="wb l" style="left:10px;top:92px;width:300px;height:16px"></div><div class="wb l" style="left:10px;top:114px;width:300px;height:16px"></div><div class="wb b" style="left:10px;top:152px;width:100px;height:22px">NEW GAME</div><div class="wb d" style="left:230px;top:130px;width:80px;height:44px">duck</div></div><figcaption>H4 · Final scores</figcaption></figure></div>
+<div class="wf-row phone-row"><figure class="wf "><div class="wf-frame" style="width:112px;height:224px"><div class="wb t" style="left:8px;top:10px;width:96px;height:18px">Join a game</div><div class="wb i" style="left:8px;top:40px;width:96px;height:24px">ROOM CODE</div><div class="wb i" style="left:8px;top:72px;width:96px;height:24px">NICKNAME</div><div class="wb b" style="left:8px;top:180px;width:96px;height:28px">JOIN</div></div><figcaption>P1 · Join</figcaption></figure><figure class="wf "><div class="wf-frame" style="width:112px;height:224px"><div class="wb s" style="left:8px;top:10px;width:96px;height:18px">Ada · 0 pts</div><div class="wb d" style="left:8px;top:60px;width:96px;height:80px">duck + &#x27;you&#x27;re in&#x27;</div><div class="wb s" style="left:8px;top:160px;width:96px;height:16px">waiting for host</div></div><figcaption>P2 · Waiting in lobby</figcaption></figure><figure class="wf "><div class="wf-frame" style="width:112px;height:224px"><div class="wb s" style="left:8px;top:6px;width:96px;height:14px">3 of 10</div><div class="wb t" style="left:8px;top:26px;width:96px;height:64px">question text</div><div class="wb i" style="left:8px;top:100px;width:96px;height:34px">number  unit</div><div class="wb b" style="left:8px;top:184px;width:96px;height:30px">SEND</div></div><figcaption>P3 · Answer</figcaption></figure><figure class="wf "><div class="wf-frame" style="width:112px;height:224px"><div class="wb t" style="left:8px;top:60px;width:96px;height:40px">✓ sent: 80 keys</div><div class="wb s" style="left:8px;top:110px;width:96px;height:16px">5 of 7 answered</div><div class="wb b2" style="left:8px;top:184px;width:96px;height:30px">CHANGE</div></div><figcaption>P4 · Answer sent</figcaption></figure><figure class="wf "><div class="wf-frame" style="width:112px;height:224px"><div class="wb t" style="left:8px;top:20px;width:96px;height:36px">88 keys</div><div class="wb s" style="left:8px;top:66px;width:96px;height:16px">you said 80</div><div class="wb w" style="left:8px;top:92px;width:96px;height:40px">2nd · +2</div><div class="wb s" style="left:8px;top:184px;width:96px;height:28px">waiting for next</div></div><figcaption>P5 · Your result</figcaption></figure><figure class="wf "><div class="wf-frame" style="width:112px;height:224px"><div class="wb t" style="left:8px;top:20px;width:96px;height:50px">you: 2nd of 7</div><div class="wb s" style="left:8px;top:80px;width:96px;height:16px">12 points</div><div class="wb d" style="left:8px;top:110px;width:96px;height:60px">duck</div></div><figcaption>P6 · Final</figcaption></figure><figure class="wf "><div class="wf-frame" style="width:112px;height:224px"><div class="wb d" style="left:8px;top:50px;width:96px;height:50px">no signal icon</div><div class="wb t" style="left:8px;top:106px;width:96px;height:60px">Reconnecting... or room not found</div><div class="wb b" style="left:8px;top:184px;width:96px;height:28px">TRY AGAIN</div></div><figcaption>P7 · Problem state</figcaption></figure></div></div></section>
+
+<section id="host"><div class="wrap"><h2>2 · Mockup: host screens</h2>
+<p class="note">Projector view, 16:9. Placeholder QR and duck. Draft 4: nothing you need to read is under 16 px, screens are built for a class of about 30, and the host drives it with the space bar or a clicker.</p>
+<div class="stack"><figure class="shot"><div class="shot-frame"><div class="screen host" id="h1"><div class="bracket tl"></div><div class="bracket tr"></div><div class="bracket bl"></div><div class="bracket br"></div>
+<div class="meta top"><span>ROOM KQWZ</span><span class="stamp">LOBBY</span><span>28 JOINED</span></div>
+ <div class="lobby">
+  <div class="lobby-left">
+   <span class="sticker">10 questions</span>
+   <h1 class="title"><span>CLOSEST</span><span class="outline">NUMBER</span></h1>
+   <p class="lede">Closest guess wins. Same distance? Faster wins.</p>
+   <div class="roster"><p class="roster-head"><b>28</b> ducks in the pond</p>
+    <p class="cloud">Ada · Bo · Cy · Di · Eli · Fay · Gus · Hana · Ivo · Jas · Kit · Lu · Mo · Nia <em>and 14 more</em></p></div>
+   <button class="btn primary xl">Start game <svg class="ic " width="28" height="28" viewBox="0 0 256 256" aria-hidden="true" focusable="false"><path fill="currentColor" d="m221.66 133.66l-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32"/></svg></button>
+  </div>
+  <div class="lobby-right">
+   <div class="perch"><svg class="duck" viewBox="0 0 160 120" aria-hidden="true">
+  <ellipse class="ln" cx="78" cy="78" rx="54" ry="30" fill="var(--duck-feather)"/>
+  <path class="ln" d="M30 70 Q18 52 8 56 Q14 76 30 86Z" fill="var(--duck-feather-dark)"/>
+  <ellipse cx="82" cy="76" rx="26" ry="12" fill="var(--duck-feather-dark)" opacity=".7"/>
+  <rect x="62" y="70" width="22" height="5" rx="1" fill="var(--duck-wing)"/>
+  <circle class="ln" cx="124" cy="50" r="24" fill="var(--duck-head)"/>
+  <path d="M110 40 Q128 30 146 44 Q140 60 124 58 Q112 54 110 40Z" fill="var(--duck-eye)"/>
+  <circle cx="130" cy="46" r="3" fill="var(--md-bg)"/>
+  <path class="ln" d="M140 54 L162 56 Q160 64 142 64Z" fill="var(--duck-bill)"/>
+  <path d="M70 108 L62 118 M70 108 L74 118 M96 108 L88 118 M96 108 L100 118" stroke="var(--paper)" stroke-width="3" stroke-linecap="round" fill="none"/>
+</svg></div>
+   <div class="qr-card"><svg viewBox="0 0 25 25" shape-rendering="crispEdges" fill="currentColor" role="img" aria-label="Placeholder QR code"><rect x="0" y="0" width="1" height="1"/><rect x="0" y="1" width="1" height="1"/><rect x="0" y="2" width="1" height="1"/><rect x="0" y="3" width="1" height="1"/><rect x="0" y="4" width="1" height="1"/><rect x="0" y="5" width="1" height="1"/><rect x="0" y="6" width="1" height="1"/><rect x="0" y="8" width="1" height="1"/><rect x="0" y="9" width="1" height="1"/><rect x="0" y="11" width="1" height="1"/><rect x="0" y="13" width="1" height="1"/><rect x="0" y="14" width="1" height="1"/><rect x="0" y="16" width="1" height="1"/><rect x="0" y="18" width="1" height="1"/><rect x="0" y="19" width="1" height="1"/><rect x="0" y="20" width="1" height="1"/><rect x="0" y="21" width="1" height="1"/><rect x="0" y="22" width="1" height="1"/><rect x="0" y="23" width="1" height="1"/><rect x="0" y="24" width="1" height="1"/><rect x="1" y="0" width="1" height="1"/><rect x="1" y="6" width="1" height="1"/><rect x="1" y="8" width="1" height="1"/><rect x="1" y="9" width="1" height="1"/><rect x="1" y="10" width="1" height="1"/><rect x="1" y="11" width="1" height="1"/><rect x="1" y="13" width="1" height="1"/><rect x="1" y="14" width="1" height="1"/><rect x="1" y="18" width="1" height="1"/><rect x="1" y="24" width="1" height="1"/><rect x="2" y="0" width="1" height="1"/><rect x="2" y="2" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="2" y="6" width="1" height="1"/><rect x="2" y="9" width="1" height="1"/><rect x="2" y="11" width="1" height="1"/><rect x="2" y="13" width="1" height="1"/><rect x="2" y="14" width="1" height="1"/><rect x="2" y="15" width="1" height="1"/><rect x="2" y="16" width="1" height="1"/><rect x="2" y="18" width="1" height="1"/><rect x="2" y="20" width="1" height="1"/><rect x="2" y="21" width="1" height="1"/><rect x="2" y="22" width="1" height="1"/><rect x="2" y="24" width="1" height="1"/><rect x="3" y="0" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="3" y="3" width="1" height="1"/><rect x="3" y="4" width="1" height="1"/><rect x="3" y="6" width="1" height="1"/><rect x="3" y="9" width="1" height="1"/><rect x="3" y="12" width="1" height="1"/><rect x="3" y="14" width="1" height="1"/><rect x="3" y="15" width="1" height="1"/><rect x="3" y="16" width="1" height="1"/><rect x="3" y="18" width="1" height="1"/><rect x="3" y="20" width="1" height="1"/><rect x="3" y="21" width="1" height="1"/><rect x="3" y="22" width="1" height="1"/><rect x="3" y="24" width="1" height="1"/><rect x="4" y="0" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="4" y="3" width="1" height="1"/><rect x="4" y="4" width="1" height="1"/><rect x="4" y="6" width="1" height="1"/><rect x="4" y="9" width="1" height="1"/><rect x="4" y="10" width="1" height="1"/><rect x="4" y="12" width="1" height="1"/><rect x="4" y="13" width="1" height="1"/><rect x="4" y="16" width="1" height="1"/><rect x="4" y="18" width="1" height="1"/><rect x="4" y="20" width="1" height="1"/><rect x="4" y="21" width="1" height="1"/><rect x="4" y="22" width="1" height="1"/><rect x="4" y="24" width="1" height="1"/><rect x="5" y="0" width="1" height="1"/><rect x="5" y="6" width="1" height="1"/><rect x="5" y="12" width="1" height="1"/><rect x="5" y="14" width="1" height="1"/><rect x="5" y="15" width="1" height="1"/><rect x="5" y="18" width="1" height="1"/><rect x="5" y="24" width="1" height="1"/><rect x="6" y="0" width="1" height="1"/><rect x="6" y="1" width="1" height="1"/><rect x="6" y="2" width="1" height="1"/><rect x="6" y="3" width="1" height="1"/><rect x="6" y="4" width="1" height="1"/><rect x="6" y="5" width="1" height="1"/><rect x="6" y="6" width="1" height="1"/><rect x="6" y="8" width="1" height="1"/><rect x="6" y="10" width="1" height="1"/><rect x="6" y="15" width="1" height="1"/><rect x="6" y="18" width="1" height="1"/><rect x="6" y="19" width="1" height="1"/><rect x="6" y="20" width="1" height="1"/><rect x="6" y="21" width="1" height="1"/><rect x="6" y="22" width="1" height="1"/><rect x="6" y="23" width="1" height="1"/><rect x="6" y="24" width="1" height="1"/><rect x="7" y="10" width="1" height="1"/><rect x="7" y="13" width="1" height="1"/><rect x="7" y="15" width="1" height="1"/><rect x="8" y="3" width="1" height="1"/><rect x="8" y="4" width="1" height="1"/><rect x="8" y="6" width="1" height="1"/><rect x="8" y="7" width="1" height="1"/><rect x="8" y="8" width="1" height="1"/><rect x="8" y="9" width="1" height="1"/><rect x="8" y="10" width="1" height="1"/><rect x="8" y="12" width="1" height="1"/><rect x="8" y="13" width="1" height="1"/><rect x="8" y="14" width="1" height="1"/><rect x="8" y="16" width="1" height="1"/><rect x="8" y="17" width="1" height="1"/><rect x="8" y="22" width="1" height="1"/><rect x="8" y="23" width="1" height="1"/><rect x="8" y="24" width="1" height="1"/><rect x="9" y="2" width="1" height="1"/><rect x="9" y="3" width="1" height="1"/><rect x="9" y="4" width="1" height="1"/><rect x="9" y="5" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/><rect x="9" y="9" width="1" height="1"/><rect x="9" y="10" width="1" height="1"/><rect x="9" y="11" width="1" height="1"/><rect x="9" y="18" width="1" height="1"/><rect x="9" y="23" width="1" height="1"/><rect x="9" y="24" width="1" height="1"/><rect x="10" y="0" width="1" height="1"/><rect x="10" y="2" width="1" height="1"/><rect x="10" y="3" width="1" height="1"/><rect x="10" y="4" width="1" height="1"/><rect x="10" y="5" width="1" height="1"/><rect x="10" y="6" width="1" height="1"/><rect x="10" y="7" width="1" height="1"/><rect x="10" y="8" width="1" height="1"/><rect x="10" y="9" width="1" height="1"/><rect x="10" y="10" width="1" height="1"/><rect x="10" y="11" width="1" height="1"/><rect x="10" y="12" width="1" height="1"/><rect x="10" y="15" width="1" height="1"/><rect x="10" y="16" width="1" height="1"/><rect x="10" y="17" width="1" height="1"/><rect x="10" y="18" width="1" height="1"/><rect x="10" y="19" width="1" height="1"/><rect x="10" y="22" width="1" height="1"/><rect x="10" y="24" width="1" height="1"/><rect x="11" y="0" width="1" height="1"/><rect x="11" y="1" width="1" height="1"/><rect x="11" y="2" width="1" height="1"/><rect x="11" y="4" width="1" height="1"/><rect x="11" y="5" width="1" height="1"/><rect x="11" y="8" width="1" height="1"/><rect x="11" y="10" width="1" height="1"/><rect x="11" y="15" width="1" height="1"/><rect x="11" y="16" width="1" height="1"/><rect x="11" y="17" width="1" height="1"/><rect x="11" y="21" width="1" height="1"/><rect x="11" y="22" width="1" height="1"/><rect x="12" y="4" width="1" height="1"/><rect x="12" y="6" width="1" height="1"/><rect x="12" y="7" width="1" height="1"/><rect x="12" y="8" width="1" height="1"/><rect x="12" y="9" width="1" height="1"/><rect x="12" y="10" width="1" height="1"/><rect x="12" y="13" width="1" height="1"/><rect x="12" y="17" width="1" height="1"/><rect x="12" y="18" width="1" height="1"/><rect x="12" y="19" width="1" height="1"/><rect x="12" y="20" width="1" height="1"/><rect x="12" y="21" width="1" height="1"/><rect x="13" y="0" width="1" height="1"/><rect x="13" y="3" width="1" height="1"/><rect x="13" y="8" width="1" height="1"/><rect x="13" y="9" width="1" height="1"/><rect x="13" y="11" width="1" height="1"/><rect x="13" y="14" width="1" height="1"/><rect x="13" y="15" width="1" height="1"/><rect x="13" y="18" width="1" height="1"/><rect x="13" y="19" width="1" height="1"/><rect x="13" y="20" width="1" height="1"/><rect x="13" y="23" width="1" height="1"/><rect x="14" y="2" width="1" height="1"/><rect x="14" y="4" width="1" height="1"/><rect x="14" y="5" width="1" height="1"/><rect x="14" y="10" width="1" height="1"/><rect x="14" y="13" width="1" height="1"/><rect x="14" y="14" width="1" height="1"/><rect x="14" y="15" width="1" height="1"/><rect x="14" y="16" width="1" height="1"/><rect x="14" y="18" width="1" height="1"/><rect x="14" y="19" width="1" height="1"/><rect x="14" y="20" width="1" height="1"/><rect x="14" y="22" width="1" height="1"/><rect x="14" y="23" width="1" height="1"/><rect x="15" y="1" width="1" height="1"/><rect x="15" y="6" width="1" height="1"/><rect x="15" y="7" width="1" height="1"/><rect x="15" y="8" width="1" height="1"/><rect x="15" y="9" width="1" height="1"/><rect x="15" y="11" width="1" height="1"/><rect x="15" y="12" width="1" height="1"/><rect x="15" y="15" width="1" height="1"/><rect x="15" y="19" width="1" height="1"/><rect x="15" y="21" width="1" height="1"/><rect x="15" y="22" width="1" height="1"/><rect x="16" y="3" width="1" height="1"/><rect x="16" y="8" width="1" height="1"/><rect x="16" y="10" width="1" height="1"/><rect x="16" y="15" width="1" height="1"/><rect x="16" y="19" width="1" height="1"/><rect x="16" y="20" width="1" height="1"/><rect x="16" y="21" width="1" height="1"/><rect x="16" y="22" width="1" height="1"/><rect x="16" y="23" width="1" height="1"/><rect x="16" y="24" width="1" height="1"/><rect x="17" y="11" width="1" height="1"/><rect x="17" y="14" width="1" height="1"/><rect x="18" y="0" width="1" height="1"/><rect x="18" y="1" width="1" height="1"/><rect x="18" y="2" width="1" height="1"/><rect x="18" y="3" width="1" height="1"/><rect x="18" y="4" width="1" height="1"/><rect x="18" y="5" width="1" height="1"/><rect x="18" y="6" width="1" height="1"/><rect x="18" y="8" width="1" height="1"/><rect x="18" y="10" width="1" height="1"/><rect x="18" y="14" width="1" height="1"/><rect x="18" y="15" width="1" height="1"/><rect x="19" y="0" width="1" height="1"/><rect x="19" y="6" width="1" height="1"/><rect x="19" y="8" width="1" height="1"/><rect x="19" y="9" width="1" height="1"/><rect x="19" y="10" width="1" height="1"/><rect x="19" y="12" width="1" height="1"/><rect x="19" y="14" width="1" height="1"/><rect x="19" y="15" width="1" height="1"/><rect x="19" y="16" width="1" height="1"/><rect x="20" y="0" width="1" height="1"/><rect x="20" y="2" width="1" height="1"/><rect x="20" y="3" width="1" height="1"/><rect x="20" y="4" width="1" height="1"/><rect x="20" y="6" width="1" height="1"/><rect x="20" y="10" width="1" height="1"/><rect x="20" y="14" width="1" height="1"/><rect x="20" y="15" width="1" height="1"/><rect x="20" y="16" width="1" height="1"/><rect x="21" y="0" width="1" height="1"/><rect x="21" y="2" width="1" height="1"/><rect x="21" y="3" width="1" height="1"/><rect x="21" y="4" width="1" height="1"/><rect x="21" y="6" width="1" height="1"/><rect x="21" y="9" width="1" height="1"/><rect x="21" y="10" width="1" height="1"/><rect x="21" y="11" width="1" height="1"/><rect x="21" y="14" width="1" height="1"/><rect x="21" y="15" width="1" height="1"/><rect x="22" y="0" width="1" height="1"/><rect x="22" y="2" width="1" height="1"/><rect x="22" y="3" width="1" height="1"/><rect x="22" y="4" width="1" height="1"/><rect x="22" y="6" width="1" height="1"/><rect x="22" y="10" width="1" height="1"/><rect x="22" y="11" width="1" height="1"/><rect x="22" y="13" width="1" height="1"/><rect x="22" y="14" width="1" height="1"/><rect x="23" y="0" width="1" height="1"/><rect x="23" y="6" width="1" height="1"/><rect x="23" y="9" width="1" height="1"/><rect x="23" y="11" width="1" height="1"/><rect x="23" y="13" width="1" height="1"/><rect x="23" y="14" width="1" height="1"/><rect x="24" y="0" width="1" height="1"/><rect x="24" y="1" width="1" height="1"/><rect x="24" y="2" width="1" height="1"/><rect x="24" y="3" width="1" height="1"/><rect x="24" y="4" width="1" height="1"/><rect x="24" y="5" width="1" height="1"/><rect x="24" y="6" width="1" height="1"/><rect x="24" y="8" width="1" height="1"/><rect x="24" y="9" width="1" height="1"/><rect x="24" y="11" width="1" height="1"/><rect x="24" y="12" width="1" height="1"/><rect x="24" y="13" width="1" height="1"/><rect x="24" y="14" width="1" height="1"/><rect x="24" y="15" width="1" height="1"/><rect x="24" y="16" width="1" height="1"/></svg></div>
+   <div class="code" aria-label="Room code K Q W Z">KQWZ</div>
+   <p class="url">or open <b>delta-43.github.io</b><br><b>/cooperative-coding-workshop</b></p>
+  </div>
+ </div>
+<div class="meta bottom"><span>SCAN, GUESS, CLOSEST WINS</span><span class="keys"><span class="key"><kbd>Space</kbd>start</span><span class="key"><kbd>Backspace</kbd>back</span><span class="key"><kbd>Esc</kbd>players</span></span></div>
+</div></div><figcaption>H1 · Lobby. Up to about 30 players: a count and a name list, not chips. Remove a player from the Esc menu</figcaption></figure><figure class="shot"><div class="shot-frame"><div class="screen host" id="h2"><div class="bracket tl"></div><div class="bracket tr"></div><div class="bracket bl"></div><div class="bracket br"></div>
+<div class="meta top"><span>ROOM KQWZ</span><span class="stamp">QUESTION 3 OF 10</span><span>28 PLAYERS</span></div>
+ <div class="seg" role="img" aria-label="Question 3 of 10"><i class="on"></i><i class="on"></i><i class="now"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+ <div class="q-layout">
+  <div class="q-main">
+   <p class="q-text">How many keys does a standard piano have?</p>
+   <p class="unit">Answer in <b>keys</b></p>
+   <div class="act"><button class="btn primary xl">Reveal answer <svg class="ic " width="28" height="28" viewBox="0 0 256 256" aria-hidden="true" focusable="false"><path fill="currentColor" d="m221.66 133.66l-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32"/></svg></button></div>
+  </div>
+  <aside class="q-side count" aria-label="Answers in">
+   <p class="side-title">Answers in</p>
+   <p class="count-big"><b>21</b><span>of 28</span></p>
+   <div class="hbar" role="img" aria-label="21 of 28 answered"><div style="width:75%"></div></div>
+   <p class="count-note">No names here. Players who have not answered get a nudge on their phone.</p>
+  </aside>
+ </div>
+<div class="meta bottom"><span>CLOSEST GUESS WINS</span><span class="keys"><span class="key"><kbd>Space</kbd>reveal</span><span class="key"><kbd>Backspace</kbd>back</span><span class="key"><kbd>Esc</kbd>players</span></span></div>
+</div></div><figcaption>H2 · Question. A count and a bar, no names on the projector</figcaption></figure><figure class="shot"><div class="shot-frame"><div class="screen host reveal" id="h3" data-stage="ready" tabindex="0" aria-label="Answer screen. Press Space or click to play the reveal"><div class="bracket tl"></div><div class="bracket tr"></div><div class="bracket bl"></div><div class="bracket br"></div>
+<div class="meta top"><span>ROOM KQWZ</span><span class="stamp">ANSWER</span><span>QUESTION 3 OF 10</span></div>
+ <div class="rv-layout">
+  <div class="rv-main">
+   <div class="before">
+    <p class="rv-q big">How many keys does a standard piano have?</p>
+    <p class="big-num unknown">? <span>keys</span></p>
+    <p class="rv-hint">25 guesses are in. Each square is one guess.</p>
+    <button class="btn primary xl">Fill the bar <svg class="ic " width="28" height="28" viewBox="0 0 256 256" aria-hidden="true" focusable="false"><path fill="currentColor" d="m221.66 133.66l-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32"/></svg></button>
+   </div>
+   <div class="after">
+    <p class="rv-q">How many keys does a standard piano have?</p>
+    <p class="big-num">88 <span>keys</span></p>
+    <ol class="podium">
+     <li class="first"><svg class="ic " width="24" height="24" viewBox="0 0 256 256" aria-hidden="true" focusable="false"><path fill="currentColor" d="M230.9 73.6a15.85 15.85 0 0 0-18.9 3.79l-33.67 36.29l-35.8-80.29a1 1 0 0 1 0-.1a16 16 0 0 0-29.06 0a1 1 0 0 1 0 .1l-35.8 80.29L44 77.39a16 16 0 0 0-27.75 13.42c0 .11 0 .21.07.32L39 195a16 16 0 0 0 15.72 13h146.57A16 16 0 0 0 217 195l22.68-103.87c0-.11 0-.21.07-.32a15.85 15.85 0 0 0-8.85-17.21m-29.55 118.08l-.06.32H54.71l-.06-.32L32 88l.14.16l42 45.24a8 8 0 0 0 13.18-2.18L128 40l40.69 91.25a8 8 0 0 0 13.18 2.18l42-45.24l.13-.19Z"/></svg><span class="nm">Ada</span><span class="gs">85 · off by 3</span><span class="pts">+3</span></li>
+     <li><span class="rk">2</span><span class="nm">Bo</span><span class="gs">80 · off by 8</span><span class="pts">+2</span></li>
+     <li><span class="rk">3</span><span class="nm">Cy</span><span class="gs">96 · off by 8, 4 s after Bo</span><span class="pts">+1</span></li>
+    </ol>
+    <button class="btn primary xl">Next question <svg class="ic " width="28" height="28" viewBox="0 0 256 256" aria-hidden="true" focusable="false"><path fill="currentColor" d="m221.66 133.66l-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32"/></svg></button>
+   </div>
+  </div>
+  <div class="meter" role="img" aria-label="25 guesses beside a bar from 48 to 168. When it fills, it stops at the answer, 88.">
+   <span class="tick t-hi">168</span><span class="tick t-lo">48</span>
+   <span class="far hi">2 guesses above</span><span class="far lo">1 guess below</span>
+   <div class="tube"><div class="fill" style="--to:33.3%"></div></div>
+   <div class="level" style="bottom:33.3%"><span>88</span></div>
+   <div class="guesses"><i class="g" style="bottom:6.7%;--lvl:0"></i><i class="g" style="bottom:10.0%;--lvl:1"></i><i class="g" style="bottom:13.3%;--lvl:0"></i><i class="g" style="bottom:18.3%;--lvl:0"></i><i class="g" style="bottom:22.5%;--lvl:1"></i><i class="g" style="bottom:43.3%;--lvl:0"></i><i class="g" style="bottom:43.3%;--lvl:1"></i><i class="g" style="bottom:46.7%;--lvl:2"></i><i class="g" style="bottom:50.0%;--lvl:0"></i><i class="g" style="bottom:51.7%;--lvl:1"></i><i class="g" style="bottom:53.3%;--lvl:2"></i><i class="g" style="bottom:56.7%;--lvl:0"></i><i class="g" style="bottom:60.0%;--lvl:1"></i><i class="g" style="bottom:63.3%;--lvl:0"></i><i class="g" style="bottom:66.7%;--lvl:1"></i><i class="g" style="bottom:73.3%;--lvl:0"></i><i class="g" style="bottom:76.7%;--lvl:1"></i><i class="g" style="bottom:85.0%;--lvl:0"></i><i class="g" style="bottom:93.3%;--lvl:0"></i><i class="g top first" style="bottom:30.8%"><span>Ada · 85</span></i><i class="g top below" style="bottom:26.7%"><span>Bo · 80</span></i><i class="g top " style="bottom:40.0%"><span>Cy · 96</span></i></div>
+  </div>
+ </div>
+<div class="meta bottom"><span class="before-only">WHERE IS THE ANSWER?</span><span class="after-only">EVERYONE ELSE: CHECK YOUR PHONE</span><span class="keys"><span class="key"><kbd>Space</kbd><span class="before-only">fill</span><span class="after-only">next</span></span><span class="key"><kbd>Backspace</kbd>back</span><span class="key"><kbd>Esc</kbd>players</span></span></div>
+</div></div><figcaption>H3 · Answer, before. Every guess is on the scale, the answer is hidden. Click the frame or press Space to play</figcaption></figure><figure class="shot"><div class="shot-frame"><div class="screen host reveal" id="h3b" data-stage="done" tabindex="0" aria-label="Answer screen. Press Space or click to play the reveal"><div class="bracket tl"></div><div class="bracket tr"></div><div class="bracket bl"></div><div class="bracket br"></div>
+<div class="meta top"><span>ROOM KQWZ</span><span class="stamp">ANSWER</span><span>QUESTION 3 OF 10</span></div>
+ <div class="rv-layout">
+  <div class="rv-main">
+   <div class="before">
+    <p class="rv-q big">How many keys does a standard piano have?</p>
+    <p class="big-num unknown">? <span>keys</span></p>
+    <p class="rv-hint">25 guesses are in. Each square is one guess.</p>
+    <button class="btn primary xl">Fill the bar <svg class="ic " width="28" height="28" viewBox="0 0 256 256" aria-hidden="true" focusable="false"><path fill="currentColor" d="m221.66 133.66l-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32"/></svg></button>
+   </div>
+   <div class="after">
+    <p class="rv-q">How many keys does a standard piano have?</p>
+    <p class="big-num">88 <span>keys</span></p>
+    <ol class="podium">
+     <li class="first"><svg class="ic " width="24" height="24" viewBox="0 0 256 256" aria-hidden="true" focusable="false"><path fill="currentColor" d="M230.9 73.6a15.85 15.85 0 0 0-18.9 3.79l-33.67 36.29l-35.8-80.29a1 1 0 0 1 0-.1a16 16 0 0 0-29.06 0a1 1 0 0 1 0 .1l-35.8 80.29L44 77.39a16 16 0 0 0-27.75 13.42c0 .11 0 .21.07.32L39 195a16 16 0 0 0 15.72 13h146.57A16 16 0 0 0 217 195l22.68-103.87c0-.11 0-.21.07-.32a15.85 15.85 0 0 0-8.85-17.21m-29.55 118.08l-.06.32H54.71l-.06-.32L32 88l.14.16l42 45.24a8 8 0 0 0 13.18-2.18L128 40l40.69 91.25a8 8 0 0 0 13.18 2.18l42-45.24l.13-.19Z"/></svg><span class="nm">Ada</span><span class="gs">85 · off by 3</span><span class="pts">+3</span></li>
+     <li><span class="rk">2</span><span class="nm">Bo</span><span class="gs">80 · off by 8</span><span class="pts">+2</span></li>
+     <li><span class="rk">3</span><span class="nm">Cy</span><span class="gs">96 · off by 8, 4 s after Bo</span><span class="pts">+1</span></li>
+    </ol>
+    <button class="btn primary xl">Next question <svg class="ic " width="28" height="28" viewBox="0 0 256 256" aria-hidden="true" focusable="false"><path fill="currentColor" d="m221.66 133.66l-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32"/></svg></button>
+   </div>
+  </div>
+  <div class="meter" role="img" aria-label="25 guesses beside a bar from 48 to 168. When it fills, it stops at the answer, 88.">
+   <span class="tick t-hi">168</span><span class="tick t-lo">48</span>
+   <span class="far hi">2 guesses above</span><span class="far lo">1 guess below</span>
+   <div class="tube"><div class="fill" style="--to:33.3%"></div></div>
+   <div class="level" style="bottom:33.3%"><span>88</span></div>
+   <div class="guesses"><i class="g" style="bottom:6.7%;--lvl:0"></i><i class="g" style="bottom:10.0%;--lvl:1"></i><i class="g" style="bottom:13.3%;--lvl:0"></i><i class="g" style="bottom:18.3%;--lvl:0"></i><i class="g" style="bottom:22.5%;--lvl:1"></i><i class="g" style="bottom:43.3%;--lvl:0"></i><i class="g" style="bottom:43.3%;--lvl:1"></i><i class="g" style="bottom:46.7%;--lvl:2"></i><i class="g" style="bottom:50.0%;--lvl:0"></i><i class="g" style="bottom:51.7%;--lvl:1"></i><i class="g" style="bottom:53.3%;--lvl:2"></i><i class="g" style="bottom:56.7%;--lvl:0"></i><i class="g" style="bottom:60.0%;--lvl:1"></i><i class="g" style="bottom:63.3%;--lvl:0"></i><i class="g" style="bottom:66.7%;--lvl:1"></i><i class="g" style="bottom:73.3%;--lvl:0"></i><i class="g" style="bottom:76.7%;--lvl:1"></i><i class="g" style="bottom:85.0%;--lvl:0"></i><i class="g" style="bottom:93.3%;--lvl:0"></i><i class="g top first" style="bottom:30.8%"><span>Ada · 85</span></i><i class="g top below" style="bottom:26.7%"><span>Bo · 80</span></i><i class="g top " style="bottom:40.0%"><span>Cy · 96</span></i></div>
+  </div>
+ </div>
+<div class="meta bottom"><span class="before-only">WHERE IS THE ANSWER?</span><span class="after-only">EVERYONE ELSE: CHECK YOUR PHONE</span><span class="keys"><span class="key"><kbd>Space</kbd><span class="before-only">fill</span><span class="after-only">next</span></span><span class="key"><kbd>Backspace</kbd>back</span><span class="key"><kbd>Esc</kbd>players</span></span></div>
+</div></div><figcaption>H3 · Answer, after the bar settles. The scale comes from the guesses, so the stop height changes every question. After question 10 the button reads Final scores</figcaption></figure><figure class="shot"><div class="shot-frame"><div class="screen host" id="h4"><div class="bracket tl"></div><div class="bracket tr"></div><div class="bracket bl"></div><div class="bracket br"></div>
+<div class="meta top"><span>ROOM KQWZ</span><span class="stamp">GAME OVER</span><span>10 QUESTIONS</span></div>
+ <div class="final-layout">
+  <div class="winner"><svg class="ic gold" width="64" height="64" viewBox="0 0 256 256" aria-hidden="true" focusable="false"><path fill="currentColor" d="M230.9 73.6a15.85 15.85 0 0 0-18.9 3.79l-33.67 36.29l-35.8-80.29a1 1 0 0 1 0-.1a16 16 0 0 0-29.06 0a1 1 0 0 1 0 .1l-35.8 80.29L44 77.39a16 16 0 0 0-27.75 13.42c0 .11 0 .21.07.32L39 195a16 16 0 0 0 15.72 13h146.57A16 16 0 0 0 217 195l22.68-103.87c0-.11 0-.21.07-.32a15.85 15.85 0 0 0-8.85-17.21m-29.55 118.08l-.06.32H54.71l-.06-.32L32 88l.14.16l42 45.24a8 8 0 0 0 13.18-2.18L128 40l40.69 91.25a8 8 0 0 0 13.18 2.18l42-45.24l.13-.19Z"/></svg><span class="sticker">Top duck</span>
+   <h2 class="title sm"><span>ADA</span><span class="outline">WINS</span></h2>
+   <p class="lede">15 points from 10 questions</p>
+   <button class="btn tonal xl">New game</button></div>
+  <div class="board-wrap"><div class="perch-board"><svg class="duck" viewBox="0 0 160 120" aria-hidden="true">
+  <ellipse class="ln" cx="78" cy="78" rx="54" ry="30" fill="var(--duck-feather)"/>
+  <path class="ln" d="M30 70 Q18 52 8 56 Q14 76 30 86Z" fill="var(--duck-feather-dark)"/>
+  <ellipse cx="82" cy="76" rx="26" ry="12" fill="var(--duck-feather-dark)" opacity=".7"/>
+  <rect x="62" y="70" width="22" height="5" rx="1" fill="var(--duck-wing)"/>
+  <circle class="ln" cx="124" cy="50" r="24" fill="var(--duck-head)"/>
+  <path d="M110 40 Q128 30 146 44 Q140 60 124 58 Q112 54 110 40Z" fill="var(--duck-eye)"/>
+  <circle cx="130" cy="46" r="3" fill="var(--md-bg)"/>
+  <path class="ln" d="M140 54 L162 56 Q160 64 142 64Z" fill="var(--duck-bill)"/>
+  <path d="M70 108 L62 118 M70 108 L74 118 M96 108 L88 118 M96 108 L100 118" stroke="var(--paper)" stroke-width="3" stroke-linecap="round" fill="none"/>
+</svg></div>
+   <ol class="board"><li class="first"><span>1</span><span class="nm">Ada</span><span class="mono">15</span></li><li class=""><span>2</span><span class="nm">Bo</span><span class="mono">11</span></li><li class=""><span>3</span><span class="nm">Cy</span><span class="mono">8</span></li><li class=""><span>4</span><span class="nm">Eli</span><span class="mono">6</span></li><li class=""><span>5</span><span class="nm">Gus</span><span class="mono">6</span></li></ol>
+   <p class="more">+ 23 more. Your place is on your phone.</p></div>
+ </div>
+<div class="meta bottom"><span>THANKS FOR PLAYING</span><span class="keys"><span class="key"><kbd>Space</kbd>twice: new game</span><span class="key"><kbd>Backspace</kbd>back</span><span class="key"><kbd>Esc</kbd>players</span></span></div>
+</div></div><figcaption>H4 · Final scores. Top 5 only. Eli and Gus have equal points; Eli was faster overall. Space must be pressed twice for a new game</figcaption></figure></div></div></section>
+
+<section id="phone"><div class="wrap"><h2>3 · Mockup: phone screens</h2>
+<p class="note">Every player ends on a screen made for them: closest, beaten on time, no points, no answer, winner, or mid-table.</p>
+<div class="phones"><figure class="shot"><div class="phone"><div class="screen mobile" id="p1"><div class="statusbar" aria-hidden="true"><span>16:52</span><span></span></div><main class="m-pad">
+  <h1 class="m-title"><span>CLOSEST</span><span class="outline">NUMBER</span></h1>
+  <p class="m-lede">Join the game on the big screen.</p>
+  <label class="field"><span>Room code</span><input class="code-in" value="KQWZ" inputmode="text" autocapitalize="characters" enterkeyhint="next"></label>
+  <label class="field"><span>Nickname</span><input value="Ada" maxlength="16" enterkeyhint="go"><small>Up to 16 characters. Keep it friendly.</small></label>
+  <button class="btn primary block under">Join <svg class="ic " width="22" height="22" viewBox="0 0 256 256" aria-hidden="true" focusable="false"><path fill="currentColor" d="m221.66 133.66l-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32"/></svg></button></main></div></div><figcaption>P1 · Join</figcaption></figure><figure class="shot"><div class="phone"><div class="screen mobile" id="p1e"><div class="statusbar" aria-hidden="true"><span>16:52</span><span></span></div><main class="m-pad">
+  <h1 class="m-title"><span>CLOSEST</span><span class="outline">NUMBER</span></h1>
+  <p class="m-lede">Join the game on the big screen.</p>
+  <label class="field bad"><span>Room code</span><input class="code-in" value="KQWB" aria-invalid="true" aria-describedby="p1e-err"><small id="p1e-err" class="err">No game has the code KQWB. Check the code on the big screen.</small></label>
+  <label class="field"><span>Nickname</span><input value="Ada" maxlength="16" enterkeyhint="go"></label>
+  <button class="btn primary block under">Join <svg class="ic " width="22" height="22" viewBox="0 0 256 256" aria-hidden="true" focusable="false"><path fill="currentColor" d="m221.66 133.66l-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32"/></svg></button></main></div></div><figcaption>P1 · Wrong code. A taken nickname uses the same pattern</figcaption></figure><figure class="shot"><div class="phone"><div class="screen mobile" id="p2"><div class="statusbar" aria-hidden="true"><span>16:52</span><span></span></div><header class="m-top"><span class="who">Ada</span><span class="pts-chip">0 points</span></header><main class="m-pad center">
+  <h2 class="bubble">You're in, Ada!</h2><div class="duck-wrap"><svg class="duck" viewBox="0 0 160 120" aria-hidden="true">
+  <ellipse class="ln" cx="78" cy="78" rx="54" ry="30" fill="var(--duck-feather)"/>
+  <path class="ln" d="M30 70 Q18 52 8 56 Q14 76 30 86Z" fill="var(--duck-feather-dark)"/>
+  <ellipse cx="82" cy="76" rx="26" ry="12" fill="var(--duck-feather-dark)" opacity=".7"/>
+  <rect x="62" y="70" width="22" height="5" rx="1" fill="var(--duck-wing)"/>
+  <circle class="ln" cx="124" cy="50" r="24" fill="var(--duck-head)"/>
+  <path d="M110 40 Q128 30 146 44 Q140 60 124 58 Q112 54 110 40Z" fill="var(--duck-eye)"/>
+  <circle cx="130" cy="46" r="3" fill="var(--md-bg)"/>
+  <path class="ln" d="M140 54 L162 56 Q160 64 142 64Z" fill="var(--duck-bill)"/>
+  <path d="M70 108 L62 118 M70 108 L74 118 M96 108 L88 118 M96 108 L100 118" stroke="var(--paper)" stroke-width="3" stroke-linecap="round" fill="none"/>
+</svg></div>
+  <p class="m-lede">Waiting for the host to start. 28 players so far. Closest guess wins. Same distance? Faster wins.</p></main></div></div><figcaption>P2 · Waiting</figcaption></figure><figure class="shot"><div class="phone"><div class="screen mobile" id="p3"><div class="statusbar" aria-hidden="true"><span>16:52</span><span></span></div><header class="m-top"><span class="who">Ada</span><span class="pts-chip">5 points</span></header><main class="m-pad">
+  <div class="seg sm" role="img" aria-label="Question 3 of 10"><i class="on"></i><i class="on"></i><i class="now"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <p class="m-q">How many keys does a standard piano have?</p>
+  <label class="field big"><span>Your guess</span><div class="num-row"><input class="num" value="80" inputmode="decimal" enterkeyhint="send"><em>keys</em></div></label>
+  <p class="tiny nudge">21 of 28 have answered.</p>
+  <button class="btn primary block under">Send answer <svg class="ic " width="22" height="22" viewBox="0 0 256 256" aria-hidden="true" focusable="false"><path fill="currentColor" d="m221.66 133.66l-72 72a8 8 0 0 1-11.32-11.32L196.69 136H40a8 8 0 0 1 0-16h156.69l-58.35-58.34a8 8 0 0 1 11.32-11.32l72 72a8 8 0 0 1 0 11.32"/></svg></button></main></div></div><figcaption>P3 · Answer. The button sits under the field, above the keyboard</figcaption></figure><figure class="shot"><div class="phone"><div class="screen mobile" id="p4"><div class="statusbar" aria-hidden="true"><span>16:52</span><span></span></div><header class="m-top"><span class="who">Ada</span><span class="pts-chip">5 points</span></header><main class="m-pad center">
+  <h2 class="m-h done"><svg class="ic " width="30" height="30" viewBox="0 0 256 256" aria-hidden="true" focusable="false"><path fill="currentColor" d="m229.66 77.66l-128 128a8 8 0 0 1-11.32 0l-56-56a8 8 0 0 1 11.32-11.32L96 188.69L218.34 66.34a8 8 0 0 1 11.32 11.32"/></svg> Answer sent</h2><p class="mono sent">80 keys</p>
+  <p class="m-lede">21 of 28 have answered. You can change yours until the host shows the answer. Changing it restarts your time.</p>
+  <button class="btn outlined block">Change answer</button></main></div></div><figcaption>P4 · Sent</figcaption></figure><figure class="shot"><div class="phone"><div class="screen mobile" id="p5"><div class="statusbar" aria-hidden="true"><span>16:52</span><span></span></div><header class="m-top"><span class="who">Ada</span><span class="pts-chip">8 points</span></header><main class="m-pad center">
+  <p class="m-q-sm">How many keys does a standard piano have?</p><p class="m-big">88 <span>keys</span></p>
+  <div class="result-card "><p>You said <b class="mono">85</b> · off by 3</p><p class="place">1st <span>+3</span></p></div>
+  <p class="m-lede">Closest in the room. Waiting for the next question.</p></main></div></div><figcaption>P5 · Result, closest</figcaption></figure><figure class="shot"><div class="phone"><div class="screen mobile" id="p5late"><div class="statusbar" aria-hidden="true"><span>16:52</span><span></span></div><header class="m-top"><span class="who">Ada</span><span class="pts-chip">6 points</span></header><main class="m-pad center">
+  <p class="m-q-sm">How many keys does a standard piano have?</p><p class="m-big">88 <span>keys</span></p>
+  <div class="result-card tie"><p>You said <b class="mono">96</b> · off by 8</p><p class="place">3rd <span>+1</span></p></div>
+  <p class="m-lede">Bo was also off by 8 and answered 4 seconds sooner.</p></main></div></div><figcaption>P5 · Result, same distance as someone faster</figcaption></figure><figure class="shot"><div class="phone"><div class="screen mobile" id="p5plain"><div class="statusbar" aria-hidden="true"><span>16:52</span><span></span></div><header class="m-top"><span class="who">Ada</span><span class="pts-chip">5 points</span></header><main class="m-pad center">
+  <p class="m-q-sm">How many keys does a standard piano have?</p><p class="m-big">88 <span>keys</span></p>
+  <div class="result-card plain"><p>You said <b class="mono">120</b> · off by 32</p><p class="place">12th <span>+0</span></p></div>
+  <p class="m-lede">No points this time. 7 questions to go.</p></main></div></div><figcaption>P5 · Result, no points</figcaption></figure><figure class="shot"><div class="phone"><div class="screen mobile" id="p5miss"><div class="statusbar" aria-hidden="true"><span>16:52</span><span></span></div><header class="m-top"><span class="who">Ada</span><span class="pts-chip">5 points</span></header><main class="m-pad center">
+  <p class="m-q-sm">How many keys does a standard piano have?</p><p class="m-big">88 <span>keys</span></p>
+  <div class="result-card plain"><p>No answer counted</p><p class="place">— <span>+0</span></p></div>
+  <p class="m-lede">Answers close when the host shows the answer. Get the next one in before then.</p></main></div></div><figcaption>P5 · No answer, or sent too late</figcaption></figure><figure class="shot"><div class="phone"><div class="screen mobile" id="p6"><div class="statusbar" aria-hidden="true"><span>16:52</span><span></span></div><header class="m-top"><span class="who">Ada</span><span class="pts-chip">15 points</span></header><main class="m-pad center">
+  <svg class="ic gold" width="48" height="48" viewBox="0 0 256 256" aria-hidden="true" focusable="false"><path fill="currentColor" d="M230.9 73.6a15.85 15.85 0 0 0-18.9 3.79l-33.67 36.29l-35.8-80.29a1 1 0 0 1 0-.1a16 16 0 0 0-29.06 0a1 1 0 0 1 0 .1l-35.8 80.29L44 77.39a16 16 0 0 0-27.75 13.42c0 .11 0 .21.07.32L39 195a16 16 0 0 0 15.72 13h146.57A16 16 0 0 0 217 195l22.68-103.87c0-.11 0-.21.07-.32a15.85 15.85 0 0 0-8.85-17.21m-29.55 118.08l-.06.32H54.71l-.06-.32L32 88l.14.16l42 45.24a8 8 0 0 0 13.18-2.18L128 40l40.69 91.25a8 8 0 0 0 13.18 2.18l42-45.24l.13-.19Z"/></svg><h2 class="m-title sm"><span>1ST</span><span class="outline">OF 28</span></h2>
+  <p class="m-lede">You won with 15 points. Well played.</p><div class="duck-wrap sm"><svg class="duck" viewBox="0 0 160 120" aria-hidden="true">
+  <ellipse class="ln" cx="78" cy="78" rx="54" ry="30" fill="var(--duck-feather)"/>
+  <path class="ln" d="M30 70 Q18 52 8 56 Q14 76 30 86Z" fill="var(--duck-feather-dark)"/>
+  <ellipse cx="82" cy="76" rx="26" ry="12" fill="var(--duck-feather-dark)" opacity=".7"/>
+  <rect x="62" y="70" width="22" height="5" rx="1" fill="var(--duck-wing)"/>
+  <circle class="ln" cx="124" cy="50" r="24" fill="var(--duck-head)"/>
+  <path d="M110 40 Q128 30 146 44 Q140 60 124 58 Q112 54 110 40Z" fill="var(--duck-eye)"/>
+  <circle cx="130" cy="46" r="3" fill="var(--md-bg)"/>
+  <path class="ln" d="M140 54 L162 56 Q160 64 142 64Z" fill="var(--duck-bill)"/>
+  <path d="M70 108 L62 118 M70 108 L74 118 M96 108 L88 118 M96 108 L100 118" stroke="var(--paper)" stroke-width="3" stroke-linecap="round" fill="none"/>
+</svg></div></main></div></div><figcaption>P6 · Final, winner</figcaption></figure><figure class="shot"><div class="phone"><div class="screen mobile" id="p6b"><div class="statusbar" aria-hidden="true"><span>16:52</span><span></span></div><header class="m-top"><span class="who">Ada</span><span class="pts-chip">2 points</span></header><main class="m-pad center">
+  <h2 class="m-title sm"><span>14TH</span><span class="outline">OF 28</span></h2>
+  <p class="m-lede">2 points. Your best guess was on question 6: off by 2.</p><div class="duck-wrap sm"><svg class="duck" viewBox="0 0 160 120" aria-hidden="true">
+  <ellipse class="ln" cx="78" cy="78" rx="54" ry="30" fill="var(--duck-feather)"/>
+  <path class="ln" d="M30 70 Q18 52 8 56 Q14 76 30 86Z" fill="var(--duck-feather-dark)"/>
+  <ellipse cx="82" cy="76" rx="26" ry="12" fill="var(--duck-feather-dark)" opacity=".7"/>
+  <rect x="62" y="70" width="22" height="5" rx="1" fill="var(--duck-wing)"/>
+  <circle class="ln" cx="124" cy="50" r="24" fill="var(--duck-head)"/>
+  <path d="M110 40 Q128 30 146 44 Q140 60 124 58 Q112 54 110 40Z" fill="var(--duck-eye)"/>
+  <circle cx="130" cy="46" r="3" fill="var(--md-bg)"/>
+  <path class="ln" d="M140 54 L162 56 Q160 64 142 64Z" fill="var(--duck-bill)"/>
+  <path d="M70 108 L62 118 M70 108 L74 118 M96 108 L88 118 M96 108 L100 118" stroke="var(--paper)" stroke-width="3" stroke-linecap="round" fill="none"/>
+</svg></div></main></div></div><figcaption>P6 · Final, everyone else</figcaption></figure><figure class="shot"><div class="phone"><div class="screen mobile" id="p7"><div class="statusbar" aria-hidden="true"><span>16:52</span><span></span></div><main class="m-pad center">
+  <h2 class="m-h warn"><svg class="ic " width="30" height="30" viewBox="0 0 256 256" aria-hidden="true" focusable="false"><path fill="currentColor" d="M213.92 210.62a8 8 0 1 1-11.84 10.76l-52-57.15a60 60 0 0 0-57.41 7.24a8 8 0 1 1-9.42-12.93A75.43 75.43 0 0 1 128 144c1.28 0 2.55 0 3.82.1l-26.92-29.61A108 108 0 0 0 61 135.31A8 8 0 0 1 49.73 134A8 8 0 0 1 51 122.77a124.3 124.3 0 0 1 41.71-21.66L69.37 75.4a155.4 155.4 0 0 0-40.29 24A8 8 0 0 1 18.92 87A172 172 0 0 1 58 62.86L42.08 45.38a8 8 0 1 1 11.84-10.76ZM128 192a12 12 0 1 0 12 12a12 12 0 0 0-12-12M237.08 87A172.3 172.3 0 0 0 106 49.4a8 8 0 1 0 2 15.87A158 158 0 0 1 128 64a156.25 156.25 0 0 1 98.92 35.37A8 8 0 0 0 237.08 87M195 135.31a8 8 0 0 0 11.24-1.3a8 8 0 0 0-1.3-11.24a124.25 124.25 0 0 0-51.73-24.2a8 8 0 1 0-3.21 15.67a108.1 108.1 0 0 1 45 21.07"/></svg> Lost the connection</h2>
+  <p class="m-lede">Trying again in 3 seconds. Your answer and points are safe.</p>
+  <button class="btn outlined block under">Try now</button><p class="tiny">If the room has closed, ask the host for a new code.</p></main></div></div><figcaption>P7 · Connection lost</figcaption></figure></div></div></section>
+
+<section id="decisions" class="wrap"><h2>4 · Decisions</h2>
+<ul class="decisions">
+<li><b>Base (kept):</b> Guided Coding type and structure: Anton titles (first word filled, second outlined), JetBrains Mono for data and the meta rows, Switzer for reading text, corner brackets on the projector screens.</li>
+<li><b>New in draft 2, the comic print language:</b> taken from a style reference as a way of building things, not as a look. Its colours and fonts are not used.</li>
+<li><b>Colour (final):</b> five colours and navy tints, nothing else. Navy #011627 is the field and the ink. White #FDFFFC is text and paper. Teal #2EC4B6 is the pond: actions, data, progress, focus. Orange #FF9F1C is the winner, one panel per screen. Red #C8102E is stickers and errors; on navy it is only for large shapes, and small error text uses a lighter red tint.</li>
+<li><b>Shape:</b> comic panels. Every block, button, tag, input and sticker has square 90 degree corners. Only the phone bezel stays round, because it is the device.</li>
+<li><b>Panels:</b> a 3 px ink edge, a halftone dot fill and a hard offset shadow with no blur. Ink would vanish on the navy field, so shadows are teal (main actions, inputs, QR, the bar) or white (winner panel, second button, sticker).</li>
+<li><b>Buttons:</b> two kinds only. Main: white paper with dots, navy capitals, the arrow in a navy square, teal shadow. Second: teal paint with dots, white shadow. Hover lifts the panel 2 px, and pressing pushes it into its shadow.</li>
+<li><b>Winner:</b> the one orange halftone panel on a screen, with the orange crown. Other rows stay plain navy blocks so the winner pops.</li>
+<li><b>Print details:</b> faint halftone dots on the screen field. Progress is square printed blocks (solid, hatched, outline). The centre meta item is a stamped mono tag.</li>
+<li><b>Comic touches, kept rare:</b> one tilted sticker at most per screen (lobby and final only). The duck speaks in a speech bubble on the waiting screen and stands on the final scoreboard.</li>
+<li><b>Projector floor (draft 4):</b> nothing a player or host needs to read is under 16 px on a 960 by 540 frame. Outlines that carry meaning use a lighter rule colour, so they survive a washed-out projector. The meta rows carry real data only: room, step and count.</li>
+<li><b>Class size:</b> built for 30 (the contract's room limit). The lobby shows a count and a name list. The question screen shows only a count and a bar: no names on the projector. Players who have not answered see the count on their phone. The answer screen names the top 3, the final screen the top 5, and everyone else is pointed to their phone.</li>
+<li><b>Answer screen, staged:</b> first the question, an outlined "?" and the empty bar with every guess as a square beside it. Space fills the bar: uneven eased bursts, a small shake, a slight overshoot, then it settles on the answer in about 2.2 seconds. Only then do the number, the answer line and the top 3 appear. The scale runs from the lowest to the highest guess (plus a margin), so the stop height changes every question. Guesses far outside are counted at the ends ("2 guesses above"). Reduced motion skips straight to the end.</li>
+<li><b>Plain scoring words:</b> "off by 3", not "3.4% off". Inside one question, ranking by relative error and by plain distance give the same order, so the simpler words are exact.</li>
+<li><b>Ties (contract change):</b> no shared places. Equal distance: the earlier answer ranks higher. Equal final totals: the lower total answer time ranks higher. "Change answer" resets that player's time, so nobody can lock in an early time and then edit. The backend scoring and the contract need this change.</li>
+<li><b>Host controls:</b> the same three keys on every screen. Space does the main action (start, reveal, fill, next). Backspace steps back one screen, so a reveal can be undone. Esc opens the player menu, where a host removes a player and confirms. On the final screen Space must be pressed twice for a new game, so a stray click cannot wipe the scores.</li>
+<li><b>Phone endings:</b> every player gets a screen made for them: closest, beaten on time, no points, no answer (or too late), winner or mid-table. The tie rule is said up front: in the lobby, on the waiting screen, and on the sent screen (changing an answer restarts your time). Errors name the problem and the fix (wrong code, lost connection).</li>
+<li><b>Type:</b> poster leading (0.85) and slightly larger titles. Question text stays Switzer so a long question stays readable.</li>
+<li><b>Icons:</b> Phosphor only.</li>
+<li><b>Motion:</b> one moment per screen. The reveal bar is the big one. The top 3 land one after another when it settles. Everything else is a 150 to 250 ms state change.</li>
+<li><b>Open:</b> the web address on H1 is a guess and too long to type from the back row. Make a bit.ly link once the site is deployed.</li>
+</ul></section>
+<script>
+// Mockup only: click a reveal frame (or focus it and press Space) to play ready, fill, done.
+const still = matchMedia('(prefers-reduced-motion: reduce)');
+document.querySelectorAll('.reveal').forEach(scr => {
+  const fill = scr.querySelector('.fill');
+  const play = () => {
+    if (scr.dataset.stage === 'ready') {
+      if (still.matches) { scr.dataset.stage = 'done'; return; }
+      scr.dataset.stage = 'filling';
+      fill.addEventListener('animationend', () => { scr.dataset.stage = 'done'; }, { once: true });
+    } else if (scr.dataset.stage === 'done') { scr.dataset.stage = 'ready'; }
+  };
+  scr.addEventListener('click', play);
+  scr.addEventListener('keydown', e => { if (e.code === 'Space') { e.preventDefault(); play(); } });
+});
+</script>
+</body></html>

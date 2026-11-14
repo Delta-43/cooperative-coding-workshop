@@ -2,6 +2,8 @@
 
 Guess Closer! is a live quiz game for a room. Two people build it, each with their own agent.
 
+Paths are relative to this folder (`demo/` in the workshop repo).
+
 ## Who owns what
 
 - `backend/`: Delta. Cloudflare Worker, one Durable Object per room.
