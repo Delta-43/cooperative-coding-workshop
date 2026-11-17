@@ -154,7 +154,7 @@ td.t{font:500 24px var(--mono);color:var(--teal);white-space:nowrap}
     <div><b>Connectors</b>MCP servers: tools and data to reach</div>
     <div><b>Guardrails</b>Permissions, hooks, branch rules</div>
   </div>
-  <p class="small" style="margin-top:44px">File names vary by harness (Claude Code, Codex, Cursor, Copilot, Gemini CLI). The layers do not.</p>
+  <p class="small" style="margin-top:44px">File names vary by harness (Claude Code, Codex, Cursor, Copilot, Antigravity). The layers do not.</p>
 </section>
 
 <!-- 6 -->
@@ -207,7 +207,7 @@ td.t{font:500 24px var(--mono);color:var(--teal);white-space:nowrap}
   <p class="lede" style="max-width:34ch">An instruction is a request, not a guarantee. Hooks, permissions and the server's rules are the guarantee.</p>
   <div class="grid g3" style="margin-top:56px">
     <div class="panel rise"><div class="tag teal">Request</div><p class="small">AGENTS.md, CLAUDE.md, a skill, a prompt</p></div>
-    <div class="panel rise"><div class="tag teal">Local guard</div><p class="small">Permission prompts, a hook that blocks a command</p></div>
+    <div class="panel rise"><div class="tag teal">Local guard</div><p class="small">Deny rules, a hook that blocks a command. Auto mode's classifier helps, but it judges; it is not a rule</p></div>
     <div class="paper rise"><div class="tag">Server guard</div><p style="font-size:24px">Branch protection: nothing reaches <code>main</code> without a PR and a human</p></div>
   </div>
 </section>
@@ -391,7 +391,7 @@ td.t{font:500 24px var(--mono);color:var(--teal);white-space:nowrap}
     <tr><td>Rooms and codes, answer intake, scoring</td><td>Delta</td><td class="t">Clean Code</td></tr>
     <tr><td>Join screen, answer screen, host board</td><td>Volunteer</td><td class="t">Impeccable · better-ui</td></tr>
     <tr><td>Leaderboard motion</td><td>Volunteer</td><td class="t">improve-animations</td></tr>
-    <tr><td>Phone screen checks</td><td>Volunteer</td><td class="t">Apple HIG</td></tr>
+    <tr><td>Phone feel: touch, motion, type</td><td>Volunteer</td><td class="t">apple-design</td></tr>
   </table>
   <p class="small" style="margin-top:30px">Each skill does one job at one named moment and reports. It does not rewrite.</p>
 </section>
@@ -445,7 +445,7 @@ td.t{font:500 24px var(--mono);color:var(--teal);white-space:nowrap}
   <ul class="plain" style="margin-top:30px;max-width:1250px">
     <li><b>Give the agent the least you can.</b> <span class="small">One repo, a short-lived token, no real secrets in the folder.</span></li>
     <li><b>Everything it reads is untrusted.</b> <span class="small">Issues, web pages, skills and MCP servers can all carry instructions.</span></li>
-    <li><b>Keep the permission prompts on.</b> <span class="small">No "skip permissions" outside a throwaway machine.</span></li>
+    <li><b>Keep the guardrails on.</b> <span class="small">Auto mode or Manual. No "skip permissions" outside a throwaway machine.</span></li>
     <li><b>Nothing reaches main without a PR and a human.</b></li>
     <li><b>You own what you ship.</b> <span class="small">Explain it, say AI helped, keep personal data out.</span></li>
   </ul>
