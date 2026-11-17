@@ -156,6 +156,8 @@ input { caret-color: var(--accent); }
 .code { font: 400 64px/1 var(--font-display); letter-spacing: .14em; margin: 16px 0 0 2px; color: var(--accent); }
 .url { margin: 8px 0 0; font: 500 16px/1.35 var(--font-mono); color: var(--md-soft); word-break: break-all; max-width: 300px; }
 .url b { color: var(--md-text); font-weight: 500; }
+/* the short link is read from the back of the room */
+.url.short { margin-top: 10px; font: 700 26px/1.2 var(--font-mono); color: var(--md-text); white-space: nowrap; word-break: normal; max-width: none; }
 
 /* question */
 .q-wrap .seg { margin: 4px 0 18px; }
