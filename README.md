@@ -8,7 +8,7 @@ Guess Closer! is a live quiz for a room. Players guess numbers on their phones, 
 - `PLAN.md`: the goal, the team, the phases and the tasks. The humans own it.
 - `DECISIONS.md`: one line per decision.
 - `contract/`, `backend/`, `frontend/`: filled in during the workshop, contract first.
-- `prompts/`: the starting prompt for the frontend.
+- `prompts/`: the prompts each person gives their agent: `frontend-start.md` for the Volunteer, `backend-prompts.md` for Delta.
 
 The finished game is in the workshop repository, in [`demo/`](https://github.com/Delta-43/cooperative-coding-workshop/tree/main/demo).
 
