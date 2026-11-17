@@ -22,5 +22,6 @@ Only work inside the folder your issue owns. The issue's "Do not touch" line is 
 - Small PRs. CI must pass. A human approves; agents only comment.
 - Never read, print or commit secrets, tokens or `.env` files. Never deploy: Delta deploys the Worker by hand.
 - The test Worker is `https://guess-closer-live.delta-43.workers.dev`. The frontend reads its address from `VITE_BACKEND_URL` and uses this one by default.
+- The frontend is published to GitHub Pages at `https://delta-workshops.github.io/guess-closer/` by `.github/workflows/pages.yml` when a PR changes `frontend/` and merges. So it must work under a sub-path: in `vite.config.ts` set `base: process.env.BASE_PATH ?? '/'`; use hash routes (`#/host`, `#/join`) because Pages has no fallback for other paths; never write absolute asset paths such as `/logo.svg`. The QR code on the host screen must encode the address the host is using (`location.origin + location.pathname`), not a hard-coded one.
 - A decision goes into `DECISIONS.md` as one line, in the same PR.
 - British English in text the players see.

@@ -26,6 +26,10 @@ Rules:
 - Work only in frontend/. Never edit backend/ or contract/. If the contract seems wrong
   or incomplete, stop and tell me: that is a conversation with my teammate, not a code change.
 - React, TypeScript and Vite. `npm run lint` and `npm run build` must pass, because CI runs them.
+- The site is published to GitHub Pages under a sub-path (https://delta-workshops.github.io/guess-closer/).
+  Set this up in the first frontend change, without asking me: `base: process.env.BASE_PATH ?? '/'`
+  in vite.config.ts, hash routes (#/host and the plain address for joining), and no absolute asset
+  paths. The QR code encodes location.origin + location.pathname. Read the Pages rule in AGENTS.md.
 - The backend address comes from VITE_BACKEND_URL. Use the test Worker in AGENTS.md by default.
 - One issue at a time, on a branch named after it. Keep each pull request small enough to
   read in five minutes. Run the issue's verify command and show me the output before you
