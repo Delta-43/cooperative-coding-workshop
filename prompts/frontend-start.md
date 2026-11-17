@@ -40,8 +40,44 @@ Rules:
 Start with step 1.
 ```
 
+## Collect the skills
+
+Each skill does one job at one named moment and reports. It does not rewrite. Collect them before F1.
+
+- **Run the install commands yourself**, in your own terminal, not through the agent. They download someone else's code.
+- **Read each `SKILL.md` at its link first.** A skill is instructions your agent will follow.
+- `-g` installs for your user only, so nothing lands in this repo. Each version is pinned to a commit from 2026-11-17.
+- The `skills` installer needs Node.js 22.20 or later. Start a new agent session after installing, so it sees the skills.
+
+| Moment | Skill | Read first | Install |
+|---|---|---|---|
+| F1 to F3: design direction and critique | Impeccable | [pbakaus/impeccable](https://github.com/pbakaus/impeccable) (Apache-2.0) | `npx impeccable@4.9.2 install --providers=claude --scope=global`. If it offers the design hook, say no for today |
+| F1 to F3: surfaces, icons, details | better-ui | [jakubkrehel/skills: better-ui](https://github.com/jakubkrehel/skills/tree/main/skills/better-ui) (MIT) | `npx skills add jakubkrehel/skills@cf432627442dbd91065f2b027d279ad5652a9f4d --skill better-ui -a claude-code -g` |
+| F4: leaderboard motion | improve-animations | [emilkowalski/skills: improve-animations](https://github.com/emilkowalski/skills/tree/main/skills/improve-animations) (MIT) | `npx skills add emilkowalski/skills@64eb3deb9a5fbfa041faf783e0bc3fd635872e9c --skill improve-animations -a claude-code -g` |
+| Phone screens: touch, motion, type | apple-design | [emilkowalski/skills: apple-design](https://github.com/emilkowalski/skills/tree/main/skills/apple-design) (MIT) | `npx skills add emilkowalski/skills@64eb3deb9a5fbfa041faf783e0bc3fd635872e9c --skill apple-design -a claude-code -g` |
+
+Prompts for each moment (paste after the work for that issue is done, before you open the pull request):
+
+```text
+Use the impeccable skill to critique the screens in this branch. Report the findings, most important first. Do not edit any file: I choose what to fix.
+```
+
+```text
+Use the better-ui skill to review the surfaces, icons and spacing in this branch. Report only, at most five findings. Do not edit any file.
+```
+
+```text
+Use the improve-animations skill to audit the leaderboard and final board motion in this branch. Report the plan only. Do not edit any file.
+```
+
+```text
+Use the apple-design skill to check the phone screens in this branch: touch targets, feedback, type and reduced motion. Report only, at most five findings. Do not edit any file.
+```
+
+Then ask the agent to fix only the findings you chose, and run the issue's verify command again.
+
 ## After the first answer
 
 - Pick the direction, then give the agent one issue at a time: `F1` join screen (#6), `F2` answer screen (#7), `F3` host board (#8), `F4` leaderboard motion (#9). Start after the contract pull request (PR 15) has merged and `git pull` has brought it into `main`. Put `Closes #N` in each pull request's description.
 - Each issue has a "done when", a verify command and a "do not touch" line. Paste the issue, or let the agent read it with `gh issue view`.
-- Run a design or interface review skill on each pull request, and read what it reports.
+- Run the skill for that moment (table above) before each pull request, and read what it reports.
