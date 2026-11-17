@@ -4,7 +4,7 @@
 
 It is a showcase, not a hands-on session. The Volunteer and I build on stage, each driving our own Claude Code, and the room watches, predicts, votes and plays the result on their phones.
 
-**When:** Wednesday 18 November 2026, 16:30 to 19:30, in the Auditorium at 42 Warsaw.
+**When:** Wednesday 18 November 2026, 16:30 to 19:30, in the Social Space at 42 Warsaw.
 
 **Play the game:** [delta-43.github.io/cooperative-coding-workshop](https://delta-43.github.io/cooperative-coding-workshop/). Open `#/host` on a big screen to host a room, and scan the QR code with your phone to join.
 
