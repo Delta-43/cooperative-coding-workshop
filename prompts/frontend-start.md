@@ -17,7 +17,8 @@ What I want:
 - Two surfaces. A host screen for a projector, and a phone screen for each player.
 - The host creates a room and shows a join code and a QR code. Players join with a
   nickname, answer number questions, and see how close they were. The host reveals each
-  answer on the big screen and shows a final board.
+  answer on the big screen and shows a final board. The host sends `reveal` and then `show`
+  when the answer is on the big screen: phones get their result only after `show`.
 - The look and the feel are open. Propose a direction first, with one or two alternatives,
   and let me choose. Surprise me, but keep it readable from the back of a room and easy
   to use with one thumb.
@@ -41,6 +42,6 @@ Start with step 1.
 
 ## After the first answer
 
-- Pick the direction, then give the agent one issue at a time: `F1` join screen, `F2` answer screen, `F3` host board, `F4` leaderboard motion.
+- Pick the direction, then give the agent one issue at a time: `F1` join screen (#6), `F2` answer screen (#7), `F3` host board (#8), `F4` leaderboard motion (#9). Start after the contract pull request (PR 15) has merged and `git pull` has brought it into `main`. Put `Closes #N` in each pull request's description.
 - Each issue has a "done when", a verify command and a "do not touch" line. Paste the issue, or let the agent read it with `gh issue view`.
 - Run a design or interface review skill on each pull request, and read what it reports.
