@@ -32,7 +32,7 @@ demo/                  The finished Guess Closer! game: contract, backend, front
 4. **Issues:** each one has "done when", an exact verify command and a "do not touch" line.
 5. **Branches and pull requests:** one branch per issue. CI must pass, the other person approves, and the author explains the PR with the agent closed.
 
-Skills join at named moments, each doing one job and reporting: API Contract Review, Clean Code, Impeccable, better-ui, improve-animations and Apple HIG.
+Skills join at named moments, each doing one job and reporting: API Contract Review, Clean Code, Impeccable, better-ui, improve-animations and apple-design.
 
 ## Presenting the slides
 
