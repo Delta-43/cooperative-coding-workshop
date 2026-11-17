@@ -17,9 +17,7 @@ function JoinAddress() {
   const short = import.meta.env.VITE_SHORT_URL as string | undefined
   if (short) {
     return (
-      <p className="url">
-        or open <b>{short.replace(/^https?:\/\//, '')}</b>
-      </p>
+      <p className="url short">{short.replace(/^https?:\/\//, '')}</p>
     )
   }
   return (
