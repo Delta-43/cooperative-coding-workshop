@@ -3,6 +3,8 @@ import type { ErrorCode } from '../contract'
 import { Duck } from '../ducks'
 import { Pond } from '../Pond'
 import { useRoom } from '../useRoom'
+import { FinalCard } from './FinalCard'
+import { PlayerGame } from './PlayerGame'
 
 // Errors that mean the join failed, in plain words.
 const JOIN_PROBLEMS: Partial<Record<ErrorCode, string>> = {
@@ -20,7 +22,7 @@ export function PlayerSession({
   name: string
   onLeave: (reason: string) => void
 }) {
-  const { state, error, status } = useRoom({ code, name })
+  const { state, receivedAt, error, status, send } = useRoom({ code, name })
 
   const joinProblem = !state?.you.playerId && error ? JOIN_PROBLEMS[error.code] : undefined
 
@@ -32,6 +34,15 @@ export function PlayerSession({
 
   const me = state?.players.find((p) => p.id === state.you.playerId)
   const reconnecting = status === 'reconnecting' && <div className="status-bar">Reconnecting…</div>
+
+  if (state && me && (state.phase === 'question' || state.phase === 'reveal') && state.question) {
+    return (
+      <>
+        {reconnecting}
+        <PlayerGame state={state} receivedAt={receivedAt} error={error} send={send} />
+      </>
+    )
+  }
 
   return (
     <main className="screen">
@@ -46,12 +57,8 @@ export function PlayerSession({
             Joining<span className="dots" />
           </h2>
         </section>
-      ) : state.phase !== 'lobby' ? (
-        <section className="card card-in welcome" aria-live="polite">
-          <Duck pose="landing" />
-          <h2>Game on</h2>
-          <p>Look up at the big screen.</p>
-        </section>
+      ) : state.phase === 'over' ? (
+        <FinalCard state={state} />
       ) : (
         <section className="card card-in welcome" aria-live="polite">
           <Duck pose="cheering" />
