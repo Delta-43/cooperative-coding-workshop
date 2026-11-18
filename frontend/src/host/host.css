@@ -563,3 +563,73 @@
   font-size: clamp(13px, 1vw, 18px);
   color: var(--graphite);
 }
+
+/* ---------- Fit the window ----------
+   The big screen is one fixed-height column: the header and the footer keep their size and the card
+   takes what is left. Sizes inside the card follow the card's own height (cqh), so every step
+   (question, answer, leaderboard) fits a laptop, a projector or a window with browser chrome, and the
+   button the host needs is never pushed under the progress bar. */
+
+.screen.game.host-game {
+  height: 100dvh;
+  min-height: 0;
+  /* The water progress tube is fixed at the bottom: 44px tall, 16px from the edge. */
+  padding-bottom: 80px;
+  justify-content: flex-start;
+}
+
+.host-game .game-top {
+  flex: none;
+  margin-bottom: calc(var(--bird-h) * 0.8);
+}
+
+.host-game .stack {
+  flex: 1 1 0;
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.host-game .stack-card.card {
+  min-height: 0;
+  height: 100%;
+  container-type: size;
+}
+
+.host-game .host-footer {
+  flex: none;
+  margin-top: clamp(8px, 1.6vh, 24px);
+}
+
+.host-game .fact {
+  font-size: min(clamp(15px, 1.5vw, 28px), 2.6vh);
+  padding: min(clamp(16px, 1.4vw, 28px), 1.6vh) clamp(20px, 1.8vw, 36px);
+}
+
+.host-game .card-question {
+  font-size: min(clamp(28px, 4.2vw, 84px), 7vh, 12cqh);
+}
+
+.host-game .stack-card:has(.reveal, .standings) .card-question {
+  font-size: min(clamp(20px, 2.4vw, 48px), 4.4vh, 7.5cqh);
+}
+
+.host-game .stack-card.card {
+  padding-block: min(clamp(32px, 3.4vw, 64px), 3.6vh);
+}
+
+.host-game .host-answers {
+  max-height: 44cqh;
+  overflow: hidden;
+}
+
+.host-game .reveal-number {
+  font-size: min(clamp(48px, 7.6vw, 150px), 11vh, 17cqh);
+}
+
+.host-game .glass-meter {
+  --glass-h: min(clamp(120px, 30vw, 460px), 38vh, 42cqh);
+}
+
+.host-game .result-row {
+  font-size: min(clamp(15px, 1.6vw, 30px), 2.7vh, 5.6cqh);
+}
