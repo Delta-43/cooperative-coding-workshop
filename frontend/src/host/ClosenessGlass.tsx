@@ -75,6 +75,7 @@ export function ClosenessGlass({
           fillSeconds={pour.fillSeconds}
           agitation={pour.agitation}
           bubbles={pour.bubbles}
+          stream={pour.stream}
           className="glass-water"
         />
         <span className="glass-ticks" aria-hidden="true" />
