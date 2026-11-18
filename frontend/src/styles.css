@@ -397,7 +397,7 @@ input {
 
 /* JetBrains Mono gives a comma a whole digit's width; pull the digits back together. */
 .digits-sep {
-  margin-inline: -0.16em;
+  margin-inline: -0.1em;
 }
 
 .visually-hidden {
