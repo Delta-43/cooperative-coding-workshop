@@ -29,9 +29,9 @@ The frontend reads the backend address from a setting (`BACKEND_URL`), so it can
 | `type` | Who | Fields | When |
 |---|---|---|---|
 | `join` | player | `name` (1 to 16 characters), `playerId` (optional) | First message. Send the saved `playerId` to come back after a dropped connection |
-| `answer` | player | `value` (number) | During `question`. A second answer replaces the first |
+| `answer` | player | `value` (number) | During `question`, until the timer ends. A second answer replaces the first. After `endsAt` the server replies `time_up` |
 | `start` | host | none | In `lobby`, with at least one player |
-| `reveal` | host | none | In `question`. Closes the answers and scores the round. Only the host receives the result |
+| `reveal` | host | none | In `question`, before or after the timer ends. Closes the answers and scores the round. Only the host receives the result |
 | `show` | host | none | In `reveal`, when the big screen shows the answer. From then on players receive the result too. Sending it again does nothing |
 | `next` | host | none | In `reveal`. After the last question the phase becomes `over` |
 | `kick` | host | `playerId` | Any time |
@@ -49,7 +49,11 @@ The frontend reads the backend address from a setting (`BACKEND_URL`), so it can
     { "id": "p1", "name": "Ada", "score": 3, "time": 4210, "connected": true, "answered": true }
   ],
   "answeredCount": 1,
-  "question": { "index": 0, "total": 8, "text": "How many keys does a standard piano have?", "unit": "keys" },
+  "question": {
+    "index": 0, "total": 8, "text": "How many keys does a standard piano have?", "unit": "keys",
+    "timeLimit": 20, "endsAt": 1795000020000, "serverTime": 1795000008000,
+    "fact": { "text": "Bösendorfer's Imperial grand has extra bass keys below the usual lowest note. Their tops are painted black so a pianist does not lose their place.", "source": "https://en.wikipedia.org/wiki/B%C3%B6sendorfer" }
+  },
   "you": { "role": "player", "playerId": "p1", "answer": 88 },
   "answerShown": true,
   "reveal": {
@@ -62,12 +66,14 @@ The frontend reads the backend address from a setting (`BACKEND_URL`), so it can
 ```
 
 - `question` is `null` in `lobby` and `over`.
+- `question.timeLimit` is the time to answer, in seconds (5 to 120, default 20). `endsAt` is when answers close and `serverTime` is when the server built this message, both in milliseconds since 1970 on **the server's clock**. Clients work out the time left as `endsAt - serverTime` when the message arrives, and count down from there with their own clock. Never compare `endsAt` with the phone's clock: phone clocks are wrong. The timer starts again for every question and the reconnecting client gets the same `endsAt`.
+- `question.fact` is a "Did you know?" card for the screen while players wait, or `null`. `text` is at most 280 characters. `source` is a web address or `null`. **A fact never contains the answer**, because the server sends it with the question. Show it after a player has answered and while the host's screen waits.
 - `reveal` is `null` unless the phase is `reveal`. **The correct answer is never sent before `reveal`.**
 - `answerShown` is `true` after the host sends `show` for the current question, and `false` at every other time. The big screen builds up to the answer, so phones must not show it first: **in `reveal`, a player's `reveal` is `null` and `players[].score` leaves out this round's points until `answerShown` is `true`.** The host always receives the full result.
 - `you.answer` is your own answer, or `null`. In `question` a player never sees other players' answers.
 - A host has `you.role` set to `host` and no `playerId`.
 - `reveal.results[].time` is the milliseconds from the question opening to that player's last answer, or `null` with no answer.
-- `players[].time` is the player's total answer time so far. A question with no answer adds the whole time it was open. In `over`, `players` is in final order.
+- `players[].time` is the player's total answer time so far. A question with no answer adds the whole time it was open, never more than `timeLimit`. In `over`, `players` is in final order.
 
 ### `error`
 
@@ -79,6 +85,7 @@ The frontend reads the backend address from a setting (`BACKEND_URL`), so it can
 |---|---|
 | `bad_message` | Not valid JSON, or does not match the schema |
 | `wrong_phase` | The message is not allowed in this phase |
+| `time_up` | An `answer` arrived after `endsAt`. The earlier answer, if any, stays |
 | `not_allowed` | A player sent a host message |
 | `name_taken` | Another player already has that name |
 | `bad_name` | The name is empty or too long |
@@ -99,9 +106,16 @@ error = abs(value - correct) / abs(correct)
 - **Equal final scores: the lower total answer time ranks higher.**
 - Why relative error: the answers range from 16 to over a million. With plain distance, large answers would always lose.
 
+## The timer
+
+- The server owns the clock. It starts when the host sends `start` or `next`, and sets `endsAt` to the opening time plus `timeLimit`.
+- At `endsAt` answers close: a later `answer` gets `time_up` and changes nothing. The phase stays `question`, so the host can still wait for a straggler or press `reveal`. There is no automatic reveal.
+- The host may send `reveal` before `endsAt`. Players who have not answered score 0 for that question.
+- A player's answer time is measured on the server from the opening to their last accepted answer. It is never longer than `timeLimit`.
+
 ## Rules for the room
 
 - Names are trimmed. They must be unique, ignoring capitals.
 - The host can remove a player with `kick`.
 - A room holds at most 30 players.
-- Questions come from the backend. The repository ships a small sample set. The real set is added when the Worker is deployed.
+- Questions come from the backend. Each has `text`, `unit`, `answer`, and optionally `timeLimit` (seconds, default 20) and `fact` (`{ text, source }`). The repository ships a small sample set. The real set is added when the Worker is deployed.

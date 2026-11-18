@@ -1,5 +1,7 @@
 { "type": "state", "code": "KQWZ", "phase": "reveal",
   "players": [ { "id": "p1", "name": "Ada", "score": 0, "time": 4210, "connected": true, "answered": true } ],
   "answeredCount": 1,
-  "question": { "index": 0, "total": 8, "text": "How many keys does a standard piano have?", "unit": "keys" },
+  "question": { "index": 0, "total": 8, "text": "How many keys does a standard piano have?", "unit": "keys",
+    "timeLimit": 20, "endsAt": 1795000020000, "serverTime": 1795000011000,
+    "fact": { "text": "Bösendorfer's Imperial grand has extra bass keys below the usual lowest note. Their tops are painted black so a pianist does not lose their place.", "source": "https://en.wikipedia.org/wiki/B%C3%B6sendorfer" } },
   "you": { "role": "player", "playerId": "p1", "answer": 80 }, "answerShown": false, "reveal": null }

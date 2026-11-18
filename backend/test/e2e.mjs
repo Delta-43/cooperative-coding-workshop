@@ -67,6 +67,12 @@ host.send({ type: "start" });
 const q = await latestState(ada, (s) => s.phase === "question");
 assert.equal(q.reveal, null);
 assert.ok(!JSON.stringify(q).includes('"correct"'), "answer must not leak before reveal");
+// The timer: the server owns the clock, and a question may carry a "Did you know?" fact that never holds the answer.
+const tq = q.question;
+assert.ok(Number.isInteger(tq.timeLimit) && tq.timeLimit >= 5 && tq.timeLimit <= 120, "timeLimit in seconds");
+assert.ok(tq.endsAt > tq.serverTime, "the question has time left");
+assert.ok(tq.endsAt - tq.serverTime <= tq.timeLimit * 1000, "no more than timeLimit left");
+assert.ok(tq.fact === null || (typeof tq.fact.text === "string" && tq.fact.text.length <= 280), "fact is null or has text");
 
 ada.send({ type: "answer", value: 90 });
 bo.send({ type: "answer", value: 50 });
@@ -101,5 +107,15 @@ await ada2.ready;
 ada2.send({ type: "join", name: "Ada", playerId: adaId });
 const back = await latestState(ada2, (s) => s.you.playerId === adaId);
 assert.equal(back.players.find((p) => p.id === adaId).score, closer === "Ada" ? 3 : 2);
+
+// Time is up: the next question closes its answers at endsAt, and a late answer gets time_up.
+host.send({ type: "next" });
+const late = await latestState(ada, (s) => s.phase === "question");
+const left = late.question.endsAt - late.question.serverTime;
+if (left <= 30000) {
+  await new Promise((r) => setTimeout(r, left + 300));
+  ada.send({ type: "answer", value: 1 });
+  assert.equal((await ada.next((m) => m.type === "error")).code, "time_up");
+} else console.log("skipped the time_up check: the time limit is over 30 seconds");
 
 done([host, ada, bo, ada2]);
