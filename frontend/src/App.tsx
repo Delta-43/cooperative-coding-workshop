@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { HostApp } from './host/HostApp'
 import { PlayerApp } from './player/PlayerApp'
 
 // Hash routes, because GitHub Pages has no fallback for other paths.
@@ -15,15 +16,6 @@ function useHash() {
 
 export function App() {
   const hash = useHash()
-  if (hash.startsWith('#/host')) {
-    return (
-      <main className="screen">
-        <h1 className="brand">
-          Guess <em>Closer!</em>
-        </h1>
-        <p>The big screen arrives in F3.</p>
-      </main>
-    )
-  }
+  if (hash.startsWith('#/host')) return <HostApp />
   return <PlayerApp />
 }
