@@ -2,9 +2,9 @@
 
 For Delta, who owns `backend/`. The frontend starts from [`frontend-start.md`](frontend-start.md). These prompts rebuild the demo backend in `delta-workshops/guess-closer`, one issue at a time. Each one pins the behaviour of the finished backend, so the result passes the same acceptance test (`backend/test/e2e.mjs`) and works with any frontend built to the contract.
 
-Tested on 2026-11-17: a fresh agent ran prompts 0 to 3 in a scratch branch, and every stage passed first time (20 unit tests; e2e `rooms`, `answers` and `all`). The acceptance test also passes against the finished backend and against the test Worker.
+The order is B1, B4, B2, B3, B5, B6, B7: B2 calls the timer module from B4. B1 to B3 and the contract were tested on 2026-11-17 by a fresh agent in a scratch branch. **B4 to B7 and the timer, number and fact changes to B1 to B3 (2026-11-18) have not been re-run by a fresh agent yet.** They were written from the finished code, which passes `npm test` (48 tests) and `e2e.mjs all`. Run the whole sequence once in a scratch branch before you rely on it on stage.
 
-Before you start: the contract pull request (PR 15, `c1-contract`) is merged, `git pull` has brought it into your clone's `main`, and you are on a new branch for the issue. Each task is one issue (B1 #3, B2 #4, B3 #5): open its pull request with `Closes #N` in the description.
+Before you start: the contract pull request (PR 15, `c1-contract`) is merged, `git pull` has brought it into your clone's `main`, and you are on a new branch for the issue. Each task is one issue (B1 #3, B2 #4, B3 #5, B4 #23, B5 #28, B6 #31, B7 #45): open its pull request with `Closes #N` in the description.
 
 ## Collect the skills
 
@@ -77,8 +77,10 @@ wrangler.jsonc
   migrations: [{ "tag": "v1", "new_sqlite_classes": ["Room"] }].
 
 src/questions.sample.json
-  Three public sample questions, each { "text", "unit", "answer" }:
+  Three public sample questions, each { "text", "unit", "answer", "fact" } where fact is
+  { "text", "source" } and never contains the answer:
   piano keys 88 "keys"; bones in an adult human 206 "bones"; minutes in a week 10080 "minutes".
+  (Copy the three facts from backend/src/questions.sample.json in the repository.)
 
 src/index.js  (the Worker; it also re-exports Room from ./room.js)
   - OPTIONS on any path: 204 with CORS headers.
@@ -100,26 +102,56 @@ src/room.js  (class Room extends DurableObject from "cloudflare:workers")
     ctx.blockConcurrencyWhile, because a hibernated object forgets its memory.
   - /create: if a game exists return 409. Otherwise create it: code (from the header),
     hostToken (crypto.randomUUID()), phase "lobby", players [], questionIndex -1, answers {},
-    answerTimes {}, questionOpenedAt null, reveal null, answerShown false, nextPlayer 1, and
-    questions. Questions come from env.QUESTIONS (a JSON string of the same shape) when it
-    parses to a non-empty array, otherwise from the sample file. Keep only text, unit, answer.
+    answerTimes {}, questionOpenedAt null, questionEndsAt null, reveal null, answerShown false, nextPlayer 1,
+    lastActivity (now), overAt null, and questions. Questions come from env.QUESTIONS (a JSON
+    string of the same shape) when it parses to a non-empty array, otherwise from the sample
+    file. Keep only text, unit, answer, timeLimit, fact.
     Reply 201 { code, hostToken }.
   - Any other request: no game means 404 { "error": "no_room" }. A ?host= value that is not
     the host token means 403. Otherwise accept the WebSocket with the hibernation API
     (ctx.acceptWebSocket) and attach { role: "host" | "player", playerId: null } with
     serializeAttachment. A host gets a state message at once.
   - stateFor(ws) builds the state message from the contract for that socket, and
-    broadcast() sends each connected socket its own state. In this task only the lobby
+    broadcast() sends each open socket its own state. In this task only the lobby
     exists: players [], answeredCount 0, question null, reveal null, answerShown false,
-    you { role, playerId, answer: null }.
+    you { role, playerId, answer: null }. Later tasks add the question fields (see B2).
 
 Done when: npm test passes, and node test/e2e.mjs rooms prints "e2e ok (rooms)".
 Do not touch: frontend/, contract/, backend/test/e2e.mjs.
 ```
 
-## 2. Issue B2: join and answer intake
+## 2. Issue B4: the answer timer (before B2)
 
-Branch `b2-answers`. Verify: `npm test`, then `node test/e2e.mjs answers` against `npm run dev`.
+Branch `b4-timer`. Needs nothing from B1; do it before B2. Verify: `cd backend && npm ci && npm test`.
+
+```text
+Task B4, the answer timer. Read "The timer" in contract/messages.md. Create exactly these
+files in backend/. Write the tests first, run them and see them fail, then write the code.
+
+src/timer.js  (pure functions, no clock reads: callers pass "now" in; limits are in seconds,
+times in milliseconds)
+  - DEFAULT_TIME_LIMIT 20, MIN_TIME_LIMIT 5, MAX_TIME_LIMIT 120.
+  - timeLimitFor(question): the question's timeLimit if it is an integer from 5 to 120,
+    otherwise 20.
+  - endsAt(openedAt, limit): openedAt + limit * 1000.
+  - acceptsAnswer(now, endsAt): true up to and including endsAt, false after.
+  - timeLeftMs(now, endsAt): never negative.
+  - answerTime(openedAt, answeredAt, limit): clamped to 0..limit*1000.
+  - noAnswerTime(openedAt, now, limit): how long the question was open, clamped to
+    0..limit*1000 (the contract: never more than timeLimit).
+
+test/timer.test.js (node:test and node:assert/strict). Cover: the default and bad limits;
+endsAt arithmetic; an answer exactly at endsAt is accepted and 1 ms later is not; timeLeftMs
+never negative; answerTime clamps; noAnswerTime is shorter after an early reveal, exactly
+the limit after a late one, and never negative.
+
+Done when: npm test passes. Do not touch: frontend/, contract/, room.js (it may not exist yet),
+backend/test/e2e.mjs, backend/test/contract.test.js.
+```
+
+## 3. Issue B2: join and answer intake
+
+Branch `b2-answers`. Needs B1 and B4. Verify: `npm test`, then `node test/e2e.mjs answers` against `npm run dev`.
 
 ```text
 Task B2, join and answer intake. Extend backend/src/room.js. Handle messages in
@@ -138,14 +170,17 @@ join (players only; a host gets not_allowed)
 
 answer (players who have joined; otherwise not_allowed)
   - Only in phase "question": else wrong_phase. value must be a finite number: else bad_message.
+  - Use timer.js. If acceptsAnswer(now, questionEndsAt) is false: time_up (nothing changes).
+    Check the phase first, then the time, then that value is a finite number.
   - Store answers[playerId] = value. A second answer replaces the first.
-  - Store answerTimes[playerId] = milliseconds since the question opened. A changed answer
+  - Store answerTimes[playerId] = answerTime(questionOpenedAt, now, limit). A changed answer
     restarts the time.
 
 start, kick (host only; a player gets not_allowed)
-  - start: only in "lobby" and with at least one player, else wrong_phase. Open question 0:
-    phase "question", questionIndex 0, answers {}, answerTimes {}, questionOpenedAt now,
-    reveal null, answerShown false.
+  - start: only in "lobby" and with at least one player, else wrong_phase. Open question 0
+    with one helper, openQuestion(index), that sets phase "question", questionIndex, answers {},
+    answerTimes {}, questionOpenedAt now, questionEndsAt = endsAt(now, timeLimitFor(question)),
+    reveal null, answerShown false. "next" uses the same helper.
   - kick: remove the player, their answer and their answer time, and close every socket
     of that player with code 4000 and reason "removed". Allowed in every phase.
 
@@ -153,15 +188,20 @@ State, as in the contract:
   - players[]: id, name, score, time, connected (a socket for that player is open),
     answered (true in "question" and "reveal" when the player has an answer).
   - answeredCount: the number of answers to the current question.
-  - question: null in "lobby" and "over", else { index, total, text, unit }. Never the answer.
+  - question: null in "lobby" and "over", else { index, total, number, text, unit, timeLimit,
+    endsAt, serverTime, fact }. number is the question's fixed number (see B5), serverTime is
+    Date.now() when the message is built, fact is { text, source } or null. Never the answer.
   - you.answer: this player's own answer or null. Nobody sees another player's answer.
-  - webSocketClose and webSocketError: broadcast, so "connected" updates.
+  - webSocketClose and webSocketError: broadcast, so "connected" updates. Find a player's
+    sockets by their attachment (hibernation tags cannot be set after accept) and count only
+    sockets with readyState 1.
+  - time_up is in the error codes. Add it to the list of codes you send.
 
 Done when: npm test passes, and node test/e2e.mjs answers prints "e2e ok (answers)".
 Do not touch: frontend/, contract/, backend/test/e2e.mjs.
 ```
 
-## 3. Issue B3: scoring
+## 4. Issue B3: scoring
 
 Branch `b3-scoring`. Verify: `npm test`, then `node test/e2e.mjs all` against `npm run dev`.
 
@@ -187,11 +227,13 @@ Part 2: extend backend/src/room.js with the host messages reveal, show and next.
   - reveal: only in "question", else wrong_phase. Score the round with scoreRound, giving
     each player value answers[id] ?? null and time answerTimes[id] ?? null. Add each
     result's points to the player's score. Add to the player's total time: the result's time,
-    or, with no answer, the whole time the question was open. Store reveal = { correct, results }.
+    or, with no answer, noAnswerTime(questionOpenedAt, now, limit) from timer.js (never more
+    than the time limit). reveal works before and after the timer ends: there is no automatic reveal. Store reveal = { correct, results }.
     Phase "reveal", answerShown false.
   - show: only in "reveal", else wrong_phase. Set answerShown true. Sending it again is fine.
   - next: only in "reveal", else wrong_phase. After the last question: phase "over",
-    reveal null, answerShown false. Otherwise open the next question as in start.
+    reveal null, answerShown false, and overAt = now (B7 uses it). Otherwise open the next
+    question with openQuestion().
   - State: answerShown is true only in "reveal" after show. The host always gets the full
     reveal. A PLAYER in "reveal" before show gets reveal: null, and every players[].score
     without this round's points. players[].time is not held back: it already includes
@@ -202,14 +244,99 @@ Done when: npm test passes with the new scoring tests, and node test/e2e.mjs all
 Do not touch: frontend/, contract/, backend/test/e2e.mjs.
 ```
 
-## After B3
+## 5. Issue B5: shuffle and clear
+
+Branch `b5-shuffle-clear`. Needs B3. Verify: `npm test`, then `node test/e2e.mjs all`. This task
+only changes how a finished room clears; B7 replaces that with one plan, so if you run B7
+straight after, B5's alarm code is replaced by it.
+
+```text
+Task B5, shuffle the questions and clear a finished room. Extend backend/.
+
+src/shuffle.js: shuffled(list, random = Math.random), a Fisher-Yates that returns a new array.
+test/shuffle.test.js: keeps every item and does not change the input; follows the random source
+(shuffled([1,2,3], () => 0) is [2,3,1]); changes the order of ten items in at least one of 20 runs.
+
+In room.js, when a room is created, number the questions first (number = place in the list,
+from 1), then shuffle them. The number never changes, so the cards in B6 stay with their question.
+
+When the phase becomes "over", the room clears itself after env.CLEAR_AFTER_MS (default 600000,
+10 minutes) with a Durable Object alarm: alarm() closes every socket with close code 1000 and
+reason "game over", calls ctx.storage.deleteAll() and sets this.game to null. A room that
+has cleared answers /ws with 404 no_room, and its code can be used again.
+
+Done when: npm test passes, and node test/e2e.mjs all prints "e2e ok (all)". Try the clearing on a
+local Worker with --var CLEAR_AFTER_MS:3000 and show me that a new connection is accepted before
+the clear and refused after it.
+Do not touch: frontend/, contract/, backend/test/e2e.mjs, backend/test/contract.test.js.
+```
+
+## 6. Issue B6: trivia cards by question number
+
+Branch `b6-trivia`. Needs B5 and the contract change that adds question.number (C3). Verify: `npm test`, then `node test/e2e.mjs all`.
+
+```text
+Task B6, "Did you know?" cards. Extend backend/. The cards are research, not code: copy
+backend/src/trivia.json and backend/TRIVIA.md from the repository instead of writing them. They
+hold one spoiler-free card per live question, keyed by question number, and no question text or answers.
+
+src/trivia.js (imports ./trivia.json with { type: "json" })
+  - numbered(list): each question plus number = place in the list, from 1.
+  - cardFor(number, table = cards): { number, text, source } or null.
+  - withCards(list, table = cards): fills in "fact" ({ text, source }, or null) for questions that
+    have no fact of their own.
+
+test/trivia.test.js: ten cards numbered 1 to 10; every card is 1 to 280 characters with an https
+source; TRIVIA.md has a "| N |" row for every card; numbered, cardFor and withCards behave as above,
+including that a card follows its question after the list is reversed, and that a question's own
+fact is kept.
+
+In room.js, questions from env.QUESTIONS go through withCards(numbered(list)) before the shuffle.
+The sample set carries its own facts and is only numbered.
+In index.js, GET /api/trivia/<number> returns the card as JSON with the usual CORS headers, or
+404 { "error": "no_card" }.
+
+Done when: npm test passes, and a local Worker started with ten dummy questions in QUESTIONS plays two
+games where every question carries its own card and GET /api/trivia/11 is 404.
+Do not touch: frontend/, contract/, backend/test/e2e.mjs, backend/test/contract.test.js.
+```
+
+## 7. Issue B7: clear abandoned rooms
+
+Branch `b7-idle-clear`. Needs B5 and the contract's "Closing" section (C4). Verify: `npm test`, then `node test/e2e.mjs all`.
+
+```text
+Task B7, clear rooms that are abandoned. Read "Closing" in contract/messages.md. Extend backend/.
+Write the tests first.
+
+src/clearing.js (pure)
+  - DEFAULT_IDLE_MS 7200000 (2 hours), DEFAULT_CLEAR_AFTER_MS 600000 (10 minutes).
+  - clearPlan(game, env) returns { at, reason }. If game.overAt is set: overAt + CLEAR_AFTER_MS,
+    reason "game over". Otherwise (lastActivity ?? 0) + IDLE_CLEAR_MS, reason "idle". A setting
+    that is not a number above 0 falls back to its default.
+test/clearing.test.js: the defaults; idle from lastActivity; after "over" nothing later postpones it;
+both settings are used; bad settings fall back.
+
+In room.js: set lastActivity = now on create, on every WebSocket connection with a valid host token
+(or none), and after every accepted message; a rejected message (an error reply) is not activity.
+After each save, set the alarm to clearPlan(game, env).at. In alarm(): if there is no game, return;
+if now is before the plan's time, set the alarm again and return; otherwise close every socket with
+code 1000 and the plan's reason, deleteAll(), and set this.game to null.
+
+Done when: npm test passes, node test/e2e.mjs all prints "e2e ok (all)", and a local Worker started with
+--var IDLE_CLEAR_MS:3000 --var CLEAR_AFTER_MS:6000 shows: an untouched room refused after 4 seconds;
+a finished room cleared 6 seconds after "over" even with a new connection every second.
+Do not touch: frontend/, contract/, backend/test/e2e.mjs, backend/test/contract.test.js.
+```
+
+## After B7
 
 ```sh
 cd backend && npx wrangler deploy          # replaces the test Worker guess-closer-live
 node test/e2e.mjs all https://guess-closer-live.delta-43.workers.dev
 ```
 
-The `QUESTIONS` secret is already set on `guess-closer-live`, so the deployed game uses the real ten questions.
+The `QUESTIONS` secret is already set on `guess-closer-live`, so the deployed game uses the real ten questions. Their cards come from `src/trivia.json` by question number: read each card against the real answer before you deploy, because the tests cannot see the answers.
 
 ## If it goes wrong
 
