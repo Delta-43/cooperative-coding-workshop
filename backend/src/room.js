@@ -1,5 +1,6 @@
 import { DurableObject } from "cloudflare:workers";
 import sample from "./questions.sample.json";
+import { timeLimitFor, endsAt, acceptsAnswer, answerTime } from "./timer.js";
 
 function loadQuestions(env) {
   let list = null;
@@ -34,7 +35,7 @@ export class Room extends DurableObject {
       this.game = {
         code, hostToken, phase: "lobby", players: [], questionIndex: -1,
         answers: {}, answerTimes: {}, questionOpenedAt: null, reveal: null,
-        answerShown: false, nextPlayer: 1, questions: loadQuestions(this.env),
+        answerShown: false, nextPlayer: 1, questionEndsAt: null, questions: loadQuestions(this.env),
       };
       await this.save();
       return Response.json({ code, hostToken }, { status: 201 });
@@ -49,15 +50,49 @@ export class Room extends DurableObject {
     return new Response(null, { status: 101, webSocket: pair[0] });
   }
 
+  socketsOf(playerId) {
+    return this.ctx.getWebSockets().filter((s) => s.readyState === 1 && s.deserializeAttachment()?.playerId === playerId);
+  }
+
   stateFor(ws) {
     const g = this.game;
     const { role, playerId } = ws.deserializeAttachment() ?? { role: "player", playerId: null };
+    const inRound = g.phase === "question" || g.phase === "reveal";
     return {
       type: "state", code: g.code, phase: g.phase,
-      players: [], answeredCount: 0, question: null,
-      you: { role, playerId, answer: null },
+      players: g.players.map((p) => ({
+        id: p.id, name: p.name, score: p.score, time: p.time,
+        connected: this.socketsOf(p.id).length > 0,
+        answered: inRound && g.answers[p.id] !== undefined,
+      })),
+      answeredCount: Object.keys(g.answers).length,
+      question: this.questionView(),
+      you: { role, playerId, answer: playerId ? g.answers[playerId] ?? null : null },
       answerShown: false, reveal: null,
     };
+  }
+
+  questionView() {
+    const g = this.game;
+    if (g.phase !== "question" && g.phase !== "reveal") return null;
+    const q = g.questions[g.questionIndex];
+    return {
+      index: g.questionIndex, total: g.questions.length, text: q.text, unit: q.unit,
+      timeLimit: timeLimitFor(q), endsAt: g.questionEndsAt, serverTime: Date.now(),
+      fact: q.fact ?? null,
+    };
+  }
+
+  openQuestion(index) {
+    const g = this.game;
+    g.phase = "question";
+    g.questionIndex = index;
+    g.answers = {};
+    g.answerTimes = {};
+    g.questionOpenedAt = Date.now();
+    g.questionEndsAt = endsAt(g.questionOpenedAt, timeLimitFor(g.questions[index]));
+    g.reveal = null;
+    g.answerShown = false;
   }
 
   send(ws) {
@@ -65,10 +100,71 @@ export class Room extends DurableObject {
   }
 
   broadcast() {
-    for (const ws of this.ctx.getWebSockets()) this.send(ws);
+    for (const ws of this.ctx.getWebSockets()) if (ws.readyState === 1) this.send(ws);
   }
 
-  async webSocketMessage() {}
-  async webSocketClose() {}
-  async webSocketError() {}
+  fail(ws, code, message) {
+    ws.send(JSON.stringify({ type: "error", code, message }));
+  }
+
+  async webSocketMessage(ws, raw) {
+    const g = this.game;
+    let msg;
+    try { msg = JSON.parse(raw); } catch { return this.fail(ws, "bad_message", "That was not valid JSON."); }
+    if (!msg || typeof msg.type !== "string") return this.fail(ws, "bad_message", "A message needs a type.");
+    const att = ws.deserializeAttachment() ?? { role: "player", playerId: null };
+    const isHost = att.role === "host";
+
+    switch (msg.type) {
+      case "join": {
+        if (isHost) return this.fail(ws, "not_allowed", "The host cannot join as a player.");
+        const known = typeof msg.playerId === "string" && g.players.find((p) => p.id === msg.playerId);
+        if (known) {
+          ws.serializeAttachment({ role: "player", playerId: known.id });
+          break;
+        }
+        const name = typeof msg.name === "string" ? msg.name.trim() : "";
+        if (name.length < 1 || name.length > 16) return this.fail(ws, "bad_name", "Pick a name of 1 to 16 characters.");
+        if (g.players.length >= 30) return this.fail(ws, "room_full", "This room is full.");
+        if (g.players.some((p) => p.name.toLowerCase() === name.toLowerCase())) return this.fail(ws, "name_taken", "That name is already in use.");
+        const player = { id: "p" + g.nextPlayer++, name, score: 0, time: 0 };
+        g.players.push(player);
+        ws.serializeAttachment({ role: "player", playerId: player.id });
+        break;
+      }
+      case "answer": {
+        if (isHost || !att.playerId || !g.players.some((p) => p.id === att.playerId)) return this.fail(ws, "not_allowed", "Join the game first.");
+        if (g.phase !== "question") return this.fail(ws, "wrong_phase", "Answers are closed.");
+        const now = Date.now();
+        if (!acceptsAnswer(now, g.questionEndsAt)) return this.fail(ws, "time_up", "Time is up.");
+        if (typeof msg.value !== "number" || !Number.isFinite(msg.value)) return this.fail(ws, "bad_message", "An answer is a number.");
+        g.answers[att.playerId] = msg.value;
+        g.answerTimes[att.playerId] = answerTime(g.questionOpenedAt, now, timeLimitFor(g.questions[g.questionIndex]));
+        break;
+      }
+      case "start": {
+        if (!isHost) return this.fail(ws, "not_allowed", "Only the host can do that.");
+        if (g.phase !== "lobby" || g.players.length === 0) return this.fail(ws, "wrong_phase", "Wait for players, then start from the lobby.");
+        this.openQuestion(0);
+        break;
+      }
+      case "kick": {
+        if (!isHost) return this.fail(ws, "not_allowed", "Only the host can do that.");
+        const id = msg.playerId;
+        const sockets = this.socketsOf(id);
+        g.players = g.players.filter((p) => p.id !== id);
+        delete g.answers[id];
+        delete g.answerTimes[id];
+        for (const s of sockets) s.close(4000, "removed");
+        break;
+      }
+      default:
+        return this.fail(ws, "bad_message", "Unknown message type.");
+    }
+    await this.save();
+    this.broadcast();
+  }
+
+  async webSocketClose(ws, code, reason) { try { ws.close(code, reason); } catch { /* already closed */ } this.broadcast(); }
+  async webSocketError() { this.broadcast(); }
 }
