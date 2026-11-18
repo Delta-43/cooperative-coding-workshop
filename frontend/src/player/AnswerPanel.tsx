@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import type { ClientMessage, GameState, ServerError } from '../contract'
+import { Digits } from '../Digits'
 import { formatNumber } from '../format'
 import { ResultPanel } from './ResultPanel'
 
@@ -86,7 +87,7 @@ export function AnswerPanel({
           <span className="tick" aria-hidden="true" /> Answer sent
         </p>
         <p className="sent-value">
-          {formatNumber(shownAnswer)} <span>{unit}</span>
+          <Digits value={shownAnswer} /> <span>{unit}</span>
         </p>
         <button
           type="button"
