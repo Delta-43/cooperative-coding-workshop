@@ -2,6 +2,7 @@ import { DurableObject } from "cloudflare:workers";
 import sample from "./questions.sample.json";
 import { timeLimitFor, endsAt, acceptsAnswer, answerTime, noAnswerTime } from "./timer.js";
 import { shuffled } from "./shuffle.js";
+import { numbered, withCards } from "./trivia.js";
 import { scoreRound, finalOrder } from "./scoring.js";
 
 function loadQuestions(env) {
@@ -11,8 +12,9 @@ function loadQuestions(env) {
   } catch {
     list = null;
   }
-  if (!Array.isArray(list) || list.length === 0) list = sample;
-  return shuffled(list).map(({ text, unit, answer, timeLimit, fact }) => ({ text, unit, answer, timeLimit, fact }));
+  // The live set gets its cards by question number. The sample set carries its own.
+  list = Array.isArray(list) && list.length > 0 ? withCards(numbered(list)) : numbered(sample);
+  return shuffled(list).map(({ number, text, unit, answer, timeLimit, fact }) => ({ number, text, unit, answer, timeLimit, fact }));
 }
 
 export class Room extends DurableObject {
@@ -91,7 +93,7 @@ export class Room extends DurableObject {
     if (g.phase !== "question" && g.phase !== "reveal") return null;
     const q = g.questions[g.questionIndex];
     return {
-      index: g.questionIndex, total: g.questions.length, text: q.text, unit: q.unit,
+      index: g.questionIndex, total: g.questions.length, number: q.number, text: q.text, unit: q.unit,
       timeLimit: timeLimitFor(q), endsAt: g.questionEndsAt, serverTime: Date.now(),
       fact: q.fact ?? null,
     };

@@ -1,4 +1,5 @@
 import { Room } from "./room.js";
+import { cardFor } from "./trivia.js";
 export { Room };
 
 const LETTERS = "ABCDEFGHJKLMNPQRSTUVWXYZ"; // no I and no O
@@ -38,6 +39,12 @@ export default {
         if (reply.status === 201) return json(env, await reply.json(), 201);
       }
       return json(env, { error: "no_room" }, 503);
+    }
+
+    const card = url.pathname.match(/^\/api\/trivia\/(\d+)$/);
+    if (card && request.method === "GET") {
+      const found = cardFor(Number(card[1]));
+      return found ? json(env, found) : json(env, { error: "no_card" }, 404);
     }
 
     const match = url.pathname.match(/^\/api\/rooms\/([A-Z]{4})\/ws$/);
