@@ -50,7 +50,7 @@ The frontend reads the backend address from a setting (`BACKEND_URL`), so it can
   ],
   "answeredCount": 1,
   "question": {
-    "index": 0, "total": 8, "text": "How many keys does a standard piano have?", "unit": "keys",
+    "index": 0, "total": 8, "number": 1, "text": "How many keys does a standard piano have?", "unit": "keys",
     "timeLimit": 20, "endsAt": 1795000020000, "serverTime": 1795000008000,
     "fact": { "text": "Bösendorfer's Imperial grand has extra bass keys below the usual lowest note. Their tops are painted black so a pianist does not lose their place.", "source": "https://en.wikipedia.org/wiki/B%C3%B6sendorfer" }
   },
@@ -66,6 +66,7 @@ The frontend reads the backend address from a setting (`BACKEND_URL`), so it can
 ```
 
 - `question` is `null` in `lobby` and `over`.
+- `question.number` is the question's fixed number in the question set (1 for the first question in the list), however the room shuffles them. `index` is the place in this game. A "Did you know?" card belongs to a `number`, so `GET /api/trivia/<number>` returns it as `{ "number": 3, "text": "...", "source": "..." }`, or `404 { "error": "no_card" }`.
 - `question.timeLimit` is the time to answer, in seconds (5 to 120, default 20). `endsAt` is when answers close and `serverTime` is when the server built this message, both in milliseconds since 1970 on **the server's clock**. Clients work out the time left as `endsAt - serverTime` when the message arrives, and count down from there with their own clock. Never compare `endsAt` with the phone's clock: phone clocks are wrong. The timer starts again for every question and the reconnecting client gets the same `endsAt`.
 - `question.fact` is a "Did you know?" card for the screen while players wait, or `null`. `text` is at most 280 characters. `source` is a web address or `null`. **A fact never contains the answer**, because the server sends it with the question. Show it after a player has answered and while the host's screen waits.
 - `reveal` is `null` unless the phase is `reveal`. **The correct answer is never sent before `reveal`.**
