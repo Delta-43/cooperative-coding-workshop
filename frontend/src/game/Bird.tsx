@@ -3,7 +3,7 @@ import { SPECIES } from './birds'
 import { Sprite } from './Sprite'
 
 // Where on the card a bird may land, as % from the left.
-const SPOTS = [6, 64, 38, 72, 12, 50] as const
+const SPOTS = [2, 58, 30, 64, 8, 44] as const
 
 // A small seeded random, so one question always gets the same bird on every screen.
 function seeded(seed: number) {
@@ -17,9 +17,10 @@ function seeded(seed: number) {
 }
 
 /**
- * One of Alban's birds on the card. It flies in forwards from behind, settles and plays
- * its own little loop, and when `leaving` turns true (before the card moves) it carries on
- * forwards and off the screen.
+ * One of Alban's birds on the card, playing its own video. It arrives (flying in from
+ * behind, or with its own entrance), plays its standing-about part while perched, and when
+ * `leaving` turns true it plays its take-off and flies off forwards before the card moves.
+ * Every video takes off to the right, so a bird heading left is mirrored.
  */
 export function Bird({ seed, leaving }: { seed: number; leaving: boolean }) {
   const [bird] = useState(() => {
@@ -28,9 +29,11 @@ export function Bird({ seed, leaving }: { seed: number; leaving: boolean }) {
     const heading = rand() < 0.5 ? -1 : 1
     return { species, heading, left: SPOTS[Math.floor(rand() * SPOTS.length)] }
   })
-  const [landed, setLanded] = useState(false)
   const { species, heading } = bird
+  const ownEntrance = Boolean(species.arrive)
+  const [landed, setLanded] = useState(false)
 
+  const mode = leaving ? 'leave' : landed ? 'idle' : ownEntrance ? 'arrive' : 'fly'
   const style = {
     left: `${bird.left}%`,
     // It arrives from behind and leaves ahead, always moving the way it faces.
@@ -38,17 +41,28 @@ export function Bird({ seed, leaving }: { seed: number; leaving: boolean }) {
     '--exit': heading,
   } as CSSProperties
 
+  const flight = leaving
+    ? species.leaveLoops
+      ? 'bird-carried'
+      : 'bird-takes-off'
+    : landed || ownEntrance
+      ? 'bird-perched'
+      : 'bird-arriving'
+
   return (
     <div
-      className={`bird bird-${species.id}${species.flying ? ' is-flying' : ''} ${
-        leaving ? 'bird-leaving' : landed ? 'bird-perched' : 'bird-arriving'
-      }`}
+      className={`bird bird-${species.id} ${flight}`}
       style={style}
       onAnimationEnd={(e) => {
-        if (e.target === e.currentTarget && !leaving) setLanded(true)
+        if (e.target === e.currentTarget && !leaving && !ownEntrance) setLanded(true)
       }}
     >
-      <Sprite species={species} mirrored={species.faces !== heading} />
+      <Sprite
+        species={species}
+        mode={mode}
+        mirrored={heading < 0}
+        onDone={mode === 'arrive' ? () => setLanded(true) : undefined}
+      />
     </div>
   )
 }
