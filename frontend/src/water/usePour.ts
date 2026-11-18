@@ -19,6 +19,7 @@ export function usePour() {
     stage,
     agitation: stage === 'pouring' ? 2.6 : stage === 'settling' ? 1.5 : 0.8,
     bubbles: stage === 'pouring',
+    stream: stage === 'pouring',
     fillSeconds: 5,
   }
 }

@@ -16,6 +16,7 @@ export function Beaker({ level, label }: { level: number; label: string }) {
           fillSeconds={pour.fillSeconds}
           agitation={pour.agitation}
           bubbles={pour.bubbles}
+          stream={pour.stream}
           className="beaker-water"
         />
         <span className="beaker-ticks" aria-hidden="true" />

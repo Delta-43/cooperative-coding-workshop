@@ -265,14 +265,14 @@
 
 /* ---------- Question on the big screen ---------- */
 
-.host-game {
-  --bird: clamp(92px, 8vw, 160px);
+.screen.game.host-game {
+  --bird-h: min(clamp(96px, 8.4vw, 170px), 15vh);
 }
 
 .host-game .game-top {
   max-width: 1280px;
   /* Room for the bird perched on the card. */
-  margin-bottom: calc(var(--bird) * 0.8);
+  margin-bottom: calc(var(--bird-h) * 0.95);
 }
 
 .host-game .q-count {
@@ -314,11 +314,6 @@
 
 .host-game .card-back {
   font-size: clamp(24px, 2.4vw, 44px);
-}
-
-.host-game .bird {
-  width: var(--bird);
-  top: calc(var(--bird) * -0.72);
 }
 
 .host-game .fact {
