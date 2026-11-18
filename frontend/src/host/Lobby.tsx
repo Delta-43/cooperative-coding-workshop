@@ -13,7 +13,7 @@ export function Lobby({ state, send }: { state: GameState; send: (msg: ClientMes
   usePrimaryKey(canStart ? start : null)
 
   return (
-    <main className="screen host">
+    <main className="screen host host-lobby">
       <h1 className="brand host-brand">
         Guess <em>Closer!</em>
       </h1>
