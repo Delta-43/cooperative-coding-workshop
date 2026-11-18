@@ -70,6 +70,7 @@ assert.ok(!JSON.stringify(q).includes('"correct"'), "answer must not leak before
 // The timer: the server owns the clock, and a question may carry a "Did you know?" fact that never holds the answer.
 const tq = q.question;
 assert.ok(Number.isInteger(tq.timeLimit) && tq.timeLimit >= 5 && tq.timeLimit <= 120, "timeLimit in seconds");
+assert.ok(Number.isInteger(tq.number) && tq.number >= 1, "question carries its fixed number");
 assert.ok(tq.endsAt > tq.serverTime, "the question has time left");
 assert.ok(tq.endsAt - tq.serverTime <= tq.timeLimit * 1000, "no more than timeLimit left");
 assert.ok(tq.fact === null || (typeof tq.fact.text === "string" && tq.fact.text.length <= 280), "fact is null or has text");
