@@ -1,6 +1,7 @@
 import { DurableObject } from "cloudflare:workers";
 import sample from "./questions.sample.json";
-import { timeLimitFor, endsAt, acceptsAnswer, answerTime } from "./timer.js";
+import { timeLimitFor, endsAt, acceptsAnswer, answerTime, noAnswerTime } from "./timer.js";
+import { scoreRound, finalOrder } from "./scoring.js";
 
 function loadQuestions(env) {
   let list = null;
@@ -60,7 +61,7 @@ export class Room extends DurableObject {
     const inRound = g.phase === "question" || g.phase === "reveal";
     return {
       type: "state", code: g.code, phase: g.phase,
-      players: g.players.map((p) => ({
+      players: this.playersFor(role).map((p) => ({
         id: p.id, name: p.name, score: p.score, time: p.time,
         connected: this.socketsOf(p.id).length > 0,
         answered: inRound && g.answers[p.id] !== undefined,
@@ -68,8 +69,20 @@ export class Room extends DurableObject {
       answeredCount: Object.keys(g.answers).length,
       question: this.questionView(),
       you: { role, playerId, answer: playerId ? g.answers[playerId] ?? null : null },
-      answerShown: false, reveal: null,
+      answerShown: g.phase === "reveal" && g.answerShown,
+      reveal: g.phase === "reveal" && (role === "host" || g.answerShown) ? g.reveal : null,
     };
+  }
+
+  // A player does not see this round's points until the host sends "show".
+  playersFor(role) {
+    const g = this.game;
+    if (g.phase === "over") return finalOrder(g.players);
+    if (g.phase === "reveal" && role !== "host" && !g.answerShown && g.reveal) {
+      const gained = Object.fromEntries(g.reveal.results.map((r) => [r.playerId, r.points]));
+      return g.players.map((p) => ({ ...p, score: p.score - (gained[p.id] ?? 0) }));
+    }
+    return g.players;
   }
 
   questionView() {
@@ -146,6 +159,41 @@ export class Room extends DurableObject {
         if (!isHost) return this.fail(ws, "not_allowed", "Only the host can do that.");
         if (g.phase !== "lobby" || g.players.length === 0) return this.fail(ws, "wrong_phase", "Wait for players, then start from the lobby.");
         this.openQuestion(0);
+        break;
+      }
+      case "reveal": {
+        if (!isHost) return this.fail(ws, "not_allowed", "Only the host can do that.");
+        if (g.phase !== "question") return this.fail(ws, "wrong_phase", "There is no question to reveal.");
+        const q = g.questions[g.questionIndex];
+        const limit = timeLimitFor(q);
+        const now = Date.now();
+        const results = scoreRound(
+          g.players.map((p) => ({ playerId: p.id, name: p.name, value: g.answers[p.id] ?? null, time: g.answerTimes[p.id] ?? null })),
+          q.answer,
+        );
+        for (const p of g.players) {
+          p.score += results.find((r) => r.playerId === p.id).points;
+          p.time += g.answerTimes[p.id] ?? noAnswerTime(g.questionOpenedAt, now, limit);
+        }
+        g.reveal = { correct: q.answer, results };
+        g.phase = "reveal";
+        g.answerShown = false;
+        break;
+      }
+      case "show": {
+        if (!isHost) return this.fail(ws, "not_allowed", "Only the host can do that.");
+        if (g.phase !== "reveal") return this.fail(ws, "wrong_phase", "Reveal the question first.");
+        g.answerShown = true;
+        break;
+      }
+      case "next": {
+        if (!isHost) return this.fail(ws, "not_allowed", "Only the host can do that.");
+        if (g.phase !== "reveal") return this.fail(ws, "wrong_phase", "Reveal the question first.");
+        if (g.questionIndex + 1 >= g.questions.length) {
+          g.phase = "over";
+          g.reveal = null;
+          g.answerShown = false;
+        } else this.openQuestion(g.questionIndex + 1);
         break;
       }
       case "kick": {
