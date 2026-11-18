@@ -779,9 +779,29 @@
   font-size: min(clamp(15px, 1.6vw, 30px), 2.7vh, 5cqh);
 }
 
-/* Eight leaderboard rows always fit the card, whatever the window. */
+/* Once the answer is up, the question has been read: two lines on the answer step and one on the
+   leaderboard ("Question 5" above it says which), so eight rows always fit the card. */
+.host-game .stack-card:has(.reveal) .card-question,
+.host-game .stack-card:has(.standings) .card-question {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  max-width: none;
+}
+
+.host-game .stack-card:has(.standings) .card-question {
+  -webkit-line-clamp: 1;
+}
+
 .host-game .standings-list {
   --row: min(clamp(40px, 4vw, 72px), 5.4vh, 6.4cqh);
+}
+
+/* The text follows the row, so a short row never has text spilling over its background. */
+.host-game .standing {
+  font-size: min(clamp(16px, 1.5vw, 28px), 2.6vh, calc(var(--row) * 0.52));
+  line-height: 1.2;
 }
 
 /* ---------- The final board fits the window too ---------- */
@@ -853,6 +873,14 @@
 
 .final-board .board:has(li:nth-child(10)) {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+}
+
+/* A full room: five columns of six, so all 29 places fit even at 1280x720. */
+.final-board .board:has(li:nth-child(21)) {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+}
+
+.final-board .board:has(li:nth-child(10)) {
   gap: min(6px, 0.6vh) clamp(8px, 1vw, 16px);
 }
 
