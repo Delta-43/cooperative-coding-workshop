@@ -1,6 +1,7 @@
 import { DurableObject } from "cloudflare:workers";
 import sample from "./questions.sample.json";
 import { timeLimitFor, endsAt, acceptsAnswer, answerTime, noAnswerTime } from "./timer.js";
+import { shuffled } from "./shuffle.js";
 import { scoreRound, finalOrder } from "./scoring.js";
 
 function loadQuestions(env) {
@@ -11,7 +12,7 @@ function loadQuestions(env) {
     list = null;
   }
   if (!Array.isArray(list) || list.length === 0) list = sample;
-  return list.map(({ text, unit, answer, timeLimit, fact }) => ({ text, unit, answer, timeLimit, fact }));
+  return shuffled(list).map(({ text, unit, answer, timeLimit, fact }) => ({ text, unit, answer, timeLimit, fact }));
 }
 
 export class Room extends DurableObject {
@@ -193,6 +194,8 @@ export class Room extends DurableObject {
           g.phase = "over";
           g.reveal = null;
           g.answerShown = false;
+          // Nothing is kept after a game: the room clears itself once phones have had time to read the board.
+          await this.ctx.storage.setAlarm(Date.now() + Number(this.env.CLEAR_AFTER_MS || 600000));
         } else this.openQuestion(g.questionIndex + 1);
         break;
       }
@@ -211,6 +214,14 @@ export class Room extends DurableObject {
     }
     await this.save();
     this.broadcast();
+  }
+
+  async alarm() {
+    for (const ws of this.ctx.getWebSockets()) {
+      try { ws.close(1000, "game over"); } catch { /* already closed */ }
+    }
+    await this.ctx.storage.deleteAll();
+    this.game = null;
   }
 
   async webSocketClose(ws, code, reason) { try { ws.close(code, reason); } catch { /* already closed */ } this.broadcast(); }
