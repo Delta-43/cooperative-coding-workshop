@@ -778,7 +778,7 @@
 }
 
 .host-game .standings-list {
-  --row: min(clamp(40px, 4vw, 72px), 5.4vh, 6.4cqh);
+  --row: min(clamp(40px, 4vw, 72px), 5.4vh, 7.4cqh);
 }
 
 /* The text follows the row, so a short row never has text spilling over its background. */
@@ -858,9 +858,19 @@
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
 }
 
-/* A full room: five columns of six, so all 29 places fit even at 1280x720. */
+/* A full room: five columns of six, so all 29 places fit even at 1280x720. The time column goes,
+   so names have room: times only settle ties, which the note under the board explains. */
 .final-board .board:has(li:nth-child(21)) {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+}
+
+.final-board .board:has(li:nth-child(21)) li {
+  grid-template-columns: 2.8em minmax(0, 1fr) 2em;
+  gap: 10px;
+}
+
+.final-board .board:has(li:nth-child(21)) .board-time {
+  display: none;
 }
 
 .final-board .board:has(li:nth-child(10)) {
