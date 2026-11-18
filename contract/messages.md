@@ -114,9 +114,24 @@ error = abs(value - correct) / abs(correct)
 - The host may send `reveal` before `endsAt`. Players who have not answered score 0 for that question.
 - A player's answer time is measured on the server from the opening to their last accepted answer. It is never longer than `timeLimit`.
 
+## Closing
+
+A room does not last for ever, and nothing is kept after it closes. The server closes every socket of a room with a WebSocket close code and a reason. **After code `1000` or `4000` a client must not reconnect.**
+
+| Close code | Reason | When |
+|---|---|---|
+| `4000` | `removed` | The host sent `kick` for this player. Only that player's sockets close |
+| `1000` | `game over` | The room clears 10 minutes after the phase became `over`. The last `state` stays valid to read and show |
+| `1000` | `idle` | Nobody joined, sent a message or connected for 2 hours, in any phase except `over` |
+
+- The two times are defaults. The backend can change them with the settings `CLEAR_AFTER_MS` and `IDLE_CLEAR_MS`.
+- Any accepted message or new connection restarts the idle time. Once the phase is `over`, nothing postpones the 10 minutes.
+- When a room has cleared, its stored state is deleted. `/api/rooms/<CODE>/ws` then answers `404` with `{ "error": "no_room" }`, and the code can be given to a new room.
+- A client that loses its connection with any other code (or none) may reconnect and send `join` with its saved `playerId`.
+
 ## Rules for the room
 
 - Names are trimmed. They must be unique, ignoring capitals.
-- The host can remove a player with `kick`.
+- The host can remove a player with `kick`. The player's sockets close with `4000`.
 - A room holds at most 30 players.
 - Questions come from the backend. Each has `text`, `unit`, `answer`, and optionally `timeLimit` (seconds, default 20) and `fact` (`{ text, source }`). The repository ships a small sample set. The real set is added when the Worker is deployed.

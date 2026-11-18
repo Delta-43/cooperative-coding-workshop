@@ -2,6 +2,7 @@ import { DurableObject } from "cloudflare:workers";
 import sample from "./questions.sample.json";
 import { timeLimitFor, endsAt, acceptsAnswer, answerTime, noAnswerTime } from "./timer.js";
 import { shuffled } from "./shuffle.js";
+import { clearPlan } from "./clearing.js";
 import { numbered, withCards } from "./trivia.js";
 import { scoreRound, finalOrder } from "./scoring.js";
 
@@ -30,6 +31,12 @@ export class Room extends DurableObject {
     await this.ctx.storage.put("game", this.game);
   }
 
+  // Save, and set the alarm for when this room clears itself (see clearing.js).
+  async saveAndSchedule() {
+    await this.save();
+    await this.ctx.storage.setAlarm(clearPlan(this.game, this.env).at);
+  }
+
   async fetch(request) {
     const url = new URL(request.url);
     if (url.pathname === "/create") {
@@ -40,13 +47,16 @@ export class Room extends DurableObject {
         code, hostToken, phase: "lobby", players: [], questionIndex: -1,
         answers: {}, answerTimes: {}, questionOpenedAt: null, reveal: null,
         answerShown: false, nextPlayer: 1, questionEndsAt: null, questions: loadQuestions(this.env),
+        lastActivity: Date.now(), overAt: null,
       };
-      await this.save();
+      await this.saveAndSchedule();
       return Response.json({ code, hostToken }, { status: 201 });
     }
     if (!this.game) return Response.json({ error: "no_room" }, { status: 404 });
     const host = url.searchParams.get("host");
     if (host !== null && host !== this.game.hostToken) return new Response("forbidden", { status: 403 });
+    this.game.lastActivity = Date.now();
+    await this.saveAndSchedule();
     const pair = new WebSocketPair();
     this.ctx.acceptWebSocket(pair[1]);
     pair[1].serializeAttachment({ role: host !== null ? "host" : "player", playerId: null });
@@ -197,7 +207,7 @@ export class Room extends DurableObject {
           g.reveal = null;
           g.answerShown = false;
           // Nothing is kept after a game: the room clears itself once phones have had time to read the board.
-          await this.ctx.storage.setAlarm(Date.now() + Number(this.env.CLEAR_AFTER_MS || 600000));
+          g.overAt = Date.now();
         } else this.openQuestion(g.questionIndex + 1);
         break;
       }
@@ -214,13 +224,21 @@ export class Room extends DurableObject {
       default:
         return this.fail(ws, "bad_message", "Unknown message type.");
     }
-    await this.save();
+    g.lastActivity = Date.now();
+    await this.saveAndSchedule();
     this.broadcast();
   }
 
   async alarm() {
+    if (!this.game) return;
+    const plan = clearPlan(this.game, this.env);
+    if (Date.now() < plan.at) {
+      // There was activity since this alarm was set: wait for the new time.
+      await this.ctx.storage.setAlarm(plan.at);
+      return;
+    }
     for (const ws of this.ctx.getWebSockets()) {
-      try { ws.close(1000, "game over"); } catch { /* already closed */ }
+      try { ws.close(1000, plan.reason); } catch { /* already closed */ }
     }
     await this.ctx.storage.deleteAll();
     this.game = null;
