@@ -4,6 +4,7 @@ import { App } from './App'
 import './styles.css'
 import './game/game.css'
 import './host/host.css'
+import './host/motion.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
