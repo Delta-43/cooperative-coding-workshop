@@ -633,3 +633,90 @@
 .host-game .result-row {
   font-size: min(clamp(15px, 1.6vw, 30px), 2.7vh, 5.6cqh);
 }
+
+/* ---------- The lobby fits the window too ----------
+   One fixed-height column. Every size is capped by the window height as well as its width, the
+   code letters share the card's width so they never run past its edge, and the players list
+   takes what room is left (a full room fades out at the bottom) so the Start button is always
+   on screen. The button may sit over the pond. */
+
+.screen.host.host-lobby {
+  height: 100dvh;
+  min-height: 0;
+  padding-bottom: calc(clamp(16px, 4vh, 48px) + env(safe-area-inset-bottom));
+}
+
+.host-lobby .host-brand {
+  flex: none;
+  font-size: min(clamp(40px, 4.4vw, 88px), 7.5vh);
+  margin-top: min(12px, 1.2vh);
+  margin-bottom: min(clamp(16px, 2vw, 36px), 2.5vh);
+}
+
+.host-lobby .card.lobby {
+  flex: none;
+  padding: min(clamp(24px, 3vw, 56px), 4vh);
+  gap: min(clamp(24px, 4vw, 72px), 5vh) clamp(24px, 4vw, 72px);
+}
+
+.host-lobby .lobby-step {
+  font-size: min(clamp(16px, 1.4vw, 26px), 2.6vh);
+}
+
+.host-lobby .qr {
+  width: min(clamp(180px, 22vw, 380px), 30vh);
+}
+
+.host-lobby .lobby-url {
+  font-size: min(clamp(20px, 2vw, 40px), 4vh);
+  margin-bottom: min(18px, 1.8vh);
+}
+
+.host-lobby .lobby-code {
+  min-width: 0;
+  container-type: inline-size;
+}
+
+.host-lobby .lobby-letters span {
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
+  max-width: min(150px, 13vh);
+  font-size: min(124px, 11vh, 17cqi);
+}
+
+.host-lobby .lobby-players {
+  flex: 1 1 0;
+  min-height: 0;
+  margin-top: min(clamp(20px, 2.4vw, 40px), 2.5vh);
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 24px), transparent);
+}
+
+.host-lobby .lobby-count {
+  font-size: min(clamp(22px, 2.2vw, 40px), 3.6vh);
+}
+
+.host-lobby .host-actions {
+  flex: none;
+  margin-top: min(clamp(16px, 2vw, 32px), 2vh);
+}
+
+.host-lobby .button.host-primary {
+  min-height: min(clamp(56px, 4.4vw, 80px), 7.5vh);
+}
+
+/* A big room: smaller chips, so all 30 names (and their remove buttons) stay on screen. */
+.host-lobby .chips:has(.chip:nth-child(16)) {
+  gap: min(8px, 0.8vh);
+}
+
+.host-lobby .chips:has(.chip:nth-child(16)) .chip {
+  font-size: min(clamp(13px, 1vw, 20px), 2.1vh);
+  padding-block: 4px;
+}
+
+.host-lobby .chips:has(.chip:nth-child(16)) .chip-kick {
+  width: 24px;
+  height: 24px;
+}
