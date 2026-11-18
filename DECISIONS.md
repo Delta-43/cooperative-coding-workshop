@@ -13,3 +13,4 @@ One line per decision, added in the pull request that made it.
 - 2026-11-18: The host's QR code encodes the address the host is using (location.origin + location.pathname) plus ?room=ABCD, so a scan fills in the code.
 - 2026-11-18: While a player waits, the fact card rotates every 20 seconds. When a question has no fact, it shows general pond facts (labelled "Pond fact", never about the question) instead of nothing.
 - 2026-11-18: The host drives the game with one main button, also on Space, Enter or the right arrow, so a presentation clicker works. A refresh of the big screen rejoins the same room.
+- 2026-11-18: After `show` the big screen adds a Leaderboard step before `next`. It lives only in the frontend: the server stays in `reveal` until the host presses Next.

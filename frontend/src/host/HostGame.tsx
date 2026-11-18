@@ -7,6 +7,7 @@ import { useCountdown } from '../game/useCountdown'
 import { WaterProgress } from '../game/WaterProgress'
 import { PlayerChips } from './PlayerChips'
 import { RevealPanel } from './RevealPanel'
+import { Standings } from './Standings'
 import { usePrimaryKey } from './usePrimaryKey'
 
 /** The big screen during a question and its reveal. */
@@ -31,11 +32,18 @@ export function HostGame({
     setSeen({ ...seen, [question.index]: question })
   }
 
+  // After the answer is shown, the host steps to the leaderboard before moving on.
+  // This step lives only on the big screen; the server still waits in `reveal`.
+  const [board, setBoard] = useState<number | null>(null)
+  const onBoard = shown && board === question.index
+
   const action = asking
     ? { label: 'Reveal the answer', run: () => send({ type: 'reveal' }) }
     : !shown
       ? { label: 'Show the answer', run: () => send({ type: 'show' }) }
-      : { label: last ? 'Final board' : 'Next question', run: () => send({ type: 'next' }) }
+      : !onBoard
+        ? { label: 'Leaderboard', run: () => setBoard(question.index) }
+        : { label: last ? 'Final board' : 'Next question', run: () => send({ type: 'next' }) }
   usePrimaryKey(action.run)
 
   const done = question.index + (state.phase === 'reveal' ? 1 : 0)
@@ -84,7 +92,10 @@ export function HostGame({
                   <PlayerChips players={state.players} showAnswered />
                 </div>
               )}
-              {live && shown && state.reveal && <RevealPanel key={i} reveal={state.reveal} unit={q.unit} />}
+              {live && shown && !onBoard && state.reveal && (
+                <RevealPanel key={i} reveal={state.reveal} unit={q.unit} />
+              )}
+              {live && onBoard && <Standings key={i} state={state} />}
             </>
           )
         }}
