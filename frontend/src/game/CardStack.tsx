@@ -1,8 +1,8 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
 import { Bird } from './Bird'
 
-// How long the bird takes to leave before the cards move.
-const BIRD_HEAD_START = 750
+// How long the bird takes to fly off before the cards move.
+const BIRD_HEAD_START = 1500
 
 const reducedMotion = () =>
   typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches
