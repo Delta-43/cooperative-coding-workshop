@@ -737,3 +737,126 @@
   width: 24px;
   height: 24px;
 }
+
+/* ---------- Nothing runs past the card ----------
+   The current card is a column: whatever the question leaves goes to the answers, the result or
+   the leaderboard. On a long question or a short screen they clip inside the card (the chips
+   fade out at the bottom) instead of crossing its edge. */
+
+.host-game .stack-card.is-current {
+  display: flex;
+  flex-direction: column;
+}
+
+.host-game .stack-card.is-current > :not(.bird) {
+  flex: none;
+}
+
+.host-game .stack-card.is-current > .host-answers,
+.host-game .stack-card.is-current > .reveal,
+.host-game .stack-card.is-current > .standings {
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+.host-game .host-answers {
+  max-height: none;
+  margin-top: min(clamp(24px, 3vw, 56px), 5cqh);
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 14px), transparent);
+}
+
+.host-game .reveal-main {
+  overflow: clip;
+  overflow-clip-margin: 6px;
+}
+
+.host-game .reveal-number {
+  font-size: min(clamp(48px, 7.6vw, 150px), 11vh, 15cqh);
+}
+
+.host-game .result-row {
+  font-size: min(clamp(15px, 1.6vw, 30px), 2.7vh, 5cqh);
+}
+
+/* Eight leaderboard rows always fit the card, whatever the window. */
+.host-game .standings-list {
+  --row: min(clamp(40px, 4vw, 72px), 5.4vh, 6.4cqh);
+}
+
+/* ---------- The final board fits the window too ---------- */
+
+.screen.host.final-board {
+  height: 100dvh;
+  min-height: 0;
+  padding-bottom: calc(clamp(16px, 4vh, 48px) + env(safe-area-inset-bottom));
+}
+
+.final-board .host-brand {
+  flex: none;
+  font-size: min(clamp(40px, 4.4vw, 88px), 7.5vh);
+  margin-top: min(12px, 1.2vh);
+  margin-bottom: min(clamp(16px, 2vw, 36px), 2.5vh);
+}
+
+.final-board .card.winner {
+  flex: none;
+  padding: min(clamp(28px, 3vw, 56px), 3.4vh) clamp(28px, 3vw, 56px);
+}
+
+.final-board .winner .duck {
+  width: min(clamp(132px, 12vw, 220px), 17vh);
+}
+
+.final-board .winner-label {
+  font-size: min(clamp(16px, 1.4vw, 26px), 2.6vh);
+}
+
+.final-board .winner-name {
+  font-size: min(clamp(48px, 6vw, 120px), 10vh);
+}
+
+.final-board .winner-score {
+  font-size: min(clamp(20px, 1.8vw, 34px), 3.4vh);
+}
+
+.final-board .board {
+  flex: 0 1 auto;
+  min-height: 0;
+  align-content: start;
+  margin-top: min(clamp(20px, 2.4vw, 40px), 2.5vh);
+  overflow: clip;
+  overflow-clip-margin: 8px;
+}
+
+.final-board .board-note,
+.final-board .host-actions {
+  flex: none;
+}
+
+.final-board .host-actions {
+  margin-top: min(clamp(16px, 2vw, 32px), 2vh);
+}
+
+.final-board .button.host-secondary {
+  min-height: min(clamp(56px, 4.4vw, 80px), 7.5vh);
+}
+
+/* A big room: a smaller winner card, four narrower columns and tighter rows, so every place fits. */
+.final-board:has(.board li:nth-child(10)) .winner .duck {
+  width: min(clamp(110px, 8vw, 160px), 11vh);
+}
+
+.final-board:has(.board li:nth-child(10)) .winner-name {
+  font-size: min(clamp(40px, 4.6vw, 96px), 8vh);
+}
+
+.final-board .board:has(li:nth-child(10)) {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: min(6px, 0.6vh) clamp(8px, 1vw, 16px);
+}
+
+.final-board .board:has(li:nth-child(10)) li {
+  font-size: min(clamp(14px, 1.1vw, 22px), 2.1vh);
+  padding: 0.3em 14px;
+}
