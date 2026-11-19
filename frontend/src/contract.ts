@@ -28,15 +28,19 @@ export interface Fact {
 }
 
 export interface Question {
+  /** The place in this game, from 0. */
   index: number
   total: number
+  /** The question's fixed number in the question set, from 1, however the room shuffles. */
+  number: number
   text: string
   unit: string
-  // Added by the timer and facts contract change (PR 22). Optional until it merges.
-  timeLimit?: number
-  endsAt?: number
-  serverTime?: number
-  fact?: Fact | null
+  /** Seconds to answer. */
+  timeLimit: number
+  /** When answers close and when the server built this message, both on the server's clock. */
+  endsAt: number
+  serverTime: number
+  fact: Fact | null
 }
 
 export interface Result {
