@@ -1,5 +1,7 @@
 # Starting prompt: frontend
 
+> **As used on the day (18 November 2026).** The stage Worker and the GitHub organisation named below have since been taken down. To run the finished game, use the `Dockerfile` in this folder (see the [README](../README.md)).
+
 For the Volunteer. Paste this into your agent as the first message of the session, in your own clone of this repo. Change anything you like: the design is yours.
 
 ```text
@@ -27,11 +29,11 @@ Rules:
 - Work only in frontend/. Never edit backend/ or contract/. If the contract seems wrong
   or incomplete, stop and tell me: that is a conversation with my teammate, not a code change.
 - React, TypeScript and Vite. `npm run lint` and `npm run build` must pass, because CI runs them.
-- The site is published to GitHub Pages under a sub-path (https://delta-workshops.github.io/guess-closer/).
+- The site is published to GitHub Pages under a sub-path (`https://<organisation>.github.io/<repo>/`).
   Set this up in the first frontend change, without asking me: `base: process.env.BASE_PATH ?? '/'`
   in vite.config.ts, hash routes (#/host and the plain address for joining), and no absolute asset
   paths. The QR code encodes location.origin + location.pathname. Read the Pages rule in AGENTS.md.
-- The backend address comes from VITE_BACKEND_URL. Use the test Worker in AGENTS.md by default.
+- The backend address comes from VITE_BACKEND_URL. Use the stage Worker address in AGENTS.md by default.
 - One issue at a time, on a branch named after it. Keep each pull request small enough to
   read in five minutes. Run the issue's verify command and show me the output before you
   say it is done.

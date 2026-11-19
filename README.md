@@ -2,9 +2,9 @@
 
 **Two people. Two AI agents. One repo.** A follow-up to the [Guided Coding Workshop](https://github.com/Delta-43/guided-coding-workshop). This time I show how a small team works together with AI agents: roles, a plan, a shared contract, issues, branches, pull requests, CI and sign-off.
 
-It is a showcase, not a hands-on session. The Volunteer and I build on stage, each driving our own Claude Code, and the room watches, predicts, votes and plays the result on their phones.
+It was a showcase, not a hands-on session. The Volunteer and I built on stage, each driving our own Claude Code, and the room watched, predicted, voted and played the result on their phones.
 
-**When:** Wednesday 18 November 2026, 16:30 to 19:30, in the Social Space at 42 Warsaw.
+**When and where:** Wednesday 18 November 2026, 16:30 to 19:30, in the Social Space at 42 Warsaw.
 
 **Play the game:** [delta-43.github.io/cooperative-coding-workshop](https://delta-43.github.io/cooperative-coding-workshop/). Open `#/host` on a big screen to host a room, and scan the QR code with your phone to join.
 
@@ -50,12 +50,31 @@ The URL keeps the slide number (`index.html#8`), so reloading keeps your place.
 
 ## Run the game yourself
 
+The finished game (`demo/`) is live at the address above. Both versions can run on your own computer:
+
 ```sh
 cd demo/backend && npm ci && npm test        # Worker tests and contract examples
 cd demo/frontend && npm ci && npm run dev    # http://localhost:5173
 ```
 
 See `demo/README.md` for details. The host keys are Space (main action), Backspace (back) and Esc (players).
+
+The game as it was built on stage (`live/`) runs in one container: `cd live && docker build -t guess-closer . && docker run -p 8787:8787 guess-closer`, then open <http://localhost:8787/#/host>. Its [README](live/README.md) has screenshots of what was built.
+
+## Skills used in the workshop
+
+Each skill did one job at one named moment and reported; a human decided what to change. Read each `SKILL.md` before you install it: a skill is instructions your agent will follow. The exact install commands, pinned to a commit, are in [`live/prompts/`](live/prompts/).
+
+| Skill | By | Used for | Licence |
+|---|---|---|---|
+| [API Contract Review](https://github.com/Mozurok/fhorja.dev/blob/main/.claude/skills/api-contract-review/SKILL.md) | Mozurok (Fhorja) | Delta, on stage: the contract pull request, before approval | MIT |
+| [Clean Code](https://github.com/davila7/claude-code-templates/blob/main/cli-tool/components/skills/development/clean-code/SKILL.md) | davila7 (Claude Code Templates) | Delta, on stage: each backend pull request, before opening it | MIT |
+| [Impeccable](https://github.com/pbakaus/impeccable) | Paul Bakaus | The Volunteer: design direction and critique | Apache-2.0 |
+| [better-ui](https://github.com/jakubkrehel/skills/tree/main/skills/better-ui) | Jakub Krehel | The Volunteer: surfaces, icons and details | MIT |
+| [improve-animations](https://github.com/emilkowalski/skills/tree/main/skills/improve-animations) | Emil Kowalski | The leaderboard motion | MIT |
+| [apple-design](https://github.com/emilkowalski/skills/tree/main/skills/apple-design) | Emil Kowalski | Touch, motion and type on the phone screens | MIT |
+
+Thank you to their authors.
 
 ## Credits
 
