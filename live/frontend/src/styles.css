@@ -1,0 +1,410 @@
+/* Guess Closer! — a warm paper scrapbook with a pond at the bottom.
+   Tokens follow the design reference: Canvas, Ink, pastels, Sky water, layered shadows. */
+
+:root {
+  --canvas: #fff3e7;
+  --ink: #030302;
+  --white: #ffffff;
+  --linen: #f7f7f7;
+  --cloud: #efefef;
+  --ash: #e1e1e1;
+  --stone: #bebbba;
+  --graphite: #41413f;
+  --mint: #9bd8a9;
+  --marigold: #fde99b;
+  --periwinkle: #b8caf5;
+  --sky: #9ed4ef;
+  --sky-gradient: linear-gradient(in oklab, rgb(158, 212, 239) 0px, rgb(209, 238, 249) 100%);
+  --papaya: #ff4500;
+  --azure: #0087ff;
+
+  --danger: #c8102e;
+  --danger-bg: #ffe4dc;
+
+  --font-serif: Lora, Georgia, 'Times New Roman', serif;
+  --font-sans: Figtree, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+
+  --radius-card: 24px;
+  --radius-input: 14px;
+  --gutter: clamp(16px, 4vw, 40px);
+
+  --shadow-xl: rgba(0, 0, 0, 0.01) 0px 50px 40px 0px, rgba(0, 0, 0, 0.02) 0px 50px 40px 0px,
+    rgba(0, 0, 0, 0.05) 0px 20px 40px 0px, rgba(0, 0, 0, 0.08) 0px 3px 10px 0px;
+  --shadow-md: rgba(0, 0, 0, 0.1) 0px 12px 12px 2px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+  --shadow-subtle: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px;
+
+  /* A calm push with a slight overshoot and settle. */
+  --ease-push: cubic-bezier(0.22, 1.28, 0.36, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --slow: 1100ms;
+
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
+/* ---------- Layout ---------- */
+
+.screen {
+  position: relative;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: max(var(--gutter), env(safe-area-inset-top)) var(--gutter)
+    calc(140px + env(safe-area-inset-bottom));
+  overflow: hidden;
+  /* `clip` cannot be scrolled by focus or scrollIntoView, so the screen never slides out of place. */
+  overflow: clip;
+  isolation: isolate;
+}
+
+/* Pastel collage shapes behind everything. */
+.screen::before,
+.screen::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  border-radius: 46% 54% 38% 62% / 52% 40% 60% 48%;
+  filter: blur(0.3px);
+  pointer-events: none;
+}
+
+.screen::before {
+  width: 260px;
+  height: 220px;
+  top: -60px;
+  right: -80px;
+  background: var(--marigold);
+  opacity: 0.7;
+  transform: rotate(-12deg);
+}
+
+.screen::after {
+  width: 220px;
+  height: 200px;
+  top: 38%;
+  left: -120px;
+  background: var(--mint);
+  opacity: 0.45;
+  transform: rotate(18deg);
+}
+
+.brand {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(40px, 11vw, 56px);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  margin: 12px 0 24px;
+  text-align: center;
+}
+
+.brand em {
+  font-style: italic;
+  color: var(--azure);
+}
+
+/* ---------- Squircle card ---------- */
+
+.card {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  background: var(--white);
+  border-radius: var(--radius-card);
+  padding: 28px 24px;
+  box-shadow: var(--shadow-xl);
+}
+
+@supports (corner-shape: squircle) {
+  .card {
+    border-radius: calc(var(--radius-card) * 2);
+    corner-shape: squircle;
+  }
+}
+
+.card-in {
+  animation: card-in var(--slow) var(--ease-push) both;
+}
+
+@keyframes card-in {
+  from {
+    transform: translateX(110vw) rotate(4deg);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* ---------- Form ---------- */
+
+.field {
+  display: block;
+  margin-bottom: 20px;
+}
+
+.field-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--graphite);
+  margin-bottom: 8px;
+}
+
+.input {
+  width: 100%;
+  min-height: 58px;
+  padding: 12px 18px;
+  border-radius: var(--radius-input);
+  border: 1px solid var(--ash);
+  background: var(--linen);
+  font-size: 20px;
+  outline: none;
+  transition:
+    border-color 150ms,
+    background-color 150ms,
+    box-shadow 150ms;
+}
+
+.input::placeholder {
+  color: var(--stone);
+}
+
+.input:focus {
+  border-color: var(--ink);
+  background: var(--white);
+  box-shadow: 0 0 0 4px rgba(158, 212, 239, 0.55);
+}
+
+.input[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+.input-code {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 32px;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  text-align: center;
+  padding-left: calc(18px + 0.4em);
+}
+
+.hint {
+  font-size: 13px;
+  color: var(--graphite);
+  opacity: 0.8;
+  margin-top: 6px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.button {
+  width: 100%;
+  min-height: 60px;
+  border: 0;
+  border-radius: 9999px;
+  background: var(--ink);
+  color: var(--white);
+  font-weight: 500;
+  font-size: 19px;
+  cursor: pointer;
+  box-shadow: var(--shadow-subtle);
+  transition:
+    transform 160ms var(--ease-out),
+    box-shadow 160ms var(--ease-out),
+    opacity 200ms;
+}
+
+@media (hover: hover) {
+  .button:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+}
+
+.button:active {
+  transform: scale(0.96);
+  box-shadow: var(--shadow-subtle);
+}
+
+.button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.alert {
+  margin: 0 0 18px;
+  padding: 14px 16px;
+  border-radius: var(--radius-input);
+  background: var(--danger-bg);
+  color: #8a1a00;
+  font-weight: 500;
+  animation: shake 420ms var(--ease-out);
+}
+
+@keyframes shake {
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(5px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(2px); }
+}
+
+/* ---------- Lobby (phone) ---------- */
+
+.welcome {
+  text-align: center;
+}
+
+.welcome h2 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 46px;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin: 4px 0 8px;
+  overflow-wrap: anywhere;
+}
+
+.welcome p {
+  margin: 0;
+  color: var(--graphite);
+}
+
+.room-pill {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  background: var(--periwinkle);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.25em;
+}
+
+.dots::after {
+  content: '';
+  animation: dots 1.6s steps(4) infinite;
+}
+
+@keyframes dots {
+  0% { content: ''; }
+  25% { content: '.'; }
+  50% { content: '..'; }
+  75% { content: '...'; }
+}
+
+.status-bar {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  border-radius: 9999px;
+  background: var(--ink);
+  color: var(--white);
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 10;
+  box-shadow: var(--shadow-md);
+}
+
+/* ---------- Ducks ---------- */
+
+.duck {
+  display: block;
+  width: 132px;
+  height: auto;
+  margin: 0 auto 4px;
+  user-select: none;
+  pointer-events: none;
+  animation: bob 3.2s ease-in-out infinite;
+  filter: drop-shadow(0 10px 8px rgba(0, 0, 0, 0.08));
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-8px) rotate(2deg); }
+}
+
+/* ---------- Pond along the bottom ---------- */
+
+.pond {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(120px + env(safe-area-inset-bottom));
+  pointer-events: none;
+  z-index: -1;
+  /* Fade the top edge into the paper so the water sits in the page. */
+  mask-image: linear-gradient(to bottom, transparent 0, #000 22px);
+}
+
+.pond-water {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Reduced motion: everything lands at once. Delays go too, or content would wait, unmoving,
+   for a stagger nobody sees. JS-driven motion checks the same query. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    transition-delay: 0ms !important;
+  }
+}
+
+/* JetBrains Mono gives a comma a whole digit's width; pull the digits back together. */
+.digits-sep {
+  margin-inline: -0.1em;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
