@@ -35,4 +35,4 @@ jobs:
         with:
           node-version: 22
       - run: |
-          if [ -f package.json ]; then npm ci && npm run lint && npm run build; else echo "No frontend yet."; fi
+          if [ -f package.json ]; then npm ci && npm run lint && npm run build && npm test; else echo "No frontend yet."; fi
