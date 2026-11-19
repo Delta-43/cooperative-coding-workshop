@@ -1,0 +1,9 @@
+{
+  // Used only by the container (see ../Dockerfile). The frontend build is served beside the game.
+  "name": "guess-closer-container",
+  "main": "src/index.js",
+  "compatibility_date": "2026-11-01",
+  "assets": { "directory": "./site" },
+  "durable_objects": { "bindings": [{ "name": "ROOM", "class_name": "Room" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Room"] }]
+}

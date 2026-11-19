@@ -1,0 +1,137 @@
+# Contract: Guess Closer!
+
+This file is the agreement between the frontend and the backend. Change it first, in its own pull request, and merge it before anyone builds on the change.
+
+Messages are JSON. `schema.json` is the machine-readable version and `examples/` holds one example of each message. CI checks that the examples match the schema.
+
+## Roles
+
+| Role | Who | Screen |
+|---|---|---|
+| `host` | Runs the game | Big screen |
+| `player` | Joins with a code or QR | Phone |
+
+## Connecting
+
+1. The host creates a room: `POST /api/rooms`. The reply is `201` with `{ "code": "KQWZ", "hostToken": "..." }`. The code is four capital letters.
+2. The host opens a WebSocket: `/api/rooms/KQWZ/ws?host=<hostToken>`.
+3. A player opens a WebSocket: `/api/rooms/KQWZ/ws`, then sends a `join` message.
+4. After every change the server sends every connected client a fresh `state` message. Clients draw the screen from the latest `state`. Clients do not keep their own copy of the game.
+
+The frontend reads the backend address from a setting (`BACKEND_URL`), so it can point at a mock, a test Worker or the live one.
+
+## Phases
+
+`lobby` → `question` → `reveal` → `question` → ... → `over`
+
+## Messages from the client
+
+| `type` | Who | Fields | When |
+|---|---|---|---|
+| `join` | player | `name` (1 to 16 characters), `playerId` (optional) | First message. Send the saved `playerId` to come back after a dropped connection |
+| `answer` | player | `value` (number) | During `question`, until the timer ends. A second answer replaces the first. After `endsAt` the server replies `time_up` |
+| `start` | host | none | In `lobby`, with at least one player |
+| `reveal` | host | none | In `question`, before or after the timer ends. Closes the answers and scores the round. Only the host receives the result |
+| `show` | host | none | In `reveal`, when the big screen shows the answer. From then on players receive the result too. Sending it again does nothing |
+| `next` | host | none | In `reveal`. After the last question the phase becomes `over` |
+| `kick` | host | `playerId` | Any time |
+
+## Messages from the server
+
+### `state`
+
+```json
+{
+  "type": "state",
+  "code": "KQWZ",
+  "phase": "reveal",
+  "players": [
+    { "id": "p1", "name": "Ada", "score": 3, "time": 4210, "connected": true, "answered": true }
+  ],
+  "answeredCount": 1,
+  "question": {
+    "index": 0, "total": 8, "number": 1, "text": "How many keys does a standard piano have?", "unit": "keys",
+    "timeLimit": 20, "endsAt": 1795000020000, "serverTime": 1795000008000,
+    "fact": { "text": "Bösendorfer's Imperial grand has extra bass keys below the usual lowest note. Their tops are painted black so a pianist does not lose their place.", "source": "https://en.wikipedia.org/wiki/B%C3%B6sendorfer" }
+  },
+  "you": { "role": "player", "playerId": "p1", "answer": 88 },
+  "answerShown": true,
+  "reveal": {
+    "correct": 88,
+    "results": [
+      { "playerId": "p1", "name": "Ada", "value": 88, "error": 0, "time": 4210, "rank": 1, "points": 3 }
+    ]
+  }
+}
+```
+
+- `question` is `null` in `lobby` and `over`.
+- `question.number` is the question's fixed number in the question set (1 for the first question in the list), however the room shuffles them. `index` is the place in this game. A "Did you know?" card belongs to a `number`, so `GET /api/trivia/<number>` returns it as `{ "number": 3, "text": "...", "source": "..." }`, or `404 { "error": "no_card" }`.
+- `question.timeLimit` is the time to answer, in seconds (5 to 120, default 20). `endsAt` is when answers close and `serverTime` is when the server built this message, both in milliseconds since 1970 on **the server's clock**. Clients work out the time left as `endsAt - serverTime` when the message arrives, and count down from there with their own clock. Never compare `endsAt` with the phone's clock: phone clocks are wrong. The timer starts again for every question and the reconnecting client gets the same `endsAt`.
+- `question.fact` is a "Did you know?" card for the screen while players wait, or `null`. `text` is at most 280 characters. `source` is a web address or `null`. **A fact never contains the answer**, because the server sends it with the question. Show it after a player has answered and while the host's screen waits.
+- `reveal` is `null` unless the phase is `reveal`. **The correct answer is never sent before `reveal`.**
+- `answerShown` is `true` after the host sends `show` for the current question, and `false` at every other time. The big screen builds up to the answer, so phones must not show it first: **in `reveal`, a player's `reveal` is `null` and `players[].score` leaves out this round's points until `answerShown` is `true`.** The host always receives the full result.
+- `you.answer` is your own answer, or `null`. In `question` a player never sees other players' answers.
+- A host has `you.role` set to `host` and no `playerId`.
+- `reveal.results[].time` is the milliseconds from the question opening to that player's last answer, or `null` with no answer.
+- `players[].time` is the player's total answer time so far. A question with no answer adds the whole time it was open, never more than `timeLimit`. In `over`, `players` is in final order.
+
+### `error`
+
+```json
+{ "type": "error", "code": "name_taken", "message": "That name is already in use." }
+```
+
+| `code` | Meaning |
+|---|---|
+| `bad_message` | Not valid JSON, or does not match the schema |
+| `wrong_phase` | The message is not allowed in this phase |
+| `time_up` | An `answer` arrived after `endsAt`. The earlier answer, if any, stays |
+| `not_allowed` | A player sent a host message |
+| `name_taken` | Another player already has that name |
+| `bad_name` | The name is empty or too long |
+| `room_full` | The room has 30 players |
+| `no_room` | The room code does not exist (HTTP `404`) |
+
+## Scoring
+
+The scoring rule is **relative error**:
+
+```
+error = abs(value - correct) / abs(correct)
+```
+
+- A smaller error is better. Players with no answer are not ranked and score 0.
+- Points are 3 for rank 1, 2 for rank 2, 1 for rank 3 and 0 after that.
+- **Equal error: the earlier answer ranks higher.** Ranks are never shared. The time is measured from the question opening to the player's last answer, so changing an answer restarts the player's time.
+- **Equal final scores: the lower total answer time ranks higher.**
+- Why relative error: the answers range from 16 to over a million. With plain distance, large answers would always lose.
+
+## The timer
+
+- The server owns the clock. It starts when the host sends `start` or `next`, and sets `endsAt` to the opening time plus `timeLimit`.
+- At `endsAt` answers close: a later `answer` gets `time_up` and changes nothing. The phase stays `question`, so the host can still wait for a straggler or press `reveal`. There is no automatic reveal.
+- The host may send `reveal` before `endsAt`. Players who have not answered score 0 for that question.
+- A player's answer time is measured on the server from the opening to their last accepted answer. It is never longer than `timeLimit`.
+
+## Closing
+
+A room does not last for ever, and nothing is kept after it closes. The server closes every socket of a room with a WebSocket close code and a reason. **After code `1000` or `4000` a client must not reconnect.**
+
+| Close code | Reason | When |
+|---|---|---|
+| `4000` | `removed` | The host sent `kick` for this player. Only that player's sockets close |
+| `1000` | `game over` | The room clears 10 minutes after the phase became `over`. The last `state` stays valid to read and show |
+| `1000` | `idle` | Nobody joined, sent a message or connected for 2 hours, in any phase except `over` |
+
+- The two times are defaults. The backend can change them with the settings `CLEAR_AFTER_MS` and `IDLE_CLEAR_MS`.
+- Any accepted message or new connection restarts the idle time. Once the phase is `over`, nothing postpones the 10 minutes.
+- When a room has cleared, its stored state is deleted. `/api/rooms/<CODE>/ws` then answers `404` with `{ "error": "no_room" }`, and the code can be given to a new room.
+- A client that loses its connection with any other code (or none) may reconnect and send `join` with its saved `playerId`.
+
+## Rules for the room
+
+- Names are trimmed. They must be unique, ignoring capitals.
+- The host can remove a player with `kick`. The player's sockets close with `4000`.
+- A room holds at most 30 players.
+- Questions come from the backend. Each has `text`, `unit`, `answer`, and optionally `timeLimit` (seconds, default 20) and `fact` (`{ text, source }`). The repository ships a small sample set. The real set is added when the Worker is deployed.

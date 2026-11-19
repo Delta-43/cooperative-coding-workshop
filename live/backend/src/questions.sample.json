@@ -1,0 +1,29 @@
+[
+  {
+    "text": "How many keys does a standard piano have?",
+    "unit": "keys",
+    "answer": 88,
+    "fact": {
+      "text": "Bösendorfer's Imperial grand has extra bass keys below the usual lowest note. Their tops are painted black so a pianist does not lose their place.",
+      "source": "https://en.wikipedia.org/wiki/B%C3%B6sendorfer"
+    }
+  },
+  {
+    "text": "How many bones does an adult human have?",
+    "unit": "bones",
+    "answer": 206,
+    "fact": {
+      "text": "Babies are born with more bones than adults. Many of them fuse as a child grows, including parts of the skull and the tailbone.",
+      "source": "https://en.wikipedia.org/wiki/Human_skeleton"
+    }
+  },
+  {
+    "text": "How many minutes are there in a week?",
+    "unit": "minutes",
+    "answer": 10080,
+    "fact": {
+      "text": "The seven-day week may come from Babylon, though the evidence is weak. Judaism practised it by the 6th century BC, and in AD 321 Emperor Constantine decreed it for the Roman Empire.",
+      "source": "https://en.wikipedia.org/wiki/Week"
+    }
+  }
+]

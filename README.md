@@ -19,7 +19,8 @@ SLIDES.html            Shortcut: opens the slide deck
 materials/
 ├── PROJECT-SPEC.pdf   A copy of the team guide
 └── slides/            Slide deck: open index.html in a browser. The duck illustrations are in assets/
-live/                  The repo built on stage during the workshop (a submodule: delta-workshops/guess-closer)
+live/                  The game built on stage during the workshop, kept as an example: screenshots, and a Dockerfile to run it
+                       (it was the repo delta-workshops/guess-closer; its history is kept)
 demo/                  The finished Guess Closer! game: contract, backend, frontend, plan, decisions and design
 .github/workflows/     CI on every pull request, the GitHub Pages publish, and the sync with Delta-43/workshops
 ```

@@ -1,0 +1,61 @@
+# Publishes frontend/ to GitHub Pages: https://delta-workshops.github.io/guess-closer/
+# Runs on every push to main that changes frontend/. Does nothing until frontend/ has a package.json.
+name: Frontend to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths: ["frontend/**", ".github/workflows/pages.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      has_frontend: ${{ steps.check.outputs.has_frontend }}
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        working-directory: .
+        run: |
+          if [ -f frontend/package.json ]; then echo "has_frontend=true" >> "$GITHUB_OUTPUT"; else echo "has_frontend=false" >> "$GITHUB_OUTPUT"; echo "No frontend yet."; fi
+      - if: steps.check.outputs.has_frontend == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - if: steps.check.outputs.has_frontend == 'true'
+        run: npm ci && npm run lint && npm run build
+        env:
+          # Pages serves the site from /<repo-name>/
+          BASE_PATH: /${{ github.event.repository.name }}/
+          # The test Worker, unless the repository variable BACKEND_URL says otherwise.
+          VITE_BACKEND_URL: ${{ vars.BACKEND_URL || 'https://guess-closer-live.delta-43.workers.dev' }}
+      - if: steps.check.outputs.has_frontend == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/dist
+
+  deploy:
+    needs: build
+    if: needs.build.outputs.has_frontend == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
