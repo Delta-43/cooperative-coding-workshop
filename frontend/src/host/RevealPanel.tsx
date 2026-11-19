@@ -4,7 +4,8 @@ import { formatNumber, howFar, ordinal } from '../format'
 import { ClosenessGlass } from './ClosenessGlass'
 import { useCountUp } from './useCountUp'
 
-const SHOWN = 6
+// Fewer rows on a short screen, so the whole list fits above the button.
+const shownRows = () => (typeof innerHeight !== 'undefined' && innerHeight < 800 ? 4 : 6)
 // The arrow starts once the answer has landed, and takes about four seconds to climb.
 const ARROW_START = 1800
 const ARROW_CLIMB = 4000
@@ -16,6 +17,7 @@ const reducedMotion = () =>
 export function RevealPanel({ reveal, unit }: { reveal: NonNullable<GameState['reveal']>; unit: string }) {
   const counted = useCountUp(reveal.correct)
   const whole = Number.isInteger(reveal.correct)
+  const SHOWN = shownRows()
   const ranked = reveal.results.filter((r) => r.rank !== null).slice(0, SHOWN)
   const totalRanked = reveal.results.filter((r) => r.rank !== null).length
   const silent = reveal.results.length - totalRanked

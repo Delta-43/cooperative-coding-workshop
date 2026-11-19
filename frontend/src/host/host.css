@@ -563,3 +563,321 @@
   font-size: clamp(13px, 1vw, 18px);
   color: var(--graphite);
 }
+
+/* ---------- Fit the window ----------
+   The big screen is one fixed-height column: the header and the footer keep their size and the card
+   takes what is left. Sizes inside the card follow the card's own height (cqh), so every step
+   (question, answer, leaderboard) fits a laptop, a projector or a window with browser chrome, and the
+   button the host needs is never pushed under the progress bar. */
+
+.screen.game.host-game {
+  height: 100dvh;
+  min-height: 0;
+  /* The water progress tube is fixed at the bottom: 44px tall, 16px from the edge. */
+  padding-bottom: 80px;
+  justify-content: flex-start;
+}
+
+.host-game .game-top {
+  flex: none;
+  margin-bottom: calc(var(--bird-h) * 0.8);
+}
+
+.host-game .stack {
+  flex: 1 1 0;
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.host-game .stack-card.card {
+  min-height: 0;
+  height: 100%;
+  container-type: size;
+}
+
+.host-game .host-footer {
+  flex: none;
+  margin-top: clamp(8px, 1.6vh, 24px);
+}
+
+.host-game .fact {
+  font-size: min(clamp(15px, 1.5vw, 28px), 2.6vh);
+  padding: min(clamp(16px, 1.4vw, 28px), 1.6vh) clamp(20px, 1.8vw, 36px);
+}
+
+.host-game .card-question {
+  font-size: min(clamp(28px, 4.2vw, 84px), 7vh, 12cqh);
+}
+
+.host-game .stack-card:has(.reveal, .standings) .card-question {
+  font-size: min(clamp(20px, 2.4vw, 48px), 4.4vh, 7.5cqh);
+}
+
+.host-game .stack-card.card {
+  padding-block: min(clamp(32px, 3.4vw, 64px), 3.6vh);
+}
+
+.host-game .host-answers {
+  max-height: 44cqh;
+  overflow: hidden;
+}
+
+.host-game .reveal-number {
+  font-size: min(clamp(48px, 7.6vw, 150px), 11vh, 17cqh);
+}
+
+.host-game .glass-meter {
+  --glass-h: min(clamp(120px, 30vw, 460px), 38vh, 42cqh);
+}
+
+.host-game .result-row {
+  font-size: min(clamp(15px, 1.6vw, 30px), 2.7vh, 5.6cqh);
+}
+
+/* ---------- The lobby fits the window too ----------
+   One fixed-height column. Every size is capped by the window height as well as its width, the
+   code letters share the card's width so they never run past its edge, and the players list
+   takes what room is left (a full room fades out at the bottom) so the Start button is always
+   on screen. The button may sit over the pond. */
+
+.screen.host.host-lobby {
+  height: 100dvh;
+  min-height: 0;
+  padding-bottom: calc(clamp(16px, 4vh, 48px) + env(safe-area-inset-bottom));
+}
+
+.host-lobby .host-brand {
+  flex: none;
+  font-size: min(clamp(40px, 4.4vw, 88px), 7.5vh);
+  margin-top: min(12px, 1.2vh);
+  margin-bottom: min(clamp(16px, 2vw, 36px), 2.5vh);
+}
+
+.host-lobby .card.lobby {
+  flex: none;
+  padding: min(clamp(24px, 3vw, 56px), 4vh);
+  gap: min(clamp(24px, 4vw, 72px), 5vh) clamp(24px, 4vw, 72px);
+}
+
+.host-lobby .lobby-step {
+  font-size: min(clamp(16px, 1.4vw, 26px), 2.6vh);
+}
+
+.host-lobby .qr {
+  width: min(clamp(180px, 22vw, 380px), 30vh);
+}
+
+.host-lobby .lobby-url {
+  font-size: min(clamp(20px, 2vw, 40px), 4vh);
+  margin-bottom: min(18px, 1.8vh);
+}
+
+.host-lobby .lobby-code {
+  min-width: 0;
+  container-type: inline-size;
+}
+
+.host-lobby .lobby-letters span {
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
+  max-width: min(150px, 13vh);
+  font-size: min(124px, 11vh, 17cqi);
+}
+
+.host-lobby .lobby-players {
+  flex: 1 1 0;
+  min-height: 0;
+  margin-top: min(clamp(20px, 2.4vw, 40px), 2.5vh);
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 24px), transparent);
+}
+
+.host-lobby .lobby-count {
+  font-size: min(clamp(22px, 2.2vw, 40px), 3.6vh);
+}
+
+.host-lobby .host-actions {
+  flex: none;
+  margin-top: min(clamp(16px, 2vw, 32px), 2vh);
+}
+
+.host-lobby .button.host-primary {
+  min-height: min(clamp(56px, 4.4vw, 80px), 7.5vh);
+}
+
+/* A big room: smaller chips, so all 30 names (and their remove buttons) stay on screen. */
+.host-lobby .chips:has(.chip:nth-child(16)) {
+  gap: min(8px, 0.8vh);
+}
+
+.host-lobby .chips:has(.chip:nth-child(16)) .chip {
+  font-size: min(clamp(13px, 1vw, 20px), 2.1vh);
+  padding-block: 4px;
+}
+
+.host-lobby .chips:has(.chip:nth-child(16)) .chip-kick {
+  width: 24px;
+  height: 24px;
+}
+
+/* ---------- Nothing runs past the card ----------
+   The current card is a column: whatever the question leaves goes to the answers, the result or
+   the leaderboard. On a long question or a short screen they clip inside the card (the chips
+   fade out at the bottom) instead of crossing its edge. */
+
+.host-game .stack-card.is-current {
+  display: flex;
+  flex-direction: column;
+}
+
+.host-game .stack-card.is-current > :not(.bird) {
+  flex: none;
+}
+
+.host-game .stack-card.is-current > .host-answers,
+.host-game .stack-card.is-current > .reveal,
+.host-game .stack-card.is-current > .standings {
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+.host-game .host-answers {
+  max-height: none;
+  margin-top: min(clamp(24px, 3vw, 56px), 5cqh);
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 14px), transparent);
+}
+
+.host-game .reveal-main {
+  overflow: clip;
+  overflow-clip-margin: 6px;
+}
+
+.host-game .reveal-number {
+  font-size: min(clamp(48px, 7.6vw, 150px), 11vh, 15cqh);
+}
+
+.host-game .result-row {
+  font-size: min(clamp(15px, 1.6vw, 30px), 2.7vh, 5cqh);
+}
+
+/* Once the answer is up, the question has been read: two lines on the answer step and one on the
+   leaderboard ("Question 5" above it says which), so eight rows always fit the card. */
+.host-game .stack-card:has(.reveal) .card-question,
+.host-game .stack-card:has(.standings) .card-question {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  max-width: none;
+}
+
+.host-game .stack-card:has(.standings) .card-question {
+  -webkit-line-clamp: 1;
+}
+
+.host-game .standings-list {
+  --row: min(clamp(40px, 4vw, 72px), 5.4vh, 7.4cqh);
+}
+
+/* The text follows the row, so a short row never has text spilling over its background. */
+.host-game .standing {
+  font-size: min(clamp(16px, 1.5vw, 28px), 2.6vh, calc(var(--row) * 0.52));
+  line-height: 1.2;
+}
+
+/* ---------- The final board fits the window too ---------- */
+
+.screen.host.final-board {
+  height: 100dvh;
+  min-height: 0;
+  padding-bottom: calc(clamp(16px, 4vh, 48px) + env(safe-area-inset-bottom));
+}
+
+.final-board .host-brand {
+  flex: none;
+  font-size: min(clamp(40px, 4.4vw, 88px), 7.5vh);
+  margin-top: min(12px, 1.2vh);
+  margin-bottom: min(clamp(16px, 2vw, 36px), 2.5vh);
+}
+
+.final-board .card.winner {
+  flex: none;
+  padding: min(clamp(28px, 3vw, 56px), 3.4vh) clamp(28px, 3vw, 56px);
+}
+
+.final-board .winner .duck {
+  width: min(clamp(132px, 12vw, 220px), 17vh);
+}
+
+.final-board .winner-label {
+  font-size: min(clamp(16px, 1.4vw, 26px), 2.6vh);
+}
+
+.final-board .winner-name {
+  font-size: min(clamp(48px, 6vw, 120px), 10vh);
+}
+
+.final-board .winner-score {
+  font-size: min(clamp(20px, 1.8vw, 34px), 3.4vh);
+}
+
+.final-board .board {
+  flex: 0 1 auto;
+  min-height: 0;
+  align-content: start;
+  margin-top: min(clamp(20px, 2.4vw, 40px), 2.5vh);
+  overflow: clip;
+  overflow-clip-margin: 8px;
+}
+
+.final-board .board-note,
+.final-board .host-actions {
+  flex: none;
+}
+
+.final-board .host-actions {
+  margin-top: min(clamp(16px, 2vw, 32px), 2vh);
+}
+
+.final-board .button.host-secondary {
+  min-height: min(clamp(56px, 4.4vw, 80px), 7.5vh);
+}
+
+/* A big room: a smaller winner card, four narrower columns and tighter rows, so every place fits. */
+.final-board:has(.board li:nth-child(10)) .winner .duck {
+  width: min(clamp(110px, 8vw, 160px), 11vh);
+}
+
+.final-board:has(.board li:nth-child(10)) .winner-name {
+  font-size: min(clamp(40px, 4.6vw, 96px), 8vh);
+}
+
+.final-board .board:has(li:nth-child(10)) {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+}
+
+/* A full room: five columns of six, so all 29 places fit even at 1280x720. The time column goes,
+   so names have room: times only settle ties, which the note under the board explains. */
+.final-board .board:has(li:nth-child(21)) {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+}
+
+.final-board .board:has(li:nth-child(21)) li {
+  grid-template-columns: 2.8em minmax(0, 1fr) 2em;
+  gap: 10px;
+}
+
+.final-board .board:has(li:nth-child(21)) .board-time {
+  display: none;
+}
+
+.final-board .board:has(li:nth-child(10)) {
+  gap: min(6px, 0.6vh) clamp(8px, 1vw, 16px);
+}
+
+.final-board .board:has(li:nth-child(10)) li {
+  font-size: min(clamp(14px, 1.1vw, 22px), 2.1vh);
+  padding: 0.3em 14px;
+}

@@ -84,6 +84,8 @@ input {
   padding: max(var(--gutter), env(safe-area-inset-top)) var(--gutter)
     calc(140px + env(safe-area-inset-bottom));
   overflow: hidden;
+  /* `clip` cannot be scrolled by focus or scrollIntoView, so the screen never slides out of place. */
+  overflow: clip;
   isolation: isolate;
 }
 
