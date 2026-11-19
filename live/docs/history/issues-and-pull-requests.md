@@ -1,6 +1,7 @@
 # Issues and pull requests from the day
 Exported on 2026-11-19 from the throwaway organisation, before it was deleted. Pull requests and issues share one numbering. The Volunteer is not named.
 
+> Links to the stage repository, its Pages site and its Worker in this export no longer work: they were taken down after the workshop.
 ---
 
 ## Pull request #1: Publish the frontend to GitHub Pages

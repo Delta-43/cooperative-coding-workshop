@@ -1,6 +1,6 @@
 # Guess Closer!: questions
 
-Draft 2, 2026-11-12. 18 questions. Every answer was read on the source page listed, on 2026-11-12. Each answer is one number, so the closest guess wins.
+The researched set: 18 questions, published after the workshop. Every answer was read on the source page listed, on 2026-11-12, so check it again before reusing a number that can change. Each answer is one number, so the closest guess wins.
 
 ## Questions
 

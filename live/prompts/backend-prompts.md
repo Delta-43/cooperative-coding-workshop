@@ -1,6 +1,8 @@
 # Backend prompts for the live build
 
-For Delta, who owns `backend/`. The frontend starts from [`frontend-start.md`](frontend-start.md). These prompts rebuild the demo backend in `delta-workshops/guess-closer`, one issue at a time. Each one pins the behaviour of the finished backend, so the result passes the same acceptance test (`backend/test/e2e.mjs`) and works with any frontend built to the contract.
+> **As used on the day (18 November 2026).** The stage Worker and the GitHub organisation named below have since been taken down. To run the finished game, use the `Dockerfile` in this folder (see the [README](../README.md)).
+
+For Delta, who owns `backend/`. The frontend starts from [`frontend-start.md`](frontend-start.md). These prompts rebuild the demo backend in the stage repository, one issue at a time. Each one pins the behaviour of the finished backend, so the result passes the same acceptance test (`backend/test/e2e.mjs`) and works with any frontend built to the contract.
 
 The order is B1, B4, B2, B3, B5, B6, B7: B2 calls the timer module from B4. B1 to B3 and the contract were tested on 2026-11-17 by a fresh agent in a scratch branch. **B4 to B7 and the timer, number and fact changes to B1 to B3 (2026-11-18) have not been re-run by a fresh agent yet.** They were written from the finished code, which passes `npm test` (48 tests) and `e2e.mjs all`. Run the whole sequence once in a scratch branch before you rely on it on stage.
 
@@ -332,11 +334,11 @@ Do not touch: frontend/, contract/, backend/test/e2e.mjs, backend/test/contract.
 ## After B7
 
 ```sh
-cd backend && npx wrangler deploy          # replaces the test Worker guess-closer-live
-node test/e2e.mjs all https://guess-closer-live.delta-43.workers.dev
+cd backend && npx wrangler deploy          # the stage deploy, by hand
+node test/e2e.mjs all <address of the deployed Worker>
 ```
 
-The `QUESTIONS` secret is already set on `guess-closer-live`, so the deployed game uses the real ten questions. Their cards come from `src/trivia.json` by question number: read each card against the real answer before you deploy, because the tests cannot see the answers.
+On the day the `QUESTIONS` secret was already set on the stage Worker, so the deployed game used the real ten questions. Their cards come from `src/trivia.json` by question number: read each card against the real answer before you deploy, because the tests cannot see the answers.
 
 ## If it goes wrong
 
