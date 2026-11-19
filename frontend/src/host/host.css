@@ -151,26 +151,29 @@
   gap: clamp(6px, 0.6vw, 12px);
 }
 
+/* The ring is a shadow, not a border: it adapts to the paper and the answered tint alike. */
 .chip {
+  --ring: oklch(0 0 0 / 0.08);
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 8px 6px 16px;
+  padding: 7px 9px 7px 17px;
   border-radius: 9999px;
   background: var(--white);
-  border: 1px solid var(--ash);
   font-size: clamp(15px, 1.25vw, 24px);
   font-weight: 500;
-  box-shadow: var(--shadow-subtle);
+  box-shadow:
+    0 0 0 1px var(--ring),
+    var(--shadow-subtle);
   animation: chip-in 600ms var(--ease-push) both;
   transition:
-    background 400ms,
-    border-color 400ms,
+    background-color 400ms,
+    box-shadow 400ms,
     opacity 400ms;
 }
 
 .chip:not(:has(.chip-kick)) {
-  padding-right: 16px;
+  padding-right: 17px;
 }
 
 @keyframes chip-in {
@@ -181,14 +184,13 @@
 }
 
 .chip.is-answered {
+  --ring: var(--mint);
   background: #e4f4e8;
-  border-color: var(--mint);
 }
 
 .chip.is-answered .tick {
   width: 1.1em;
   height: 1.1em;
-  animation: pop-in 500ms var(--ease-push) both;
 }
 
 .chip.is-away {
@@ -196,15 +198,33 @@
 }
 
 .chip-kick {
+  display: grid;
+  place-items: center;
   width: 30px;
   height: 30px;
+  padding: 0;
   border: 0;
   border-radius: 50%;
   background: transparent;
   color: var(--stone);
-  font-size: 20px;
-  line-height: 1;
   cursor: pointer;
+  transition:
+    background-color 150ms,
+    color 150ms,
+    transform 160ms var(--ease-out);
+}
+
+.chip-kick svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+}
+
+.chip-kick:active {
+  transform: scale(0.96);
 }
 
 .chip-kick:hover,
@@ -292,11 +312,8 @@
   padding: min(clamp(32px, 3.4vw, 64px), 5vh) clamp(32px, 3.4vw, 64px);
 }
 
-/* Once the answer is on screen the question has been read: it steps back to make room. */
-.host-game .card-question {
-  transition: font-size 700ms var(--ease-out);
-}
-
+/* Once the answer is on screen the question has been read: it steps back to make room.
+   It snaps rather than animating font-size, which would re-lay the card every frame. */
 .host-game .stack-card:has(.reveal, .standings) .card-question {
   font-size: min(clamp(24px, 2.4vw, 48px), 4.4vh);
 }

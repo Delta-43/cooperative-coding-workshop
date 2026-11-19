@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { GameState } from '../contract'
-import { formatNumber, howFar, ordinal } from '../format'
+import { Digits } from '../Digits'
+import { howFar, ordinal } from '../format'
 import { ClosenessGlass } from './ClosenessGlass'
 import { useCountUp } from './useCountUp'
 
@@ -53,7 +54,7 @@ export function RevealPanel({ reveal, unit }: { reveal: NonNullable<GameState['r
       <div className="reveal-main">
         <p className="reveal-label">The answer is</p>
         <p className="reveal-number">
-          {formatNumber(whole ? Math.round(counted) : Math.round(counted * 100) / 100)} <span>{unit}</span>
+          <Digits value={whole ? Math.round(counted) : Math.round(counted * 100) / 100} /> <span>{unit}</span>
         </p>
 
         {ranked.length === 0 ? (
@@ -68,7 +69,9 @@ export function RevealPanel({ reveal, unit }: { reveal: NonNullable<GameState['r
               >
                 <span className="result-rank">{ordinal(r.rank!)}</span>
                 <span className="result-name">{r.name}</span>
-                <span className="result-guess">{formatNumber(r.value!)}</span>
+                <span className="result-guess">
+                  <Digits value={r.value!} />
+                </span>
                 <span className="result-off">{howFar(r.error!, r.value!, reveal.correct)}</span>
                 <span className="result-pts">{r.points > 0 ? `+${r.points}` : ''}</span>
               </li>

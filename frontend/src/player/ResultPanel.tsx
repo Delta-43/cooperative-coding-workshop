@@ -1,5 +1,6 @@
 import type { GameState } from '../contract'
 import { Beaker } from '../game/Beaker'
+import { Digits } from '../Digits'
 import { formatNumber, howFar, ordinal } from '../format'
 
 /** After the host sends `show`: the right answer, how close this player was, and their points. */
@@ -19,7 +20,7 @@ export function ResultPanel({ state }: { state: GameState }) {
       <div className="result-text">
         <p className="result-label">The answer</p>
         <p className="result-correct">
-          {formatNumber(reveal.correct)} <span>{unit}</span>
+          <Digits value={reveal.correct} /> <span>{unit}</span>
         </p>
         {answered ? (
           <>

@@ -194,9 +194,9 @@ input {
   font-size: 20px;
   outline: none;
   transition:
-    border-color 200ms,
-    background 200ms,
-    box-shadow 200ms;
+    border-color 150ms,
+    background-color 150ms,
+    box-shadow 150ms;
 }
 
 .input::placeholder {
@@ -257,7 +257,7 @@ input {
 }
 
 .button:active {
-  transform: scale(0.98);
+  transform: scale(0.96);
   box-shadow: var(--shadow-subtle);
 }
 
@@ -381,14 +381,23 @@ input {
   height: 100%;
 }
 
+/* Reduced motion: everything lands at once. Delays go too, or content would wait, unmoving,
+   for a stagger nobody sees. JS-driven motion checks the same query. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 1ms !important;
+    transition-delay: 0ms !important;
   }
+}
+
+/* JetBrains Mono gives a comma a whole digit's width; pull the digits back together. */
+.digits-sep {
+  margin-inline: -0.1em;
 }
 
 .visually-hidden {

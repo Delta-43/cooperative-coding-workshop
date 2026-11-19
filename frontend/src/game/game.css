@@ -10,8 +10,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  /* Room for the bird perched on the card. */
-  margin-bottom: calc(var(--bird-h) * 0.95);
+  /* Room for the bird perched on the card: its frames are 1.25 times its height, so its head
+     clears the timer whichever spot it lands on. */
+  margin-bottom: calc(var(--bird-h) * 1.2);
   min-height: 52px;
 }
 
@@ -359,6 +360,17 @@
   border-radius: 50%;
   background: var(--mint);
   position: relative;
+  flex: none;
+  animation: tick-in 300ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+/* An icon arriving with a state change: scale, fade and unblur together. */
+@keyframes tick-in {
+  from {
+    opacity: 0;
+    transform: scale(0.25);
+    filter: blur(4px);
+  }
 }
 
 .tick::after {
@@ -398,6 +410,11 @@
   text-decoration: underline;
   text-underline-offset: 4px;
   cursor: pointer;
+  transition: transform 160ms var(--ease-out);
+}
+
+.button-quiet:active {
+  transform: scale(0.96);
 }
 
 /* ---------- Facts ---------- */
