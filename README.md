@@ -67,6 +67,6 @@ See `demo/README.md` for details. The host keys are Space (main action), Backspa
 
 - **Workshop materials** (everything except `live/` and `demo/`): [CC BY-NC 4.0](LICENSE). You're welcome to reuse and adapt them for non-commercial workshops, with credit.
 - **Code in `demo/`**: [MIT](demo/LICENSE).
-- **Code in `live/`**: MIT, see [the license in that repository](https://github.com/delta-workshops/guess-closer/blob/main/LICENSE).
+- **Code in `live/`**: MIT, see [`live/LICENSE`](live/LICENSE).
 
 Part of [Delta-43/workshops](https://github.com/Delta-43/workshops).
