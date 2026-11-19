@@ -1,5 +1,13 @@
 # Co-operative Coding Workshop
 
+[![Live demo](https://img.shields.io/badge/demo-play%20Guess%20Closer!-1f6feb?style=flat)](https://delta-43.github.io/cooperative-coding-workshop/)
+[![CI](https://img.shields.io/github/actions/workflow/status/Delta-43/cooperative-coding-workshop/ci.yml?branch=main&label=CI)](https://github.com/Delta-43/cooperative-coding-workshop/actions/workflows/ci.yml)
+[![Materials: CC BY-NC 4.0](https://img.shields.io/badge/materials-CC%20BY--NC%204.0-lightgrey)](LICENSE)
+[![Code: MIT](https://img.shields.io/badge/code-MIT-green)](demo/LICENSE)
+![Claude Code](https://img.shields.io/badge/built%20with-Claude%20Code-d97757)
+![Cloudflare Workers](https://img.shields.io/badge/backend-Cloudflare%20Workers-f38020)
+![React](https://img.shields.io/badge/frontend-React%20%2B%20TypeScript-087ea4)
+
 **Two people. Two AI agents. One repo.** A follow-up to the [Guided Coding Workshop](https://github.com/Delta-43/guided-coding-workshop). This time I show how a small team works together with AI agents: roles, a plan, a shared contract, issues, branches, pull requests, CI and sign-off.
 
 It was a showcase, not a hands-on session. The Volunteer and I built on stage, each driving our own Claude Code, and the room watched, predicted, voted and played the result on their phones.
