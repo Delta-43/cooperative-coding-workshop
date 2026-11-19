@@ -9,9 +9,13 @@ import { Lobby } from './Lobby'
 export function HostSession({ room, onClosed }: { room: HostRoom; onClosed: (reason: string) => void }) {
   const { state, receivedAt, status, send } = useRoom({ code: room.code, hostToken: room.hostToken })
 
+  // After the game the final board stays up when the room clears; "Open a new room" still works.
+  const finished = state?.phase === 'over'
   useEffect(() => {
-    if (status === 'unreachable') onClosed(`Room ${room.code} has closed. Open a new one to play again.`)
-  }, [status, room.code, onClosed])
+    if (status === 'unreachable' || (status === 'closed' && !finished)) {
+      onClosed(`Room ${room.code} has closed. Open a new one to play again.`)
+    }
+  }, [status, finished, room.code, onClosed])
 
   const reconnecting = status === 'reconnecting' && <div className="status-bar">Reconnecting…</div>
 

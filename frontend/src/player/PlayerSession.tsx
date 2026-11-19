@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import type { ErrorCode } from '../contract'
 import { Duck } from '../ducks'
 import { Pond } from '../Pond'
-import { useRoom } from '../useRoom'
+import { savedPlayerId, useRoom } from '../useRoom'
 import { FinalCard } from './FinalCard'
 import { PlayerGame } from './PlayerGame'
 
@@ -26,11 +26,19 @@ export function PlayerSession({
 
   const joinProblem = !state?.you.playerId && error ? JOIN_PROBLEMS[error.code] : undefined
 
+  // A finished game keeps its final card after the room clears; anything else goes back to the form.
+  const finished = state?.phase === 'over'
   useEffect(() => {
-    if (status === 'unreachable') onLeave(`We couldn't find room ${code}. Check the code on the big screen.`)
-    else if (status === 'removed') onLeave('The host removed you from the game.')
+    if (status === 'unreachable') {
+      onLeave(
+        savedPlayerId(code)
+          ? `The game in room ${code} has finished. Ask the host for the new room code.`
+          : `We couldn't find room ${code}. Check the code on the big screen.`,
+      )
+    } else if (status === 'removed') onLeave('The host removed you from the game.')
+    else if (status === 'closed' && !finished) onLeave(`Room ${code} has closed. Ask the host for the new room code.`)
     else if (joinProblem) onLeave(joinProblem)
-  }, [status, joinProblem, code, onLeave])
+  }, [status, finished, joinProblem, code, onLeave])
 
   const me = state?.players.find((p) => p.id === state.you.playerId)
   const reconnecting = status === 'reconnecting' && <div className="status-bar">Reconnecting…</div>

@@ -2,7 +2,11 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ClientMessage, GameState, ServerError } from './contract'
 import { socketUrl } from './config'
 
-export type Status = 'connecting' | 'open' | 'reconnecting' | 'removed' | 'unreachable'
+/**
+ * `closed`: the room has cleared (close code 1000), or the socket dropped after the game ended.
+ * Either way there is nothing more to receive, so it never reconnects.
+ */
+export type Status = 'connecting' | 'open' | 'reconnecting' | 'removed' | 'closed' | 'unreachable'
 
 export interface RoomOptions {
   code: string
@@ -13,7 +17,7 @@ export interface RoomOptions {
 
 const playerKey = (code: string) => `gc:player:${code}`
 
-function savedPlayerId(code: string): string | undefined {
+export function savedPlayerId(code: string): string | undefined {
   try {
     return localStorage.getItem(playerKey(code)) ?? undefined
   } catch {
@@ -33,6 +37,8 @@ function savePlayerId(code: string, id: string) {
  * One WebSocket to a room. Draws nothing: it hands back the latest `state`,
  * the last `error`, and a way to send. Reconnects after a drop and, for a
  * player, joins again with the saved playerId so the score is kept.
+ * Never reconnects after close code 1000 (room cleared) or 4000 (removed), as the
+ * contract requires, nor once the game is over.
  */
 export function useRoom({ code, hostToken, name }: RoomOptions) {
   const [state, setState] = useState<GameState | null>(null)
@@ -47,6 +53,7 @@ export function useRoom({ code, hostToken, name }: RoomOptions) {
     let everOpened = false
     let attempt = 0
     let retry: ReturnType<typeof setTimeout> | undefined
+    let over = false
 
     const connect = () => {
       const ws = new WebSocket(socketUrl(code, hostToken))
@@ -70,6 +77,7 @@ export function useRoom({ code, hostToken, name }: RoomOptions) {
           return
         }
         if (msg.type === 'state') {
+          over = msg.phase === 'over'
           setState(msg)
           setReceivedAt(performance.now())
           if (msg.you.playerId) savePlayerId(code, msg.you.playerId)
@@ -82,6 +90,10 @@ export function useRoom({ code, hostToken, name }: RoomOptions) {
         if (stopped) return
         if (event.code === 4000) {
           setStatus('removed')
+          return
+        }
+        if (event.code === 1000 || over) {
+          setStatus('closed')
           return
         }
         // A room that does not exist refuses the upgrade, so the socket never opens.
